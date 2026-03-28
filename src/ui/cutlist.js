@@ -25,7 +25,7 @@ export function renderCutList(container, planks) {
         <span class="icon">📋</span>
         <h3>${t('cutlist.title', { count: planks.length, unique: grouped.length })}</h3>
       </div>
-      <button class="btn collapse" id="btn-toggle-cutlist">${t('cutlist.collapse')}</button>
+      <button class="btn btn-ghost collapse" id="btn-toggle-cutlist">${t('cutlist.collapse')}</button>
     </div>
     
     <div class="cut-list-table-container">

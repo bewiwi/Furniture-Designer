@@ -115,17 +115,20 @@ export function renderForm(container, furniture, selectedId, callbacks) {
       <section class="form-section">
         <legend>${dirLabel}</legend>
         <div class="children-list">
-          ${node.sizes.map((size, idx) => `
+          ${node.sizes.map((size, idx) => {
+            const childName = node.children[idx]?.name || `${childPrefix} ${idx + 1}`;
+            return `
             <div class="form-group row">
-              <label>${childPrefix} ${idx + 1}</label>
+              <label title="${childName}">${childName}</label>
               <div class="input-unit">
                 <input type="number" class="prop-child-size" data-index="${idx}" value="${size}" min="10">
                 <span>mm</span>
               </div>
             </div>
-          `).join('')}
+            `;
+          }).join('')}
         </div>
-        <button class="btn danger full" id="btn-remove-sub">${t('form.sub.remove')}</button>
+        <button class="btn btn-danger full" id="btn-remove-sub">${t('form.sub.remove')}</button>
       </section>
     `;
   }
