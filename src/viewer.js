@@ -190,8 +190,8 @@ function onMouseMove(e) {
 
   if (state.dragButton === 0) {
     // Left click -> Rotate
-    state.rotateDelta[0] -= dx * 0.01;
-    state.rotateDelta[1] -= dy * 0.01;
+    state.rotateDelta[0] -= dx * 0.15;
+    state.rotateDelta[1] -= dy * 0.15;
   } else if (state.dragButton === 1 || state.dragButton === 2) {
     // Middle or right click -> Pan
     state.panDelta[0] += dx * 2;
@@ -206,7 +206,7 @@ function onMouseUp() {
 
 function onWheel(e) {
   e.preventDefault();
-  state.zoomDelta -= e.deltaY * 0.5;
+  state.zoomDelta -= e.deltaY * 0.1;
 }
 
 function onContextMenu(e) {
@@ -253,7 +253,7 @@ function updateControls() {
   // Rotation
   if (state.rotateDelta[0] !== 0 || state.rotateDelta[1] !== 0) {
     const result = orbitControls.rotate(
-      { controls: state.controls, camera: state.camera, speed: 0.002 },
+      { controls: state.controls, camera: state.camera, speed: 0.006 },
       state.rotateDelta
     );
     state.controls = { ...state.controls, ...result.controls };
@@ -282,7 +282,12 @@ function updateControls() {
     state.zoomDelta = 0;
   }
 
-  // Update Camera
+  // Update orbit physics (applies thetaDelta/phiDelta/scale and deceleration)
+  const updated = orbitControls.update({ controls: state.controls, camera: state.camera });
+  state.controls = { ...state.controls, ...updated.controls };
+  state.camera.position = updated.camera.position;
+
+  // Update Camera projection / view matrices
   perspectiveCamera.update(state.camera);
 }
 
