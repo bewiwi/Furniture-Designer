@@ -6,6 +6,7 @@
 
 import jscadStlSerializer from '@jscad/stl-serializer';
 import jscadDxfSerializer from '@jscad/dxf-serializer';
+import { downloadBlob, sanitizeFileName } from './utils.js';
 
 /**
  * Exports geometries to an STL file.
@@ -18,14 +19,7 @@ export function exportSTL(geometries, fileName = 'furniture') {
 
   const rawData = jscadStlSerializer.serialize({ binary: true }, ...geometries);
   const blob = new Blob(rawData, { type: 'application/sla' });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${fileName.replace(/\s+/g, '_').toLowerCase()}.stl`;
-  a.click();
-
-  setTimeout(() => URL.revokeObjectURL(url), 100);
+  downloadBlob(blob, `${sanitizeFileName(fileName)}.stl`);
 }
 
 /**
@@ -40,12 +34,5 @@ export function exportDXF(geometries, fileName = 'furniture') {
 
   const rawData = jscadDxfSerializer.serialize({}, ...geometries);
   const blob = new Blob(rawData, { type: 'application/dxf' });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${fileName.replace(/\s+/g, '_').toLowerCase()}.dxf`;
-  a.click();
-
-  setTimeout(() => URL.revokeObjectURL(url), 100);
+  downloadBlob(blob, `${sanitizeFileName(fileName)}.dxf`);
 }

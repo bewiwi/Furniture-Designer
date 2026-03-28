@@ -30,6 +30,8 @@ const dictionaries = {
     'form.sub.add_single_row': '+ Add Row',
     'form.sub.add_single_col': '+ Add Column',
     'form.sub.lock_toggle': 'Toggle size lock',
+    'form.sub.move_up': 'Move up',
+    'form.sub.move_down': 'Move down',
     'form.sub.row_prefix': 'Row',
     'form.sub.col_prefix': 'Column',
 
@@ -64,7 +66,7 @@ const dictionaries = {
     'cutlist.width': 'WIDTH',
     'cutlist.thickness': 'THICKNESS',
     'cutlist.type': 'TYPE',
-    'cutlist.total_area': 'Total surface area: <strong>{area} m²</strong>',
+    'cutlist.total_area': 'Total surface area: {area} m²',
 
     // Planks & Errors
     'type.frameV': 'V Frame',
@@ -116,6 +118,8 @@ const dictionaries = {
     'form.sub.add_single_row': '+ Ajouter une Rangée',
     'form.sub.add_single_col': '+ Ajouter une Colonne',
     'form.sub.lock_toggle': 'Verrouiller/Déverrouiller la taille',
+    'form.sub.move_up': 'Déplacer vers le haut',
+    'form.sub.move_down': 'Déplacer vers le bas',
     'form.sub.row_prefix': 'Rangée',
     'form.sub.col_prefix': 'Colonne',
 
@@ -150,7 +154,7 @@ const dictionaries = {
     'cutlist.width': 'LARGEUR',
     'cutlist.thickness': 'ÉPAISSEUR',
     'cutlist.type': 'TYPE',
-    'cutlist.total_area': 'Surface totale : <strong>{area} m²</strong>',
+    'cutlist.total_area': 'Surface totale : {area} m²',
 
     // Planks & Errors
     'type.frameV': 'Cadre V',

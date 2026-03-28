@@ -678,14 +678,14 @@ html, body {
   letter-spacing: 0.3px;
 }
 
-.badge-frame-vertical,
-.badge-frame-horizontal {
+.badge.frameV,
+.badge.frameH {
   background: rgba(201, 166, 107, 0.15);
   color: var(--accent-secondary);
 }
 
-.badge-separator-h,
-.badge-separator-v {
+.badge.shelf,
+.badge.separator {
   background: rgba(224, 122, 47, 0.15);
   color: var(--accent-primary);
 }

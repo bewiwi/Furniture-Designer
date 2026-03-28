@@ -6,6 +6,7 @@
  */
 
 import { cloneFurniture } from './model.js';
+import { validateFurniture, downloadBlob, sanitizeFileName } from './utils.js';
 
 const STORAGE_KEY = 'furniture-designer-app-v1';
 const LANG_KEY = 'furniture-designer-lang';
@@ -146,15 +147,7 @@ export function redo() {
 export function exportJSON(furniture) {
   const data = JSON.stringify(furniture, null, 2);
   const blob = new Blob([data], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement('a');
-  a.href = url;
-  const fileName = (furniture.name || 'furniture').replace(/\s+/g, '_').toLowerCase();
-  a.download = `${fileName}.json`;
-  a.click();
-
-  setTimeout(() => URL.revokeObjectURL(url), 100);
+  downloadBlob(blob, `${sanitizeFileName(furniture.name)}.json`);
 }
 
 /**
@@ -168,10 +161,11 @@ export function importJSON(file) {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const furniture = JSON.parse(e.target.result);
+        const parsed = JSON.parse(e.target.result);
+        const furniture = validateFurniture(parsed);
         resolve(furniture);
       } catch (err) {
-        reject(new Error('Invalid JSON file format'));
+        reject(new Error(err.message || 'Invalid JSON file format'));
       }
     };
     reader.onerror = () => reject(new Error('Failed to read file'));

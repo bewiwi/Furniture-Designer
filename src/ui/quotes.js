@@ -95,4 +95,12 @@ export function renderQuotes(furniture, selectedId, project3DTo2D) {
     pooledNodes[i].line.style.display = 'none';
     pooledNodes[i].text.style.display = 'none';
   }
+
+  // Trim excess pool entries beyond a reasonable cap to prevent memory leaks
+  const MAX_POOL = 20;
+  while (pooledNodes.length > MAX_POOL && pooledNodes.length > usedNodes) {
+    const excess = pooledNodes.pop();
+    excess.line.remove();
+    excess.text.remove();
+  }
 }

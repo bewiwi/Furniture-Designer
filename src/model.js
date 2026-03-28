@@ -8,13 +8,12 @@
 
 import { t } from './i18n.js';
 
-let idCounter = 0;
-
 /**
- * Generates a unique ID for nodes
+ * Generates a unique ID for nodes using crypto.randomUUID().
+ * Globally unique across imports and sessions — no mutable counter needed.
  */
 export function generateId() {
-  return `node-${Date.now()}-${idCounter++}`;
+  return crypto.randomUUID();
 }
 
 /**

@@ -6,6 +6,7 @@
 
 import { groupPlanks } from '../planks.js';
 import { t } from '../i18n.js';
+import { escapeHtml } from '../utils.js';
 
 /**
  * Renders the cut list.
@@ -57,7 +58,7 @@ export function renderCutList(container, planks) {
 
     <div class="cut-list-footer">
       <div class="stats">
-        ${t('cutlist.total_area', { area: totalArea.toFixed(2) })}
+        <strong>${t('cutlist.total_area', { area: totalArea.toFixed(2) })}</strong>
       </div>
     </div>
   `;

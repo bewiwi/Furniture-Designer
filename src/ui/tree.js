@@ -5,6 +5,8 @@
  */
 
 import { t } from '../i18n.js';
+import { getNodeDimensions } from '../model.js';
+import { escapeHtml } from '../utils.js';
 
 /**
  * Renders the tree of nodes in the container.
@@ -108,21 +110,21 @@ function renderNode(node, level, selectedId, furniture, parentId = null, index =
     label = node.name || t('tree.columns');
   }
 
-  // Dimension summary
+  // Dimension summary from model
   const dimStr = getDimString(node, furniture);
 
   let html = `
     <div class="tree-node ${isSelected ? 'selected' : ''}" 
-         data-id="${node.id}" 
-         data-parent-id="${parentId || ''}"
+         data-id="${escapeHtml(node.id)}" 
+         data-parent-id="${escapeHtml(parentId || '')}"
          data-index="${index}"
          draggable="${parentId ? 'true' : 'false'}"
          style="padding-left: ${level * 16 + 12}px">
       <div style="display: flex; align-items: center; gap: 6px; overflow: hidden;">
         <span class="icon">${icon}</span>
-        <span class="tree-label">${label}</span>
+        <span class="tree-label">${escapeHtml(label)}</span>
       </div>
-      <span class="tree-size">${dimStr}</span>
+      <span class="tree-size">${escapeHtml(dimStr)}</span>
     </div>
   `;
 
@@ -137,7 +139,7 @@ function renderNode(node, level, selectedId, furniture, parentId = null, index =
 }
 
 /**
- * Helper to generate dimension strings (e.g., 100x200)
+ * Helper to generate dimension strings using getNodeDimensions from model.js.
  */
 function getDimString(node, furniture) {
   const isRoot = node.id === furniture.root.id;
@@ -145,25 +147,8 @@ function getDimString(node, furniture) {
     return `${furniture.width}×${furniture.height}mm`;
   }
 
-  // For children, find dimensions
-  // This is a bit expensive but okay for small trees
-  const path = getNodePath(furniture.root, node.id);
-  if (!path) return '';
+  const dims = getNodeDimensions(furniture, node.id);
+  if (!dims) return '';
 
-  const parent = path[path.length - 2]; // Not available in this format
-  // Simplified for now: we look at sizes from model.js if available
-  // Real implementation uses getNodeDimensions
-  return '';
-}
-
-/**
- * Copy of getNodePath from model.js (for layout use)
- */
-function getNodePath(node, targetId) {
-  if (node.id === targetId) return [node];
-  for (let i = 0; i < node.children.length; i++) {
-    const path = getNodePath(node.children[i], targetId);
-    if (path) return [node, ...path];
-  }
-  return null;
+  return `${Math.round(dims.w)}×${Math.round(dims.h)}mm`;
 }

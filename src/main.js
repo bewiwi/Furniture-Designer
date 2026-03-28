@@ -54,6 +54,27 @@ const appState = {
 };
 
 // =============================================================================
+// Helpers
+// =============================================================================
+
+/** Whitelist of allowed furniture-level fields for direct mutation */
+const ALLOWED_FURNITURE_FIELDS = new Set(['name', 'width', 'height', 'depth', 'thickness']);
+
+/**
+ * Resolves a node by ID from the furniture tree.
+ * Handles the root-vs-child lookup pattern in one place.
+ *
+ * @param {string} nodeId
+ * @returns {Object|null}
+ */
+function resolveNode(nodeId) {
+  if (!appState.furniture) return null;
+  return nodeId === appState.furniture.root.id
+    ? appState.furniture.root
+    : findNodeById(appState.furniture.root, nodeId);
+}
+
+// =============================================================================
 // Initialization
 // =============================================================================
 
@@ -170,14 +191,13 @@ function onSelectNode(nodeId) {
 
 const formCallbacks = {
   onChangeFurniture(field, value) {
+    if (!ALLOWED_FURNITURE_FIELDS.has(field)) return;
     appState.furniture[field] = value;
     saveAndUpdate();
   },
 
   onChangeNodeName(nodeId, newName) {
-    const node = nodeId === appState.furniture.root.id
-      ? appState.furniture.root
-      : findNodeById(appState.furniture.root, nodeId);
+    const node = resolveNode(nodeId);
     if (!node) return;
     
     node.name = newName;
@@ -185,10 +205,7 @@ const formCallbacks = {
   },
 
   onSubdivide(nodeId, direction, count) {
-    const node = nodeId === appState.furniture.root.id
-      ? appState.furniture.root
-      : findNodeById(appState.furniture.root, nodeId);
-
+    const node = resolveNode(nodeId);
     if (!node) return;
 
     // Calculate available space
@@ -206,20 +223,14 @@ const formCallbacks = {
   },
 
   onRemoveSubdivision(nodeId) {
-    const node = nodeId === appState.furniture.root.id
-      ? appState.furniture.root
-      : findNodeById(appState.furniture.root, nodeId);
-
+    const node = resolveNode(nodeId);
     if (!node) return;
     removeSubdivision(node);
     saveAndUpdate();
   },
 
   onRemoveSingleChild(parentNodeId, childIndex) {
-    const node = parentNodeId === appState.furniture.root.id
-      ? appState.furniture.root
-      : findNodeById(appState.furniture.root, parentNodeId);
-
+    const node = resolveNode(parentNodeId);
     if (!node) return;
 
     try {
@@ -231,10 +242,7 @@ const formCallbacks = {
   },
 
   onResizeChild(parentNodeId, childIndex, newSize) {
-    const node = parentNodeId === appState.furniture.root.id
-      ? appState.furniture.root
-      : findNodeById(appState.furniture.root, parentNodeId);
-
+    const node = resolveNode(parentNodeId);
     if (!node) return;
 
     try {
@@ -246,10 +254,7 @@ const formCallbacks = {
   },
 
   onToggleLock(parentNodeId, childIndex) {
-    const node = parentNodeId === appState.furniture.root.id
-      ? appState.furniture.root
-      : findNodeById(appState.furniture.root, parentNodeId);
-
+    const node = resolveNode(parentNodeId);
     if (!node) return;
 
     try {
@@ -261,10 +266,7 @@ const formCallbacks = {
   },
 
   onAddSingleChild(parentNodeId) {
-    const node = parentNodeId === appState.furniture.root.id
-      ? appState.furniture.root
-      : findNodeById(appState.furniture.root, parentNodeId);
-
+    const node = resolveNode(parentNodeId);
     if (!node) return;
 
     try {
@@ -276,10 +278,7 @@ const formCallbacks = {
   },
 
   onReorderChild(parentNodeId, oldIndex, newIndex) {
-    const node = parentNodeId === appState.furniture.root.id
-      ? appState.furniture.root
-      : findNodeById(appState.furniture.root, parentNodeId);
-
+    const node = resolveNode(parentNodeId);
     if (!node) return;
 
     try {
@@ -328,7 +327,10 @@ const toolbarCallbacks = {
     const restored = undo();
     if (restored) {
       appState.furniture = restored;
-      appState.selectedNodeId = restored.root.id;
+      // Preserve selection if the node still exists, otherwise reset to root
+      if (!findNodeById(restored.root, appState.selectedNodeId)) {
+        appState.selectedNodeId = restored.root.id;
+      }
       fullUpdate();
     }
   },
@@ -337,7 +339,10 @@ const toolbarCallbacks = {
     const restored = redo();
     if (restored) {
       appState.furniture = restored;
-      appState.selectedNodeId = restored.root.id;
+      // Preserve selection if the node still exists, otherwise reset to root
+      if (!findNodeById(restored.root, appState.selectedNodeId)) {
+        appState.selectedNodeId = restored.root.id;
+      }
       fullUpdate();
     }
   },
@@ -359,18 +364,21 @@ const toolbarCallbacks = {
 // =============================================================================
 
 function handleKeyboard(e) {
-  // Ctrl+Z -> Undo
-  if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+  // Support both Ctrl (Windows/Linux) and ⌘/Meta (macOS)
+  const mod = e.ctrlKey || e.metaKey;
+
+  // Ctrl/⌘+Z -> Undo
+  if (mod && e.key === 'z' && !e.shiftKey) {
     e.preventDefault();
     toolbarCallbacks.onUndo();
   }
-  // Ctrl+Y or Ctrl+Shift+Z -> Redo
-  if ((e.ctrlKey && e.key === 'y') || (e.ctrlKey && e.shiftKey && e.key === 'z')) {
+  // Ctrl/⌘+Y or Ctrl/⌘+Shift+Z -> Redo
+  if ((mod && e.key === 'y') || (mod && e.shiftKey && e.key === 'z')) {
     e.preventDefault();
     toolbarCallbacks.onRedo();
   }
-  // Ctrl+S -> Save
-  if (e.ctrlKey && e.key === 's') {
+  // Ctrl/⌘+S -> Save
+  if (mod && e.key === 's') {
     e.preventDefault();
     toolbarCallbacks.onSave();
   }

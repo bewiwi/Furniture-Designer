@@ -7,6 +7,7 @@
 
 import { findNodeById, getNodeDimensions, getNodePath } from '../model.js';
 import { t } from '../i18n.js';
+import { escapeHtml } from '../utils.js';
 
 /**
  * Renders the properties form for the selected node.
@@ -44,7 +45,7 @@ export function renderForm(container, furniture, selectedId, callbacks) {
         <legend>${t('form.dims.global')}</legend>
         <div class="form-group">
           <label>${t('form.dims.name')}</label>
-          <input type="text" id="prop-name" value="${furniture.name}" placeholder="${t('form.dims.name')}">
+          <input type="text" id="prop-name" value="${escapeHtml(furniture.name)}" placeholder="${t('form.dims.name')}">
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -83,7 +84,7 @@ export function renderForm(container, furniture, selectedId, callbacks) {
 
     if (parent && childIndex !== -1) {
       const lockToggleHtml = `
-        <button class="btn btn-ghost btn-lock-toggle-self" data-parent-id="${parent.id}" data-index="${childIndex}" title="${t('form.sub.lock_toggle')}" style="padding: 2px 4px; margin-left: auto; filter: grayscale(${isLocked ? 0 : 1}); opacity: ${isLocked ? 1 : 0.6};">
+        <button class="btn btn-ghost btn-lock-toggle-self" data-parent-id="${escapeHtml(parent.id)}" data-index="${childIndex}" title="${t('form.sub.lock_toggle')}" style="padding: 2px 4px; margin-left: auto; filter: grayscale(${isLocked ? 0 : 1}); opacity: ${isLocked ? 1 : 0.6};">
           ${lockIcon}
         </button>
       `;
@@ -91,7 +92,7 @@ export function renderForm(container, furniture, selectedId, callbacks) {
       if (parent.direction === 'col') {
         widthHtml = `
           <div style="display: flex; align-items: center; width: 100%;">
-            <input type="number" class="prop-self-size" data-parent-id="${parent.id}" data-index="${childIndex}" value="${Math.round(dims.w)}" min="10" ${isLocked || isOnlyFree ? 'disabled' : ''} style="width: 55px; margin-right: 4px; padding: 2px 4px;">
+            <input type="number" class="prop-self-size" data-parent-id="${escapeHtml(parent.id)}" data-index="${childIndex}" value="${Math.round(dims.w)}" min="10" ${isLocked || isOnlyFree ? 'disabled' : ''} style="width: 55px; margin-right: 4px; padding: 2px 4px;">
             <span style="font-size: 11px;">mm</span>
             ${lockToggleHtml}
           </div>
@@ -99,7 +100,7 @@ export function renderForm(container, furniture, selectedId, callbacks) {
       } else if (parent.direction === 'row') {
         heightHtml = `
           <div style="display: flex; align-items: center; width: 100%;">
-            <input type="number" class="prop-self-size" data-parent-id="${parent.id}" data-index="${childIndex}" value="${Math.round(dims.h)}" min="10" ${isLocked || isOnlyFree ? 'disabled' : ''} style="width: 55px; margin-right: 4px; padding: 2px 4px;">
+            <input type="number" class="prop-self-size" data-parent-id="${escapeHtml(parent.id)}" data-index="${childIndex}" value="${Math.round(dims.h)}" min="10" ${isLocked || isOnlyFree ? 'disabled' : ''} style="width: 55px; margin-right: 4px; padding: 2px 4px;">
             <span style="font-size: 11px;">mm</span>
             ${lockToggleHtml}
           </div>
@@ -113,7 +114,7 @@ export function renderForm(container, furniture, selectedId, callbacks) {
         <legend>${t('form.dims.actual')}</legend>
         <div class="form-group" style="margin-bottom: 12px;">
           <label>${t('form.dims.name')}</label>
-          <input type="text" id="prop-node-name" value="${node.name || ''}" placeholder="${t('form.dims.name')}">
+          <input type="text" id="prop-node-name" value="${escapeHtml(node.name || '')}" placeholder="${t('form.dims.name')}">
         </div>
         <div class="info-grid" style="align-items: center;">
           <div class="label">${t('form.dims.width')}:</div>${widthHtml}
@@ -157,13 +158,14 @@ export function renderForm(container, furniture, selectedId, callbacks) {
           ${node.sizes.map((size, idx) => {
             const childNode = node.children[idx];
             const childName = childNode?.name || `${childPrefix} ${idx + 1}`;
+            const escapedChildName = escapeHtml(childName);
             const isLocked = !!childNode.locked;
             const isOnlyFree = !isLocked && freeCount === 1;
             const lockIcon = isLocked ? '🔒' : '🔓';
 
             return `
             <div class="form-group row">
-              <label title="${childName}">${childName}</label>
+              <label title="${escapedChildName}">${escapedChildName}</label>
               <div style="display: flex; align-items: center; gap: 4px;">
                 <div style="display: flex; flex-direction: column; gap: 2px;">
                   <button class="btn btn-ghost btn-move-up" data-index="${idx}" ${idx === 0 ? 'disabled' : ''} style="padding: 2px 4px; font-size: 10px; line-height: 1;" title="${t('form.sub.move_up') || '↑'}">▲</button>
