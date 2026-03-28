@@ -20,7 +20,7 @@ import {
 } from './model.js';
 import { generatePlanks } from './planks.js';
 import { planksToGeometries, highlightCompartment } from './geometry.js';
-import { initViewer, updateEntities, fitCamera, setPresetView } from './viewer.js';
+import { initViewer, updateEntities, fitCamera, setPresetView, setRenderCallback, project3DTo2D } from './viewer.js';
 import {
   saveToLocalStorage,
   loadFromLocalStorage,
@@ -38,6 +38,7 @@ import { renderTree } from './ui/tree.js';
 import { renderForm } from './ui/form.js';
 import { renderToolbar } from './ui/toolbar.js';
 import { renderCutList } from './ui/cutlist.js';
+import { renderQuotes } from './ui/quotes.js';
 import { setLanguage, getLanguage, t } from './i18n.js';
 
 // =============================================================================
@@ -80,6 +81,11 @@ function init() {
   if (container) {
     initViewer(container);
     fitCamera(appState.furniture);
+
+    // Attach dynamically projected quotes overlay to the render loop
+    setRenderCallback(() => {
+      renderQuotes(appState.furniture, appState.selectedNodeId, project3DTo2D);
+    });
   }
 
   // First full update

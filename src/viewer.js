@@ -28,6 +28,7 @@ const state = {
   dragButton: -1,
   lastMouse: [0, 0],
   initialized: false,
+  onRender: null,
 };
 
 /**
@@ -167,6 +168,47 @@ export function destroyViewer() {
   }
   detachMouseEvents(state.container);
   state.initialized = false;
+}
+
+/**
+ * Set a callback to be called every render frame (useful for overlays).
+ * @param {Function} cb
+ */
+export function setRenderCallback(cb) {
+  state.onRender = cb;
+}
+
+/**
+ * Project a 3D point to 2D screen coordinates using the current camera matrices.
+ * @param {number} x, y, z
+ * @returns {{x, y} | null} Screen coordinates
+ */
+export function project3DTo2D(x, y, z) {
+  if (!state.camera || !state.container || !state.camera.projection || !state.camera.view) {
+    return null;
+  }
+
+  const w = state.container.clientWidth;
+  const h = state.container.clientHeight;
+
+  // Utilize the browser's DOMMatrix for easy mat4 math
+  const view = new DOMMatrix(state.camera.view);
+  const proj = new DOMMatrix(state.camera.projection);
+  
+  const p = new DOMPoint(x, y, z, 1);
+  const pv = p.matrixTransform(view);
+  const pProj = pv.matrixTransform(proj);
+  
+  // Handled behind camera
+  if (pProj.w <= 0) return null;
+  
+  const ndcX = pProj.x / pProj.w;
+  const ndcY = pProj.y / pProj.w;
+  
+  const screenX = ((ndcX + 1) / 2) * w;
+  const screenY = ((1 - ndcY) / 2) * h;
+  
+  return { x: screenX, y: screenY };
 }
 
 // =============================================================================
@@ -334,6 +376,7 @@ function doRender() {
 
   try {
     state.render(renderOptions);
+    if (state.onRender) state.onRender();
   } catch (e) {
     // Silently handle render errors (can happen during resize)
   }
