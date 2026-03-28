@@ -27,12 +27,15 @@ import {
   redo,
   canUndo,
   canRedo,
+  saveLanguage,
+  loadLanguage,
 } from './storage.js';
 import { exportSTL, exportDXF } from './exporter.js';
 import { renderTree } from './ui/tree.js';
 import { renderForm } from './ui/form.js';
 import { renderToolbar } from './ui/toolbar.js';
 import { renderCutList } from './ui/cutlist.js';
+import { setLanguage, getLanguage, t } from './i18n.js';
 
 // =============================================================================
 // Application State
@@ -50,12 +53,19 @@ const appState = {
 // =============================================================================
 
 function init() {
+  // Initialize Language
+  const savedLang = loadLanguage();
+  setLanguage(savedLang);
+
+  // Set document title
+  document.title = t('app.title');
+
   // Load from localStorage or create default furniture
   const saved = loadFromLocalStorage();
   if (saved) {
     appState.furniture = saved;
   } else {
-    appState.furniture = createFurniture('My Furniture', 1000, 2000, 300, 18);
+    appState.furniture = createFurniture(t('app.default_name'), 1000, 2000, 300, 18);
     saveToLocalStorage(appState.furniture);
   }
 
@@ -107,7 +117,7 @@ function fullUpdate() {
   renderToolbar(
     document.getElementById('toolbar'),
     toolbarCallbacks,
-    { canUndo: canUndo(), canRedo: canRedo() }
+    { canUndo: canUndo(), canRedo: canRedo(), currentLang: getLanguage() }
   );
 
   renderTree(
@@ -202,10 +212,12 @@ const formCallbacks = {
 
 const toolbarCallbacks = {
   onNew() {
-    appState.furniture = createFurniture('My Furniture', 1000, 2000, 300, 18);
-    appState.selectedNodeId = appState.furniture.root.id;
-    fitCamera(appState.furniture);
-    saveAndUpdate();
+    if (confirm(t('tool.new.confirm'))) {
+      appState.furniture = createFurniture(t('app.default_name'), 1000, 2000, 300, 18);
+      appState.selectedNodeId = appState.furniture.root.id;
+      fitCamera(appState.furniture);
+      saveAndUpdate();
+    }
   },
 
   onOpen(file) {
@@ -252,6 +264,13 @@ const toolbarCallbacks = {
   onSetView(viewName) {
     setPresetView(viewName, appState.furniture);
   },
+
+  onLanguageChange(lang) {
+    saveLanguage(lang);
+    setLanguage(lang);
+    document.title = t('app.title');
+    fullUpdate();
+  }
 };
 
 // =============================================================================

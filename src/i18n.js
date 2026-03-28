@@ -1,0 +1,186 @@
+const dictionaries = {
+  en: {
+    // General
+    'app.title': 'Furniture Designer',
+    'app.default_name': 'My Furniture',
+
+    // Tree (Hierarchy)
+    'tree.title': 'Hierarchy',
+    'tree.compartment': 'Compartment',
+    'tree.rows': 'Rows',
+    'tree.columns': 'Columns',
+
+    // Form (Properties)
+    'form.title.root': 'Furniture Properties',
+    'form.title.node': 'Compartment Properties',
+    'form.empty': 'Select a compartment',
+    'form.dims.global': 'Furniture Dimensions',
+    'form.dims.name': 'Name',
+    'form.dims.width': 'Width',
+    'form.dims.height': 'Height',
+    'form.dims.depth': 'Depth',
+    'form.dims.thickness': 'Thickness',
+    'form.dims.actual': 'Actual Dimensions',
+    'form.sub.add': 'Add Subdivisions',
+    'form.sub.help': 'Divide this compartment into multiple parts.',
+    'form.sub.btn_row': '↔ Rows',
+    'form.sub.btn_col': '↕ Columns',
+    'form.sub.remove': '🗑️ Remove Subdivisions',
+    'form.sub.row_prefix': 'Row',
+    'form.sub.col_prefix': 'Column',
+
+    // Toolbar
+    'tool.new': '📄 New',
+    'tool.new.title': 'New Furniture',
+    'tool.new.confirm': 'Create new furniture? Unsaved changes will be lost.',
+    'tool.open': '📂 Open',
+    'tool.open.title': 'Open JSON',
+    'tool.save': '💾 Save',
+    'tool.save.title': 'Save JSON (Ctrl+S)',
+    'tool.undo': '↩ Undo',
+    'tool.undo.title': 'Undo (Ctrl+Z)',
+    'tool.redo': '↪ Redo',
+    'tool.redo.title': 'Redo (Ctrl+Y)',
+    'tool.export_stl': '⬇ STL',
+    'tool.export_stl.title': 'Export STL',
+    'tool.export_dxf': '⬇ DXF',
+    'tool.export_dxf.title': 'Export DXF',
+    'tool.view.front': 'Front',
+    'tool.view.top': 'Top',
+    'tool.view.side': 'Side',
+    'tool.view.iso': '3D View',
+
+    // Cut List
+    'cutlist.title': 'Cut List — {count} pieces ({unique} unique)',
+    'cutlist.collapse': '▲ Collapse',
+    'cutlist.expand': '▼ Expand',
+    'cutlist.qty': 'QTY',
+    'cutlist.name': 'NAME',
+    'cutlist.length': 'LENGTH',
+    'cutlist.width': 'WIDTH',
+    'cutlist.thickness': 'THICKNESS',
+    'cutlist.type': 'TYPE',
+    'cutlist.total_area': 'Total surface area: <strong>{area} m²</strong>',
+
+    // Planks & Errors
+    'type.frameV': 'V Frame',
+    'type.frameH': 'H Frame',
+    'type.shelf': 'H Shelf',
+    'type.separator': 'V Sep.',
+    'plank.left_upright': 'Left upright',
+    'plank.right_upright': 'Right upright',
+    'plank.bottom_rail': 'Bottom rail',
+    'plank.top_rail': 'Top rail',
+    'plank.shelf': 'Shelf',
+    'plank.separator': 'Separator',
+    'error.subdivisions_range': 'Number of subdivisions must be between 2 and 20',
+    'error.not_enough_space': 'Not enough space for this subdivision',
+    'error.invalid_child': 'Invalid child index',
+    'error.neighbor_too_small': 'Neighboring compartment would be too small',
+    'error.size_positive': 'Size must be positive'
+  },
+  fr: {
+    // General
+    'app.title': 'Meuble Designer',
+    'app.default_name': 'Mon Meuble',
+
+    // Tree (Hierarchy)
+    'tree.title': 'Structure',
+    'tree.compartment': 'Compartiment',
+    'tree.rows': 'Rangées',
+    'tree.columns': 'Colonnes',
+
+    // Form (Properties)
+    'form.title.root': 'Propriétés du meuble',
+    'form.title.node': 'Propriétés du compartiment',
+    'form.empty': 'Sélectionnez un compartiment',
+    'form.dims.global': 'Dimensions Globales',
+    'form.dims.name': 'Nom',
+    'form.dims.width': 'Largeur',
+    'form.dims.height': 'Hauteur',
+    'form.dims.depth': 'Profondeur',
+    'form.dims.thickness': 'Épaisseur',
+    'form.dims.actual': 'Dimensions Réelles',
+    'form.sub.add': 'Ajouter des subdivisions',
+    'form.sub.help': 'Diviser ce compartiment en plusieurs parties.',
+    'form.sub.btn_row': '↔ Rangées',
+    'form.sub.btn_col': '↕ Colonnes',
+    'form.sub.remove': '🗑️ Supprimer subdivisions',
+    'form.sub.row_prefix': 'Rangée',
+    'form.sub.col_prefix': 'Colonne',
+
+    // Toolbar
+    'tool.new': '📄 Nouveau',
+    'tool.new.title': 'Nouveau Meuble',
+    'tool.new.confirm': 'Créer un nouveau meuble ? Les changements non sauvegardés seront perdus.',
+    'tool.open': '📂 Ouvrir',
+    'tool.open.title': 'Ouvrir JSON',
+    'tool.save': '💾 Sauver',
+    'tool.save.title': 'Sauvegarder JSON (Ctrl+S)',
+    'tool.undo': '↩ Undo',
+    'tool.undo.title': 'Annuler (Ctrl+Z)',
+    'tool.redo': '↪ Redo',
+    'tool.redo.title': 'Rétablir (Ctrl+Y)',
+    'tool.export_stl': '⬇ STL',
+    'tool.export_stl.title': 'Exporter STL',
+    'tool.export_dxf': '⬇ DXF',
+    'tool.export_dxf.title': 'Exporter DXF',
+    'tool.view.front': 'Face',
+    'tool.view.top': 'Dessus',
+    'tool.view.side': 'Côté',
+    'tool.view.iso': 'Vue 3D',
+
+    // Cut List
+    'cutlist.title': 'Liste de débit — {count} pièces ({unique} uniques)',
+    'cutlist.collapse': '▲ Replier',
+    'cutlist.expand': '▼ Déplier',
+    'cutlist.qty': 'QTÉ',
+    'cutlist.name': 'NOM',
+    'cutlist.length': 'LONGUEUR',
+    'cutlist.width': 'LARGEUR',
+    'cutlist.thickness': 'ÉPAISSEUR',
+    'cutlist.type': 'TYPE',
+    'cutlist.total_area': 'Surface totale : <strong>{area} m²</strong>',
+
+    // Planks & Errors
+    'type.frameV': 'Cadre V',
+    'type.frameH': 'Cadre H',
+    'type.shelf': 'Étagère',
+    'type.separator': 'Séparation',
+    'plank.left_upright': 'Montant gauche',
+    'plank.right_upright': 'Montant droit',
+    'plank.bottom_rail': 'Traverse basse',
+    'plank.top_rail': 'Traverse haute',
+    'plank.shelf': 'Étagère',
+    'plank.separator': 'Séparation',
+    'error.subdivisions_range': 'Le nombre de subdivisions doit être entre 2 et 20',
+    'error.not_enough_space': 'Pas assez d\'espace pour cette subdivision',
+    'error.invalid_child': 'Index enfant invalide',
+    'error.neighbor_too_small': 'Le compartiment voisin serait trop petit',
+    'error.size_positive': 'La taille doit être positive'
+  }
+};
+
+let currentLang = 'en';
+
+export function setLanguage(lang) {
+  if (dictionaries[lang]) {
+    currentLang = lang;
+  }
+}
+
+export function getLanguage() {
+  return currentLang;
+}
+
+export function t(key, params = {}) {
+  const dict = dictionaries[currentLang] || dictionaries['en'];
+  let str = dict[key] || key;
+
+  // Simple string interpolation for params, e.g., {count}
+  for (const [k, v] of Object.entries(params)) {
+    str = str.replace(new RegExp(`{${k}}`, 'g'), v);
+  }
+
+  return str;
+}

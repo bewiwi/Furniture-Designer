@@ -8,12 +8,37 @@
 import { cloneFurniture } from './model.js';
 
 const STORAGE_KEY = 'furniture-designer-app-v1';
+const LANG_KEY = 'furniture-designer-lang';
 const HISTORY_LIMIT = 50;
 
 const state = {
   history: [],
   currentIndex: -1,
 };
+
+/**
+ * Saves the user's language preference.
+ * @param {string} lang 
+ */
+export function saveLanguage(lang) {
+  try {
+    localStorage.setItem(LANG_KEY, lang);
+  } catch (e) {
+    console.error('Failed to save language:', e);
+  }
+}
+
+/**
+ * Loads the user's language preference (defaults to 'en').
+ * @returns {string} 
+ */
+export function loadLanguage() {
+  try {
+    return localStorage.getItem(LANG_KEY) || 'en';
+  } catch (e) {
+    return 'en';
+  }
+}
 
 /**
  * Saves a snapshot of the current furniture to history and localStorage.

@@ -4,6 +4,8 @@
  * Visual representation of the nested compartments.
  */
 
+import { t } from '../i18n.js';
+
 /**
  * Renders the tree of nodes in the container.
  *
@@ -17,7 +19,7 @@ export function renderTree(container, furniture, selectedId, onSelect) {
 
   const html = `
     <div class="tree-header">
-      <h3>Hierarchy</h3>
+      <h3>${t('tree.title')}</h3>
     </div>
     <div class="tree-content">
       ${renderNode(furniture.root, 0, selectedId, furniture)}
@@ -48,14 +50,14 @@ function renderNode(node, level, selectedId, furniture) {
 
   // Determine icon and label
   let icon = '📦';
-  let label = isRoot ? furniture.name : 'Compartment';
+  let label = isRoot ? furniture.name : t('tree.compartment');
 
   if (node.direction === 'row') {
     icon = '↔';
-    label = 'Rows';
+    label = t('tree.rows');
   } else if (node.direction === 'col') {
     icon = '↕';
-    label = 'Columns';
+    label = t('tree.columns');
   }
 
   // Dimension summary

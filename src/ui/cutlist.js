@@ -5,6 +5,7 @@
  */
 
 import { groupPlanks } from '../planks.js';
+import { t } from '../i18n.js';
 
 /**
  * Renders the cut list.
@@ -22,32 +23,32 @@ export function renderCutList(container, planks) {
     <div class="cut-list-header">
       <div class="title">
         <span class="icon">📋</span>
-        <h3>Cut List — ${planks.length} pieces (${grouped.length} unique)</h3>
+        <h3>${t('cutlist.title', { count: planks.length, unique: grouped.length })}</h3>
       </div>
-      <button class="btn collapse" id="btn-toggle-cutlist">▲ Collapse</button>
+      <button class="btn collapse" id="btn-toggle-cutlist">${t('cutlist.collapse')}</button>
     </div>
     
     <div class="cut-list-table-container">
       <table class="cut-list-table">
         <thead>
           <tr>
-            <th class="qty">QTY</th>
-            <th class="name">NAME</th>
-            <th class="dim">LENGTH</th>
-            <th class="dim">WIDTH</th>
-            <th class="thick">THICKNESS</th>
-            <th class="type">TYPE</th>
+            <th class="qty">${t('cutlist.qty')}</th>
+            <th class="name">${t('cutlist.name')}</th>
+            <th class="dim">${t('cutlist.length')}</th>
+            <th class="dim">${t('cutlist.width')}</th>
+            <th class="thick">${t('cutlist.thickness')}</th>
+            <th class="type">${t('cutlist.type')}</th>
           </tr>
         </thead>
         <tbody>
           ${grouped.map((g) => `
             <tr>
               <td class="qty">${g.count}</td>
-              <td class="name">${g.name} ${g.count > 1 ? '<span class="multi">(×' + g.count + ')</span>' : ''}</td>
+              <td class="name">${t(g.name, { count: g.count, suffix: g.suffix || '' })} ${g.count > 1 ? '<span class="multi">(×' + g.count + ')</span>' : ''}</td>
               <td class="dim">${Math.round(g.h)} mm</td>
               <td class="dim">${Math.round(g.w)} mm</td>
               <td class="thick">${Math.round(g.d)} mm</td>
-              <td class="type"><span class="badge ${g.type}">${getDisplayType(g.type)}</span></td>
+              <td class="type"><span class="badge ${g.type}">${t(`type.${g.type}`)}</span></td>
             </tr>
           `).join('')}
         </tbody>
@@ -56,7 +57,7 @@ export function renderCutList(container, planks) {
 
     <div class="cut-list-footer">
       <div class="stats">
-        Total surface area: <strong>${totalArea.toFixed(2)} m²</strong>
+        ${t('cutlist.total_area', { area: totalArea.toFixed(2) })}
       </div>
     </div>
   `;
@@ -72,19 +73,8 @@ function attachCutlistListeners(container) {
 
   btn.onclick = () => {
     const isCollapsed = table.classList.toggle('collapsed');
-    btn.innerText = isCollapsed ? '▼ Expand' : '▲ Collapse';
+    btn.innerText = isCollapsed ? t('cutlist.expand') : t('cutlist.collapse');
   };
 }
 
-/**
- * Helper to translate internal types to display labels
- */
-function getDisplayType(type) {
-  const map = {
-    frameV: 'V Frame',
-    frameH: 'H Frame',
-    shelf: 'H Shelf',
-    separator: 'V Sep.',
-  };
-  return map[type] || type;
-}
+

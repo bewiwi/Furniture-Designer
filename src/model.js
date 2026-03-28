@@ -6,6 +6,8 @@
  * Each node can be subdivided into rows (horizontal) or columns (vertical).
  */
 
+import { t } from './i18n.js';
+
 let idCounter = 0;
 
 /**
@@ -53,14 +55,14 @@ export function createFurniture(name = 'My Furniture', width = 1000, height = 20
  */
 export function subdivide(node, direction, count, availableSpace, thickness) {
   if (count < 2 || count > 20) {
-    throw new Error('Number of subdivisions must be between 2 and 20');
+    throw new Error(t('error.subdivisions_range'));
   }
 
   const separatorCount = count - 1;
   const usableSpace = availableSpace - (separatorCount * thickness);
 
   if (usableSpace <= 0) {
-    throw new Error("Not enough space for this subdivision");
+    throw new Error(t('error.not_enough_space'));
   }
 
   const equalSize = Math.floor(usableSpace / count);
@@ -96,7 +98,7 @@ export function removeSubdivision(node) {
  */
 export function resizeChild(node, childIndex, newSize) {
   if (!node.sizes || childIndex < 0 || childIndex >= node.sizes.length) {
-    throw new Error('Invalid child index');
+    throw new Error(t('error.invalid_child'));
   }
 
   const oldSize = node.sizes[childIndex];
@@ -109,10 +111,10 @@ export function resizeChild(node, childIndex, newSize) {
   const neighborNewSize = node.sizes[neighborIndex] - delta;
 
   if (neighborNewSize < 1) {
-    throw new Error('Neighboring compartment would be too small');
+    throw new Error(t('error.neighbor_too_small'));
   }
   if (newSize < 1) {
-    throw new Error('Size must be positive');
+    throw new Error(t('error.size_positive'));
   }
 
   node.sizes[childIndex] = newSize;

@@ -18,14 +18,14 @@ export function generatePlanks(furniture) {
   // --- External Frame ---
   // Vertical uprights (Left & Right)
   // Full height
-  planks.push(createPlank('Left upright', T, height, depth, 0, 0, 0, 'frameV'));
-  planks.push(createPlank('Right upright', T, height, depth, width - T, 0, 0, 'frameV'));
+  planks.push(createPlank('plank.left_upright', T, height, depth, 0, 0, 0, 'frameV'));
+  planks.push(createPlank('plank.right_upright', T, height, depth, width - T, 0, 0, 'frameV'));
 
   // Horizontal rails (Top & Bottom)
   // Inside the uprights
   const innerWidth = width - 2 * T;
-  planks.push(createPlank('Bottom rail', innerWidth, T, depth, T, 0, 0, 'frameH'));
-  planks.push(createPlank('Top rail', innerWidth, T, depth, T, height - T, 0, 'frameH'));
+  planks.push(createPlank('plank.bottom_rail', innerWidth, T, depth, T, 0, 0, 'frameH'));
+  planks.push(createPlank('plank.top_rail', innerWidth, T, depth, T, height - T, 0, 'frameH'));
 
   // --- Recursive internal partitions ---
   generateInner(root, T, T, innerWidth, height - 2 * T, depth, T, planks);
@@ -65,7 +65,7 @@ function generateInner(node, x, y, w, h, d, T, planks, path = '1') {
       // Add a horizontal shelf if not the last child
       if (i < count - 1) {
         const shelfY = currentY + childH;
-        planks.push(createPlank(`Shelf ${path}-${i + 1}`, w, T, d, x, shelfY, 0, 'shelf'));
+        planks.push(createPlank('plank.shelf', w, T, d, x, shelfY, 0, 'shelf', `${path}-${i + 1}`));
         currentY = shelfY + T;
       }
     }
@@ -83,7 +83,7 @@ function generateInner(node, x, y, w, h, d, T, planks, path = '1') {
       // Add a vertical separator if not the last child
       if (i < count - 1) {
         const separatorX = currentX + childW;
-        planks.push(createPlank(`Separator ${path}-${i + 1}`, T, h, d, separatorX, y, 0, 'separator'));
+        planks.push(createPlank('plank.separator', T, h, d, separatorX, y, 0, 'separator', `${path}-${i + 1}`));
         currentX = separatorX + T;
       }
     }
@@ -93,9 +93,10 @@ function generateInner(node, x, y, w, h, d, T, planks, path = '1') {
 /**
  * Helper to create a plank object
  */
-function createPlank(name, w, h, d, x, y, z, type) {
+function createPlank(name, w, h, d, x, y, z, type, suffix = '') {
   return {
     name,
+    suffix,
     w: Math.round(w * 10) / 10,
     h: Math.round(h * 10) / 10,
     d: Math.round(d * 10) / 10,
@@ -126,13 +127,14 @@ export function groupPlanks(planks) {
       g.count++;
       g.totalArea += (p.w * p.h) / 1000000;
     } else {
-      // Normalize name for the group (e.g., "Shelf 1-1" -> "Shelf")
+      // Clean name removes the suffix conceptually for grouping
       let cleanName = p.name;
-      if (p.type === 'shelf') cleanName = 'Shelf';
-      if (p.type === 'separator') cleanName = 'Separator';
+      if (p.type === 'shelf') cleanName = 'plank.shelf';
+      if (p.type === 'separator') cleanName = 'plank.separator';
 
       groups.set(key, {
         name: cleanName,
+        suffix: p.suffix,
         w: p.w,
         h: p.h,
         d: p.d,

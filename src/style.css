@@ -79,83 +79,123 @@ html, body {
 #toolbar {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  justify-content: space-between;
   padding: 0 var(--space-md);
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border);
   z-index: 10;
+  height: 48px;
 }
 
-.toolbar-brand {
+.toolbar-left,
+.toolbar-center,
+.toolbar-right {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  margin-right: var(--space-lg);
 }
 
-.brand-icon {
-  font-size: 20px;
+.toolbar-center {
+  flex: 1;
+  justify-content: center;
 }
 
-.brand-text {
-  font-weight: 700;
-  font-size: 15px;
-  color: var(--accent-secondary);
-  letter-spacing: -0.3px;
-}
-
-.toolbar-group {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.toolbar-separator {
+.divider {
   width: 1px;
-  height: 24px;
+  height: 20px;
   background: var(--border);
-  margin: 0 var(--space-sm);
+  margin: 0 var(--space-xs);
 }
 
-.toolbar-btn {
+.divider-v {
+  width: 1px;
+  height: 16px;
+  background: var(--border);
+  border: none;
+  margin: 0 var(--space-xs);
+  padding: 0;
+}
+
+/* Base button styles applied in toolbar */
+#toolbar .btn {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 6px 10px;
+  gap: 6px;
+  padding: 6px 12px;
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
   border-radius: var(--radius-sm);
   color: var(--text-secondary);
   font-family: var(--font-family);
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   transition: all var(--transition-fast);
   white-space: nowrap;
 }
 
-.toolbar-btn:hover {
-  background: var(--bg-elevated);
-  color: var(--text-primary);
-}
-
-.toolbar-btn:active {
+#toolbar .btn:hover:not(.disabled) {
   background: var(--bg-surface);
-  transform: scale(0.97);
+  color: var(--text-primary);
+  border-color: var(--border);
 }
 
-.toolbar-btn.disabled {
-  opacity: 0.35;
+#toolbar .btn:active:not(.disabled) {
+  background: var(--bg-elevated);
+  transform: translateY(1px);
+}
+
+#toolbar .btn.disabled {
+  opacity: 0.4;
   cursor: not-allowed;
-  pointer-events: none;
 }
 
-.toolbar-btn-icon {
-  font-size: 14px;
+/* View Controls Group */
+.view-controls {
+  display: flex;
+  align-items: center;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 2px;
 }
 
-.toolbar-btn-label {
-  font-size: 11px;
+.view-controls .btn.view {
+  padding: 4px 12px;
+  font-size: 12px;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+}
+
+.view-controls .btn.view:hover {
+  color: var(--text-primary);
+  background: transparent;
+}
+
+.view-controls .btn.view.active {
+  background: var(--bg-surface);
+  color: var(--accent-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Language Switcher */
+.lang-switcher {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  font-family: var(--font-family);
+  font-size: 12px;
   font-weight: 500;
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.lang-switcher:hover, .lang-switcher:focus {
+  border-color: var(--accent-primary);
 }
 
 /* --- Workspace (3-column layout) --- */

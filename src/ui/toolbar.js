@@ -4,40 +4,47 @@
  * Icons and main actions (New, Open, Save, STL, DXF, Undo, Redo, Views).
  */
 
+import { t } from '../i18n.js';
+
 /**
  * Renders the toolbar.
  *
  * @param {HTMLElement} container - Toolbar container
  * @param {Object} callbacks - Interaction functions
- * @param {Object} state - State (canUndo, canRedo)
+ * @param {Object} state - State (canUndo, canRedo, currentLang)
  */
 export function renderToolbar(container, callbacks, state) {
   if (!container) return;
 
   const html = `
     <div class="toolbar-left">
-      <button class="btn nav" id="btn-new" title="New Furniture">📄 New</button>
+      <button class="btn nav" id="btn-new" title="${t('tool.new.title')}">${t('tool.new')}</button>
       <div class="divider"></div>
-      <button class="btn nav" id="btn-open" title="Open JSON">📂 Open</button>
-      <button class="btn nav" id="btn-save" title="Save JSON (Ctrl+S)">💾 Save</button>
+      <button class="btn nav" id="btn-open" title="${t('tool.open.title')}">${t('tool.open')}</button>
+      <button class="btn nav" id="btn-save" title="${t('tool.save.title')}">${t('tool.save')}</button>
       <div class="divider"></div>
-      <button class="btn tool ${state.canUndo ? '' : 'disabled'}" id="btn-undo" title="Undo (Ctrl+Z)">↩ Undo</button>
-      <button class="btn tool ${state.canRedo ? '' : 'disabled'}" id="btn-redo" title="Redo (Ctrl+Y)">↪ Redo</button>
+      <button class="btn tool ${state.canUndo ? '' : 'disabled'}" id="btn-undo" title="${t('tool.undo.title')}">${t('tool.undo')}</button>
+      <button class="btn tool ${state.canRedo ? '' : 'disabled'}" id="btn-redo" title="${t('tool.redo.title')}">${t('tool.redo')}</button>
     </div>
     
     <div class="toolbar-center">
       <div class="view-controls">
-        <button class="btn view" data-view="front">Front</button>
-        <button class="btn view" data-view="top">Top</button>
-        <button class="btn view" data-view="right">Side</button>
+        <button class="btn view" data-view="front">${t('tool.view.front')}</button>
+        <button class="btn view" data-view="top">${t('tool.view.top')}</button>
+        <button class="btn view" data-view="right">${t('tool.view.side')}</button>
         <button class="divider-v"></button>
-        <button class="btn view active" data-view="iso">3D View</button>
+        <button class="btn view active" data-view="iso">${t('tool.view.iso')}</button>
       </div>
     </div>
 
     <div class="toolbar-right">
-      <button class="btn export" id="btn-stl" title="Export STL">⬇ STL</button>
-      <button class="btn export" id="btn-dxf" title="Export DXF">⬇ DXF</button>
+      <button class="btn export" id="btn-stl" title="${t('tool.export_stl.title')}">${t('tool.export_stl')}</button>
+      <button class="btn export" id="btn-dxf" title="${t('tool.export_dxf.title')}">${t('tool.export_dxf')}</button>
+      <div class="divider"></div>
+      <select id="lang-select" class="lang-switcher">
+        <option value="en" ${state.currentLang === 'en' ? 'selected' : ''}>🇬🇧 EN</option>
+        <option value="fr" ${state.currentLang === 'fr' ? 'selected' : ''}>🇫🇷 FR</option>
+      </select>
     </div>
 
     <input type="file" id="file-input" style="display: none" accept=".json">
@@ -50,9 +57,7 @@ export function renderToolbar(container, callbacks, state) {
 function attachToolbarListeners(container, callbacks) {
   // New
   container.querySelector('#btn-new').onclick = () => {
-    if (confirm('Create new furniture? Unsaved changes will be lost.')) {
-      callbacks.onNew();
-    }
+    callbacks.onNew(); // confirmation is handled in main.js
   };
 
   // Open
@@ -84,4 +89,14 @@ function attachToolbarListeners(container, callbacks) {
       callbacks.onSetView(btn.dataset.view);
     };
   });
+
+  // Language Switcher
+  const langSelect = container.querySelector('#lang-select');
+  if (langSelect) {
+    langSelect.onchange = (e) => {
+      if (callbacks.onLanguageChange) {
+        callbacks.onLanguageChange(e.target.value);
+      }
+    };
+  }
 }

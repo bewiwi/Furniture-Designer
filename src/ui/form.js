@@ -6,6 +6,7 @@
  */
 
 import { findNodeById, getNodeDimensions } from '../model.js';
+import { t } from '../i18n.js';
 
 /**
  * Renders the properties form for the selected node.
@@ -22,7 +23,7 @@ export function renderForm(container, furniture, selectedId, callbacks) {
   const node = isRoot ? furniture.root : findNodeById(furniture.root, selectedId);
 
   if (!node) {
-    container.innerHTML = '<div class="empty">Select a compartment</div>';
+    container.innerHTML = `<div class="empty">${t('form.empty')}</div>`;
     return;
   }
 
@@ -31,7 +32,7 @@ export function renderForm(container, furniture, selectedId, callbacks) {
 
   let html = `
     <div class="form-header">
-      <h3>${isRoot ? 'Furniture Properties' : 'Compartment Properties'}</h3>
+      <h3>${isRoot ? t('form.title.root') : t('form.title.node')}</h3>
     </div>
     <div class="form-content">
   `;
@@ -40,28 +41,28 @@ export function renderForm(container, furniture, selectedId, callbacks) {
   if (isRoot) {
     html += `
       <section class="form-section">
-        <legend>Furniture Dimensions</legend>
+        <legend>${t('form.dims.global')}</legend>
         <div class="form-group">
-          <label>Name</label>
-          <input type="text" id="prop-name" value="${furniture.name}" placeholder="Furniture name">
+          <label>${t('form.dims.name')}</label>
+          <input type="text" id="prop-name" value="${furniture.name}" placeholder="${t('form.dims.name')}">
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label>Width <span>(mm)</span></label>
+            <label>${t('form.dims.width')} <span>(mm)</span></label>
             <input type="number" id="prop-width" value="${furniture.width}" min="200" max="5000">
           </div>
           <div class="form-group">
-            <label>Height <span>(mm)</span></label>
+            <label>${t('form.dims.height')} <span>(mm)</span></label>
             <input type="number" id="prop-height" value="${furniture.height}" min="200" max="5000">
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label>Depth <span>(mm)</span></label>
+            <label>${t('form.dims.depth')} <span>(mm)</span></label>
             <input type="number" id="prop-depth" value="${furniture.depth}" min="50" max="1000">
           </div>
           <div class="form-group">
-            <label>Thickness <span>(mm)</span></label>
+            <label>${t('form.dims.thickness')} <span>(mm)</span></label>
             <input type="number" id="prop-thickness" value="${furniture.thickness}" min="10" max="50">
           </div>
         </div>
@@ -71,11 +72,11 @@ export function renderForm(container, furniture, selectedId, callbacks) {
     // Show actual dimensions for informational purposes
     html += `
       <section class="form-section info">
-        <legend>Actual Dimensions</legend>
+        <legend>${t('form.dims.actual')}</legend>
         <div class="info-grid">
-          <div class="label">Width:</div><div class="value">${Math.round(dims.w)} mm</div>
-          <div class="label">Height:</div><div class="value">${Math.round(dims.h)} mm</div>
-          <div class="label">Depth:</div><div class="value">${furniture.depth} mm</div>
+          <div class="label">${t('form.dims.width')}:</div><div class="value">${Math.round(dims.w)} mm</div>
+          <div class="label">${t('form.dims.height')}:</div><div class="value">${Math.round(dims.h)} mm</div>
+          <div class="label">${t('form.dims.depth')}:</div><div class="value">${furniture.depth} mm</div>
         </div>
       </section>
     `;
@@ -86,16 +87,16 @@ export function renderForm(container, furniture, selectedId, callbacks) {
     // If not subdivided, propose adding subdivisions
     html += `
       <section class="form-section">
-        <legend>Add Subdivisions</legend>
-        <p class="help">Divide this compartment into multiple parts.</p>
+        <legend>${t('form.sub.add')}</legend>
+        <p class="help">${t('form.sub.help')}</p>
         
         <div class="subdivide-grid">
           <div class="sub-ctrl">
-            <button class="btn accent" id="btn-sub-row">↔ Rows</button>
+            <button class="btn accent" id="btn-sub-row">${t('form.sub.btn_row')}</button>
             <input type="number" id="input-sub-row" value="3" min="2" max="20">
           </div>
           <div class="sub-ctrl">
-            <button class="btn accent" id="btn-sub-col">↕ Columns</button>
+            <button class="btn accent" id="btn-sub-col">${t('form.sub.btn_col')}</button>
             <input type="number" id="input-sub-col" value="2" min="2" max="20">
           </div>
         </div>
@@ -103,14 +104,16 @@ export function renderForm(container, furniture, selectedId, callbacks) {
     `;
   } else {
     // If subdivided, allow editing children sizes or removing everything
-    const dirLabel = node.direction === 'row' ? 'Rows' : 'Columns';
+    const dirLabel = node.direction === 'row' ? t('tree.rows') : t('tree.columns');
+    const childPrefix = node.direction === 'row' ? t('form.sub.row_prefix') : t('form.sub.col_prefix');
+    
     html += `
       <section class="form-section">
         <legend>${dirLabel}</legend>
         <div class="children-list">
           ${node.sizes.map((size, idx) => `
             <div class="form-group row">
-              <label>${node.direction === 'row' ? 'Row' : 'Column'} ${idx + 1}</label>
+              <label>${childPrefix} ${idx + 1}</label>
               <div class="input-unit">
                 <input type="number" class="prop-child-size" data-index="${idx}" value="${size}" min="10">
                 <span>mm</span>
@@ -118,7 +121,7 @@ export function renderForm(container, furniture, selectedId, callbacks) {
             </div>
           `).join('')}
         </div>
-        <button class="btn danger full" id="btn-remove-sub">🗑️ Remove Subdivisions</button>
+        <button class="btn danger full" id="btn-remove-sub">${t('form.sub.remove')}</button>
       </section>
     `;
   }
