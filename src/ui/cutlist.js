@@ -20,7 +20,7 @@ export function renderCutList(container, planks) {
   const totalArea = grouped.reduce((sum, g) => sum + g.totalArea, 0);
 
   const html = `
-    <div class="cut-list-header">
+    <div class="cutlist-header">
       <div class="title">
         <span class="icon">📋</span>
         <h3>${t('cutlist.title', { count: planks.length, unique: grouped.length })}</h3>
@@ -28,8 +28,8 @@ export function renderCutList(container, planks) {
       <button class="btn btn-ghost collapse" id="btn-toggle-cutlist">${t('cutlist.collapse')}</button>
     </div>
     
-    <div class="cut-list-table-container">
-      <table class="cut-list-table">
+    <div class="cutlist-body">
+      <table class="cutlist-table">
         <thead>
           <tr>
             <th class="qty">${t('cutlist.qty')}</th>
@@ -69,7 +69,7 @@ export function renderCutList(container, planks) {
 
 function attachCutlistListeners(container) {
   const btn = container.querySelector('#btn-toggle-cutlist');
-  const table = container.querySelector('.cut-list-table-container');
+  const table = container.querySelector('.cutlist-body');
 
   btn.onclick = () => {
     const isCollapsed = table.classList.toggle('collapsed');

@@ -112,11 +112,25 @@ export function removeSingleChild(node, childIndex, thickness) {
     return;
   }
 
-  // Find neighbor to inherit the deleted child's space (right if possible, else left)
-  const neighborIndex = childIndex < node.sizes.length - 1 ? childIndex + 1 : childIndex - 1;
-  const inheritSpace = node.sizes[childIndex] + thickness;
+  // Find a neighbor to inherit the deleted child's space (prefer unlocked neighbors)
+  let inheritIndex = -1;
+  
+  if (childIndex < node.sizes.length - 1 && !node.children[childIndex + 1].locked) {
+    inheritIndex = childIndex + 1;
+  } else if (childIndex > 0 && !node.children[childIndex - 1].locked) {
+    inheritIndex = childIndex - 1;
+  } else {
+    // Search for any other unlocked child
+    inheritIndex = node.children.findIndex((c, i) => i !== childIndex && !c.locked);
+  }
 
-  node.sizes[neighborIndex] += inheritSpace;
+  // Fallback if all other remaining children are locked
+  if (inheritIndex === -1) {
+    inheritIndex = childIndex < node.sizes.length - 1 ? childIndex + 1 : childIndex - 1;
+  }
+
+  const inheritSpace = node.sizes[childIndex] + thickness;
+  node.sizes[inheritIndex] += inheritSpace;
 
   node.sizes.splice(childIndex, 1);
   node.children.splice(childIndex, 1);
