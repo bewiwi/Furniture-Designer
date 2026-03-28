@@ -42,16 +42,23 @@ export function renderCutList(container, planks) {
           </tr>
         </thead>
         <tbody>
-          ${grouped.map((g) => `
+          ${grouped.map((g) => {
+            // Sort 3D dimensions to get proper cut list values:
+            // length = longest, width = middle, thickness = thinnest (board thickness)
+            const dims = [g.w, g.h, g.d].sort((a, b) => b - a);
+            const length = Math.round(dims[0]);
+            const width = Math.round(dims[1]);
+            const thickness = Math.round(dims[2]);
+            return `
             <tr>
               <td class="qty">${g.count}</td>
-              <td class="name">${t(g.name, { count: g.count, suffix: g.suffix || '' })} ${g.count > 1 ? '<span class="multi">(×' + g.count + ')</span>' : ''}</td>
-              <td class="dim">${Math.round(g.h)} mm</td>
-              <td class="dim">${Math.round(g.w)} mm</td>
-              <td class="thick">${Math.round(g.d)} mm</td>
+              <td class="name">${t(g.name, { count: g.count, suffix: g.suffix || '' })} ${g.count > 1 ? '<span class="multi">(\u00d7' + g.count + ')</span>' : ''}</td>
+              <td class="dim">${length} mm</td>
+              <td class="dim">${width} mm</td>
+              <td class="thick">${thickness} mm</td>
               <td class="type"><span class="badge ${g.type}">${t(`type.${g.type}`)}</span></td>
             </tr>
-          `).join('')}
+          `}).join('')}
         </tbody>
       </table>
     </div>
