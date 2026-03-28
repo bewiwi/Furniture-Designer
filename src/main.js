@@ -98,16 +98,21 @@ function init() {
   // Select root by default
   appState.selectedNodeId = appState.furniture.root.id;
 
-  // Initialize 3D viewer
+  // Initialize 3D viewer with error boundary
   const container = document.getElementById('viewer-container');
   if (container) {
-    initViewer(container);
-    fitCamera(appState.furniture);
+    try {
+      initViewer(container);
+      fitCamera(appState.furniture);
 
-    // Attach dynamically projected quotes overlay to the render loop
-    setRenderCallback(() => {
-      renderQuotes(appState.furniture, appState.selectedNodeId, project3DTo2D);
-    });
+      // Attach dynamically projected quotes overlay to the render loop
+      setRenderCallback(() => {
+        renderQuotes(appState.furniture, appState.selectedNodeId, project3DTo2D);
+      });
+    } catch (e) {
+      console.error('Failed to initialize 3D viewer:', e);
+      container.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-secondary);padding:2em;text-align:center;">⚠️ 3D preview requires WebGL support.<br>Please use a modern browser with hardware acceleration enabled.</div>`;
+    }
   }
 
   // First full update
@@ -192,7 +197,15 @@ function onSelectNode(nodeId) {
 const formCallbacks = {
   onChangeFurniture(field, value) {
     if (!ALLOWED_FURNITURE_FIELDS.has(field)) return;
-    appState.furniture[field] = value;
+    if (field === 'name') {
+      appState.furniture[field] = value;
+      saveAndUpdate();
+      return;
+    }
+    // Numeric fields: guard against NaN
+    const numVal = typeof value === 'number' ? value : parseInt(value, 10);
+    if (isNaN(numVal) || numVal < 1) return;
+    appState.furniture[field] = numVal;
     saveAndUpdate();
   },
 
@@ -364,21 +377,26 @@ const toolbarCallbacks = {
 // =============================================================================
 
 function handleKeyboard(e) {
+  // Don't intercept shortcuts when user is typing in form fields
+  const tag = e.target.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
   // Support both Ctrl (Windows/Linux) and ⌘/Meta (macOS)
   const mod = e.ctrlKey || e.metaKey;
+  const key = e.key.toLowerCase();
 
   // Ctrl/⌘+Z -> Undo
-  if (mod && e.key === 'z' && !e.shiftKey) {
+  if (mod && key === 'z' && !e.shiftKey) {
     e.preventDefault();
     toolbarCallbacks.onUndo();
   }
   // Ctrl/⌘+Y or Ctrl/⌘+Shift+Z -> Redo
-  if ((mod && e.key === 'y') || (mod && e.shiftKey && e.key === 'z')) {
+  if ((mod && key === 'y') || (mod && e.shiftKey && key === 'z')) {
     e.preventDefault();
     toolbarCallbacks.onRedo();
   }
   // Ctrl/⌘+S -> Save
-  if (mod && e.key === 's') {
+  if (mod && key === 's') {
     e.preventDefault();
     toolbarCallbacks.onSave();
   }

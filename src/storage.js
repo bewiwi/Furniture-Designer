@@ -117,7 +117,11 @@ export function undo() {
     state.currentIndex--;
     const furniture = state.history[state.currentIndex];
     // Sync localStorage with current position in history
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(furniture));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(furniture));
+    } catch (e) {
+      console.error('Failed to sync undo to localStorage:', e);
+    }
     return cloneFurniture(furniture);
   }
   return null;
@@ -133,7 +137,11 @@ export function redo() {
     state.currentIndex++;
     const furniture = state.history[state.currentIndex];
     // Sync localStorage with current position in history
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(furniture));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(furniture));
+    } catch (e) {
+      console.error('Failed to sync redo to localStorage:', e);
+    }
     return cloneFurniture(furniture);
   }
   return null;

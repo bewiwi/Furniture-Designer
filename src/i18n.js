@@ -190,12 +190,13 @@ export function getLanguage() {
 }
 
 export function t(key, params = {}) {
-  const dict = dictionaries[currentLang] || dictionaries['en'];
-  let str = dict[key] || key;
+  const dict = dictionaries[currentLang] ?? dictionaries['en'];
+  let str = dict[key] ?? key;
 
   // Simple string interpolation for params, e.g., {count}
+  // Uses replaceAll instead of RegExp to avoid GC pressure and metacharacter bugs
   for (const [k, v] of Object.entries(params)) {
-    str = str.replace(new RegExp(`{${k}}`, 'g'), v);
+    str = str.replaceAll(`{${k}}`, v);
   }
 
   return str;

@@ -32,7 +32,8 @@ export function downloadBlob(blob, fileName) {
   a.href = url;
   a.download = fileName;
   a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 100);
+  // Allow enough time for large file downloads to start before revoking
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
 /**
@@ -42,7 +43,11 @@ export function downloadBlob(blob, fileName) {
  * @returns {string} Filesystem-safe string
  */
 export function sanitizeFileName(name) {
-  return (name || 'furniture').replace(/\s+/g, '_').toLowerCase();
+  return (name || 'furniture')
+    .replace(/[^a-zA-Z0-9_\-]/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_|_$/g, '')
+    .toLowerCase() || 'furniture';
 }
 
 /**

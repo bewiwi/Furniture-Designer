@@ -468,6 +468,7 @@ function doRender() {
     state.render(renderOptions);
     if (state.onRender) state.onRender();
   } catch (e) {
-    // Silently handle render errors (can happen during resize)
+    // Log render errors for debugging (can happen during resize or context loss)
+    console.warn('Render error:', e.message || e);
   }
 }

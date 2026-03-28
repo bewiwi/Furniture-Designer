@@ -345,7 +345,8 @@ html, body {
   margin-bottom: var(--space-lg);
 }
 
-.form-section h4 {
+.form-section h4,
+.form-section legend {
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -354,6 +355,191 @@ html, body {
   margin-bottom: var(--space-sm);
   padding-bottom: var(--space-xs);
   border-bottom: 1px solid var(--border);
+  display: block;
+  width: 100%;
+}
+
+/* --- Form Layout: headers, groups, grids --- */
+.form-header,
+.tree-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: var(--space-md);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.form-header h3,
+.tree-header h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-secondary);
+  margin: 0;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-sm);
+}
+
+.form-group label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"] {
+  padding: 5px 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  transition: border-color var(--transition-fast);
+  outline: none;
+}
+
+.form-group input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(224, 122, 47, 0.15);
+}
+
+.form-group input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.form-group.row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.form-group.row label {
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.form-group-spaced {
+  margin-bottom: var(--space-md);
+}
+
+.help {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-bottom: var(--space-sm);
+}
+
+.empty {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+  padding: var(--space-xl) var(--space-md);
+}
+
+/* --- Info Grid (dimension display) --- */
+.info-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-xs) var(--space-sm);
+  align-items: center;
+}
+
+.info-grid .label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.info-grid .value {
+  font-size: 12px;
+  color: var(--accent-warm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Children List (subdivisions) --- */
+.children-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.child-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.reorder-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* --- Compact Buttons (move up/down, lock) --- */
+.btn-compact {
+  padding: 2px 4px !important;
+  font-size: 10px !important;
+  line-height: 1 !important;
+}
+
+.btn-lock-inline {
+  padding: 2px 4px;
+  margin-left: auto;
+  filter: grayscale(1);
+  opacity: 0.6;
+  transition: filter var(--transition-fast), opacity var(--transition-fast);
+}
+
+.btn-lock-inline.is-locked {
+  filter: grayscale(0);
+  opacity: 1;
+}
+
+/* --- Editable Dimension (inline input + unit + lock) --- */
+.editable-dim {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.dim-input {
+  width: 55px;
+  margin-right: 4px;
+  padding: 2px 4px;
+}
+
+.dim-unit {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* --- Danger icon, add-child wrap --- */
+.danger-icon {
+  color: var(--danger);
+}
+
+.add-child-wrap {
+  margin-top: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+/* --- Full width button helper --- */
+.btn.full {
+  width: 100%;
+  text-align: center;
 }
 
 .form-row {
@@ -398,9 +584,41 @@ html, body {
 }
 
 .input-unit {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: 10px;
   color: var(--text-muted);
   flex-shrink: 0;
+}
+
+.input-unit input {
+  width: 60px;
+  padding: 4px 6px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.input-unit input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(224, 122, 47, 0.15);
+}
+
+.input-unit input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input-unit span {
+  color: var(--text-muted);
+  font-size: 11px;
 }
 
 .form-hint {

@@ -84,24 +84,24 @@ export function renderForm(container, furniture, selectedId, callbacks) {
 
     if (parent && childIndex !== -1) {
       const lockToggleHtml = `
-        <button class="btn btn-ghost btn-lock-toggle-self" data-parent-id="${escapeHtml(parent.id)}" data-index="${childIndex}" title="${t('form.sub.lock_toggle')}" style="padding: 2px 4px; margin-left: auto; filter: grayscale(${isLocked ? 0 : 1}); opacity: ${isLocked ? 1 : 0.6};">
+        <button class="btn btn-ghost btn-lock-toggle-self btn-lock-inline ${isLocked ? 'is-locked' : ''}" data-parent-id="${escapeHtml(parent.id)}" data-index="${childIndex}" title="${t('form.sub.lock_toggle')}">
           ${lockIcon}
         </button>
       `;
 
       if (parent.direction === 'col') {
         widthHtml = `
-          <div style="display: flex; align-items: center; width: 100%;">
-            <input type="number" class="prop-self-size" data-parent-id="${escapeHtml(parent.id)}" data-index="${childIndex}" value="${Math.round(dims.w)}" min="10" ${isLocked || isOnlyFree ? 'disabled' : ''} style="width: 55px; margin-right: 4px; padding: 2px 4px;">
-            <span style="font-size: 11px;">mm</span>
+          <div class="editable-dim">
+            <input type="number" class="prop-self-size dim-input" data-parent-id="${escapeHtml(parent.id)}" data-index="${childIndex}" value="${Math.round(dims.w)}" min="10" ${isLocked || isOnlyFree ? 'disabled' : ''}>
+            <span class="dim-unit">mm</span>
             ${lockToggleHtml}
           </div>
         `;
       } else if (parent.direction === 'row') {
         heightHtml = `
-          <div style="display: flex; align-items: center; width: 100%;">
-            <input type="number" class="prop-self-size" data-parent-id="${escapeHtml(parent.id)}" data-index="${childIndex}" value="${Math.round(dims.h)}" min="10" ${isLocked || isOnlyFree ? 'disabled' : ''} style="width: 55px; margin-right: 4px; padding: 2px 4px;">
-            <span style="font-size: 11px;">mm</span>
+          <div class="editable-dim">
+            <input type="number" class="prop-self-size dim-input" data-parent-id="${escapeHtml(parent.id)}" data-index="${childIndex}" value="${Math.round(dims.h)}" min="10" ${isLocked || isOnlyFree ? 'disabled' : ''}>
+            <span class="dim-unit">mm</span>
             ${lockToggleHtml}
           </div>
         `;
@@ -112,11 +112,11 @@ export function renderForm(container, furniture, selectedId, callbacks) {
     html += `
       <section class="form-section info">
         <legend>${t('form.dims.actual')}</legend>
-        <div class="form-group" style="margin-bottom: 12px;">
+        <div class="form-group form-group-spaced">
           <label>${t('form.dims.name')}</label>
           <input type="text" id="prop-node-name" value="${escapeHtml(node.name || '')}" placeholder="${t('form.dims.name')}">
         </div>
-        <div class="info-grid" style="align-items: center;">
+        <div class="info-grid">
           <div class="label">${t('form.dims.width')}:</div>${widthHtml}
           <div class="label">${t('form.dims.height')}:</div>${heightHtml}
           <div class="label">${t('form.dims.depth')}:</div><div class="value">${furniture.depth} mm</div>
@@ -166,27 +166,27 @@ export function renderForm(container, furniture, selectedId, callbacks) {
             return `
             <div class="form-group row">
               <label title="${escapedChildName}">${escapedChildName}</label>
-              <div style="display: flex; align-items: center; gap: 4px;">
-                <div style="display: flex; flex-direction: column; gap: 2px;">
-                  <button class="btn btn-ghost btn-move-up" data-index="${idx}" ${idx === 0 ? 'disabled' : ''} style="padding: 2px 4px; font-size: 10px; line-height: 1;" title="${t('form.sub.move_up') || '↑'}">▲</button>
-                  <button class="btn btn-ghost btn-move-down" data-index="${idx}" ${idx === node.children.length - 1 ? 'disabled' : ''} style="padding: 2px 4px; font-size: 10px; line-height: 1;" title="${t('form.sub.move_down') || '↓'}">▼</button>
+              <div class="child-controls">
+                <div class="reorder-controls">
+                  <button class="btn btn-ghost btn-move-up btn-compact" data-index="${idx}" ${idx === 0 ? 'disabled' : ''} title="${t('form.sub.move_up') ?? '↑'}">▲</button>
+                  <button class="btn btn-ghost btn-move-down btn-compact" data-index="${idx}" ${idx === node.children.length - 1 ? 'disabled' : ''} title="${t('form.sub.move_down') ?? '↓'}">▼</button>
                 </div>
-                <button class="btn btn-ghost btn-lock-toggle" data-index="${idx}" title="${t('form.sub.lock_toggle')}" style="padding: 4px; filter: grayscale(${isLocked ? 0 : 1}); opacity: ${isLocked ? 1 : 0.6};">
+                <button class="btn btn-ghost btn-lock-toggle btn-lock-inline ${isLocked ? 'is-locked' : ''}" data-index="${idx}" title="${t('form.sub.lock_toggle')}">
                   ${lockIcon}
                 </button>
                 <div class="input-unit">
                   <input type="number" class="prop-child-size" data-index="${idx}" value="${size}" min="10" ${isLocked || isOnlyFree ? 'disabled' : ''}>
                   <span>mm</span>
                 </div>
-                <button class="btn btn-ghost btn-remove-single" data-index="${idx}" title="${t('form.sub.remove_single') || 'Remove'}">
-                  <span style="color: var(--danger)">🗑️</span>
+                <button class="btn btn-ghost btn-remove-single" data-index="${idx}" title="${t('form.sub.remove_single') ?? 'Remove'}">
+                  <span class="danger-icon">🗑️</span>
                 </button>
               </div>
             </div>
             `;
           }).join('')}
         </div>
-        <div style="margin-top: 10px; margin-bottom: 15px;">
+        <div class="add-child-wrap">
           <button class="btn btn-primary full btn-add-single">
             ${node.direction === 'row' ? t('form.sub.add_single_row') : t('form.sub.add_single_col')}
           </button>
@@ -225,7 +225,11 @@ function attachListeners(container, furniture, selectedId, callbacks) {
   ['width', 'height', 'depth', 'thickness'].forEach((prop) => {
     const input = container.querySelector(`#prop-${prop}`);
     if (input) {
-      input.addEventListener('change', (e) => callbacks.onChangeFurniture(prop, parseInt(e.target.value, 10)));
+      input.addEventListener('change', (e) => {
+        const val = parseInt(e.target.value, 10);
+        if (isNaN(val) || val < 1) return;
+        callbacks.onChangeFurniture(prop, val);
+      });
     }
   });
 
@@ -311,6 +315,7 @@ function attachListeners(container, furniture, selectedId, callbacks) {
       const parentId = e.target.dataset.parentId;
       const idx = parseInt(e.target.dataset.index, 10);
       const val = parseInt(e.target.value, 10);
+      if (isNaN(val) || val < 1) return;
       callbacks.onResizeChild(parentId, idx, val);
     });
   }
@@ -331,6 +336,7 @@ function attachListeners(container, furniture, selectedId, callbacks) {
     input.addEventListener('change', (e) => {
       const idx = parseInt(e.target.dataset.index, 10);
       const val = parseInt(e.target.value, 10);
+      if (isNaN(val) || val < 1) return;
       callbacks.onResizeChild(selectedId, idx, val);
     });
   });
