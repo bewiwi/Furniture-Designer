@@ -25,8 +25,9 @@ export function createNode() {
     id: generateId(),
     name: '',
     direction: null, // null = leaf, "row" = rows, "col" = columns
-    children: [],
-    sizes: [],       // size in mm for each child
+    children: [], // recursive structure
+    sizes: [],    // size in mm for each child
+    locked: false, // UI layout preference
   };
 }
 
@@ -122,8 +123,35 @@ export function removeSingleChild(node, childIndex, thickness) {
 }
 
 /**
- * Resizes a child. The next neighbor is adjusted to keep the total dimension.
- * If it's the last child, the previous neighbor is adjusted.
+ * Toggles the 'locked' state of a child component.
+ * Prevents locking the very last unlocked component.
+ */
+export function toggleChildLock(node, childIndex) {
+  if (!node.children || childIndex < 0 || childIndex >= node.children.length) {
+    throw new Error(t('error.invalid_child'));
+  }
+
+  const child = node.children[childIndex];
+  const willLock = !child.locked;
+
+  if (willLock) {
+    let freeCount = 0;
+    for (const c of node.children) {
+      if (!c.locked) freeCount++;
+    }
+    // Cannot lock if it's the last free child
+    // (At least one must remain free to absorb future resizes)
+    if (freeCount <= 1) {
+      throw new Error(t('error.last_free_child'));
+    }
+  }
+
+  child.locked = willLock;
+}
+
+/**
+ * Resizes a child.
+ * The space delta is added/subtracted from the nearest unlocked neighbor.
  *
  * @param {Object} node - The parent node
  * @param {number} childIndex - Index of the child to resize
@@ -139,9 +167,31 @@ export function resizeChild(node, childIndex, newSize) {
 
   if (delta === 0) return;
 
-  // Find neighbor to adjust
-  const neighborIndex = childIndex < node.sizes.length - 1 ? childIndex + 1 : childIndex - 1;
-  const neighborNewSize = node.sizes[neighborIndex] - delta;
+  // Find an unlocked neighbor to absorb the delta
+  // First, look to the right
+  let absorberIndex = -1;
+  for (let i = childIndex + 1; i < node.sizes.length; i++) {
+    if (!node.children[i].locked) {
+      absorberIndex = i;
+      break;
+    }
+  }
+
+  // If none on the right, look to the left
+  if (absorberIndex === -1) {
+    for (let i = childIndex - 1; i >= 0; i--) {
+      if (!node.children[i].locked) {
+        absorberIndex = i;
+        break;
+      }
+    }
+  }
+
+  if (absorberIndex === -1) {
+    throw new Error(t('error.no_free_neighbor'));
+  }
+
+  const neighborNewSize = node.sizes[absorberIndex] - delta;
 
   if (neighborNewSize < 1) {
     throw new Error(t('error.neighbor_too_small'));
@@ -151,7 +201,7 @@ export function resizeChild(node, childIndex, newSize) {
   }
 
   node.sizes[childIndex] = newSize;
-  node.sizes[neighborIndex] = neighborNewSize;
+  node.sizes[absorberIndex] = neighborNewSize;
 }
 
 /**

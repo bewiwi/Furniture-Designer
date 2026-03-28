@@ -13,6 +13,7 @@ import {
   removeSubdivision,
   removeSingleChild,
   resizeChild,
+  toggleChildLock,
   getNodeDimensions,
   cloneFurniture,
 } from './model.js';
@@ -229,6 +230,21 @@ const formCallbacks = {
 
     try {
       resizeChild(node, childIndex, newSize);
+      saveAndUpdate();
+    } catch (e) {
+      alert(e.message);
+    }
+  },
+
+  onToggleLock(parentNodeId, childIndex) {
+    const node = parentNodeId === appState.furniture.root.id
+      ? appState.furniture.root
+      : findNodeById(appState.furniture.root, parentNodeId);
+
+    if (!node) return;
+
+    try {
+      toggleChildLock(node, childIndex);
       saveAndUpdate();
     } catch (e) {
       alert(e.message);

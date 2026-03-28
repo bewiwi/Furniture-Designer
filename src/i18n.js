@@ -27,6 +27,7 @@ const dictionaries = {
     'form.sub.btn_col': '↕ Columns',
     'form.sub.remove': '🗑️ Remove Subdivisions',
     'form.sub.remove_single': 'Remove this compartment',
+    'form.sub.lock_toggle': 'Toggle size lock',
     'form.sub.row_prefix': 'Row',
     'form.sub.col_prefix': 'Column',
 
@@ -78,7 +79,9 @@ const dictionaries = {
     'error.not_enough_space': 'Not enough space for this subdivision',
     'error.invalid_child': 'Invalid child index',
     'error.neighbor_too_small': 'Neighboring compartment would be too small',
-    'error.size_positive': 'Size must be positive'
+    'error.size_positive': 'Size must be positive',
+    'error.last_free_child': 'Cannot lock the last remaining free compartment',
+    'error.no_free_neighbor': 'No unlocked neighbor available to absorb the resize'
   },
   fr: {
     // General
@@ -108,6 +111,7 @@ const dictionaries = {
     'form.sub.btn_col': '↕ Colonnes',
     'form.sub.remove': '🗑️ Supprimer subdivisions',
     'form.sub.remove_single': 'Supprimer ce compartiment',
+    'form.sub.lock_toggle': 'Verrouiller/Déverrouiller la taille',
     'form.sub.row_prefix': 'Rangée',
     'form.sub.col_prefix': 'Colonne',
 
@@ -159,7 +163,9 @@ const dictionaries = {
     'error.not_enough_space': 'Pas assez d\'espace pour cette subdivision',
     'error.invalid_child': 'Index enfant invalide',
     'error.neighbor_too_small': 'Le compartiment voisin serait trop petit',
-    'error.size_positive': 'La taille doit être positive'
+    'error.size_positive': 'La taille doit être positive',
+    'error.last_free_child': 'Impossible de verrouiller le dernier compartiment libre',
+    'error.no_free_neighbor': 'Aucun voisin déverrouillé disponible pour absorber le changement'
   }
 };
 

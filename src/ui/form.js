@@ -110,19 +110,28 @@ export function renderForm(container, furniture, selectedId, callbacks) {
     // If subdivided, allow editing children sizes or removing everything
     const dirLabel = node.direction === 'row' ? t('tree.rows') : t('tree.columns');
     const childPrefix = node.direction === 'row' ? t('form.sub.row_prefix') : t('form.sub.col_prefix');
+    const freeCount = node.children.filter(c => !c.locked).length;
     
     html += `
       <section class="form-section">
         <legend>${dirLabel}</legend>
         <div class="children-list">
           ${node.sizes.map((size, idx) => {
-            const childName = node.children[idx]?.name || `${childPrefix} ${idx + 1}`;
+            const childNode = node.children[idx];
+            const childName = childNode?.name || `${childPrefix} ${idx + 1}`;
+            const isLocked = !!childNode.locked;
+            const isOnlyFree = !isLocked && freeCount === 1;
+            const lockIcon = isLocked ? '🔒' : '🔓';
+
             return `
             <div class="form-group row">
               <label title="${childName}">${childName}</label>
               <div style="display: flex; align-items: center; gap: 4px;">
+                <button class="btn btn-ghost btn-lock-toggle" data-index="${idx}" title="${t('form.sub.lock_toggle')}" style="padding: 4px; filter: grayscale(${isLocked ? 0 : 1}); opacity: ${isLocked ? 1 : 0.6};">
+                  ${lockIcon}
+                </button>
                 <div class="input-unit">
-                  <input type="number" class="prop-child-size" data-index="${idx}" value="${size}" min="10">
+                  <input type="number" class="prop-child-size" data-index="${idx}" value="${size}" min="10" ${isLocked || isOnlyFree ? 'disabled' : ''}>
                   <span>mm</span>
                 </div>
                 <button class="btn btn-ghost btn-remove-single" data-index="${idx}" title="${t('form.sub.remove_single') || 'Remove'}">
@@ -201,6 +210,17 @@ function attachListeners(container, furniture, selectedId, callbacks) {
       const idx = parseInt(e.currentTarget.dataset.index, 10);
       if (callbacks.onRemoveSingleChild) {
         callbacks.onRemoveSingleChild(selectedId, idx);
+      }
+    };
+  });
+
+  // Toggle Lock
+  const btnLockToggles = container.querySelectorAll('.btn-lock-toggle');
+  btnLockToggles.forEach((btn) => {
+    btn.onclick = (e) => {
+      const idx = parseInt(e.currentTarget.dataset.index, 10);
+      if (callbacks.onToggleLock) {
+        callbacks.onToggleLock(selectedId, idx);
       }
     };
   });
