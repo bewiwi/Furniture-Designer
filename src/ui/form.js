@@ -142,6 +142,11 @@ export function renderForm(container, furniture, selectedId, callbacks) {
             `;
           }).join('')}
         </div>
+        <div style="margin-top: 10px; margin-bottom: 15px;">
+          <button class="btn btn-primary full btn-add-single">
+            ${node.direction === 'row' ? t('form.sub.add_single_row') : t('form.sub.add_single_col')}
+          </button>
+        </div>
         <button class="btn btn-danger full" id="btn-remove-sub">${t('form.sub.remove')}</button>
       </section>
     `;
@@ -224,6 +229,16 @@ function attachListeners(container, furniture, selectedId, callbacks) {
       }
     };
   });
+
+  // Add Single Subdivision
+  const btnAddSingle = container.querySelector('.btn-add-single');
+  if (btnAddSingle) {
+    btnAddSingle.onclick = () => {
+      if (callbacks.onAddSingleChild) {
+        callbacks.onAddSingleChild(selectedId);
+      }
+    };
+  }
 
   // Resize Children
   const childSizeInputs = container.querySelectorAll('.prop-child-size');

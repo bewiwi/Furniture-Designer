@@ -123,6 +123,41 @@ export function removeSingleChild(node, childIndex, thickness) {
 }
 
 /**
+ * Appends a single new compartment to an already subdivided node.
+ * Space is taken from the nearest unlocked neighbor that has enough space.
+ *
+ * @param {Object} node - The parent node (already subdivided)
+ * @param {number} thickness - Plank thickness
+ * @param {number} initialSize - Desired initial size in mm for the new child
+ */
+export function addSingleChild(node, thickness, initialSize = 100) {
+  if (!node.direction) return; // Cannot add to a non-subdivided node
+
+  const requiredSpace = initialSize + thickness;
+
+  // Find a free neighbor that can safely give up requiredSpace
+  // Scanning backwards (since we are appending at the end, it feels natural to steal from the bottom-most free space)
+  let donorIndex = -1;
+  for (let i = node.sizes.length - 1; i >= 0; i--) {
+    if (!node.children[i].locked && node.sizes[i] > requiredSpace) {
+      donorIndex = i;
+      break;
+    }
+  }
+
+  if (donorIndex === -1) {
+    throw new Error(t('error.not_enough_space'));
+  }
+
+  // Deduct from donor
+  node.sizes[donorIndex] -= requiredSpace;
+
+  // Append new child
+  node.children.push(createNode());
+  node.sizes.push(initialSize);
+}
+
+/**
  * Toggles the 'locked' state of a child component.
  * Prevents locking the very last unlocked component.
  */

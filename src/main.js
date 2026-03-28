@@ -11,6 +11,7 @@ import {
   findNodeById,
   subdivide,
   removeSubdivision,
+  addSingleChild,
   removeSingleChild,
   resizeChild,
   toggleChildLock,
@@ -245,6 +246,21 @@ const formCallbacks = {
 
     try {
       toggleChildLock(node, childIndex);
+      saveAndUpdate();
+    } catch (e) {
+      alert(e.message);
+    }
+  },
+
+  onAddSingleChild(parentNodeId) {
+    const node = parentNodeId === appState.furniture.root.id
+      ? appState.furniture.root
+      : findNodeById(appState.furniture.root, parentNodeId);
+
+    if (!node) return;
+
+    try {
+      addSingleChild(node, appState.furniture.thickness);
       saveAndUpdate();
     } catch (e) {
       alert(e.message);
