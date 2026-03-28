@@ -1,0 +1,20 @@
+{
+  "name": "meuble-tmp",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^8.0.1"
+  },
+  "dependencies": {
+    "@jscad/dxf-serializer": "^2.1.23",
+    "@jscad/modeling": "^2.13.0",
+    "@jscad/regl-renderer": "^2.6.15",
+    "@jscad/stl-serializer": "^2.1.23"
+  }
+}
