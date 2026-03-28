@@ -29,7 +29,7 @@ export function renderTree(container, furniture, selectedId, onSelect) {
   container.innerHTML = html;
 
   // Add event listeners
-  const items = container.querySelectorAll('.tree-item');
+  const items = container.querySelectorAll('.tree-node');
   items.forEach((item) => {
     item.onclick = () => onSelect(item.dataset.id);
   });
@@ -64,12 +64,14 @@ function renderNode(node, level, selectedId, furniture) {
   const dimStr = getDimString(node, furniture);
 
   let html = `
-    <div class="tree-item ${isSelected ? 'active' : ''}" 
+    <div class="tree-node ${isSelected ? 'selected' : ''}" 
          data-id="${node.id}" 
          style="padding-left: ${level * 16 + 12}px">
-      <span class="icon">${icon}</span>
-      <span class="label">${label}</span>
-      <span class="dim">${dimStr}</span>
+      <div style="display: flex; align-items: center; gap: 6px; overflow: hidden;">
+        <span class="icon">${icon}</span>
+        <span class="tree-label">${label}</span>
+      </div>
+      <span class="tree-size">${dimStr}</span>
     </div>
   `;
 
