@@ -163,6 +163,16 @@ const formCallbacks = {
     saveAndUpdate();
   },
 
+  onChangeNodeName(nodeId, newName) {
+    const node = nodeId === appState.furniture.root.id
+      ? appState.furniture.root
+      : findNodeById(appState.furniture.root, nodeId);
+    if (!node) return;
+    
+    node.name = newName;
+    saveAndUpdate();
+  },
+
   onSubdivide(nodeId, direction, count) {
     const node = nodeId === appState.furniture.root.id
       ? appState.furniture.root

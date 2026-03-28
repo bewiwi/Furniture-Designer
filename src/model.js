@@ -23,6 +23,7 @@ export function generateId() {
 export function createNode() {
   return {
     id: generateId(),
+    name: '',
     direction: null, // null = leaf, "row" = rows, "col" = columns
     children: [],
     sizes: [],       // size in mm for each child

@@ -50,14 +50,14 @@ function renderNode(node, level, selectedId, furniture) {
 
   // Determine icon and label
   let icon = '📦';
-  let label = isRoot ? furniture.name : t('tree.compartment');
+  let label = isRoot ? furniture.name : (node.name || t('tree.compartment'));
 
   if (node.direction === 'row') {
     icon = '↔';
-    label = t('tree.rows');
+    label = node.name || t('tree.rows');
   } else if (node.direction === 'col') {
     icon = '↕';
-    label = t('tree.columns');
+    label = node.name || t('tree.columns');
   }
 
   // Dimension summary

@@ -69,10 +69,14 @@ export function renderForm(container, furniture, selectedId, callbacks) {
       </section>
     `;
   } else if (dims) {
-    // Show actual dimensions for informational purposes
+    // Show actual dimensions for informational purposes and editable node name
     html += `
       <section class="form-section info">
         <legend>${t('form.dims.actual')}</legend>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label>${t('form.dims.name')}</label>
+          <input type="text" id="prop-node-name" value="${node.name || ''}" placeholder="${t('form.dims.name')}">
+        </div>
         <div class="info-grid">
           <div class="label">${t('form.dims.width')}:</div><div class="value">${Math.round(dims.w)} mm</div>
           <div class="label">${t('form.dims.height')}:</div><div class="value">${Math.round(dims.h)} mm</div>
@@ -136,10 +140,20 @@ export function renderForm(container, furniture, selectedId, callbacks) {
  * Event Listeners for the form
  */
 function attachListeners(container, furniture, selectedId, callbacks) {
-  // Global Props (Root)
   const nameInput = container.querySelector('#prop-name');
   if (nameInput) {
     nameInput.addEventListener('change', (e) => callbacks.onChangeFurniture('name', e.target.value));
+  }
+
+  // Node Name (Non-Root)
+  const nodeNameInput = container.querySelector('#prop-node-name');
+  if (nodeNameInput) {
+    nodeNameInput.addEventListener('change', (e) => {
+      // Check if the callback exists for backward compatibility, although we will provide it
+      if (callbacks.onChangeNodeName) {
+        callbacks.onChangeNodeName(selectedId, e.target.value);
+      }
+    });
   }
 
   ['width', 'height', 'depth', 'thickness'].forEach((prop) => {
