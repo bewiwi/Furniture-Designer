@@ -26,6 +26,7 @@ const dictionaries = {
     'form.sub.btn_row': '↔ Rows',
     'form.sub.btn_col': '↕ Columns',
     'form.sub.remove': '🗑️ Remove Subdivisions',
+    'form.sub.remove_single': 'Remove this compartment',
     'form.sub.row_prefix': 'Row',
     'form.sub.col_prefix': 'Column',
 
@@ -106,6 +107,7 @@ const dictionaries = {
     'form.sub.btn_row': '↔ Rangées',
     'form.sub.btn_col': '↕ Colonnes',
     'form.sub.remove': '🗑️ Supprimer subdivisions',
+    'form.sub.remove_single': 'Supprimer ce compartiment',
     'form.sub.row_prefix': 'Rangée',
     'form.sub.col_prefix': 'Colonne',
 

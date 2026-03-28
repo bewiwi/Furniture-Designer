@@ -90,6 +90,38 @@ export function removeSubdivision(node) {
 }
 
 /**
+ * Removes a single child compartment from a subdivided node
+ * and distributes its space to a neighbor.
+ */
+export function removeSingleChild(node, childIndex, thickness) {
+  if (!node.sizes || childIndex < 0 || childIndex >= node.sizes.length) {
+    throw new Error(t('error.invalid_child'));
+  }
+
+  // If only 2 children, removing one removes the subdivision altogether
+  if (node.children.length === 2) {
+    const survivingIndex = childIndex === 0 ? 1 : 0;
+    const survivor = node.children[survivingIndex];
+    
+    // Parent inherently becomes the survivor (takes its direction, children, sizes)
+    node.direction = survivor.direction;
+    node.children = survivor.children;
+    node.sizes = survivor.sizes;
+    // We intentionally keep the parent's `id` and `name`!
+    return;
+  }
+
+  // Find neighbor to inherit the deleted child's space (right if possible, else left)
+  const neighborIndex = childIndex < node.sizes.length - 1 ? childIndex + 1 : childIndex - 1;
+  const inheritSpace = node.sizes[childIndex] + thickness;
+
+  node.sizes[neighborIndex] += inheritSpace;
+
+  node.sizes.splice(childIndex, 1);
+  node.children.splice(childIndex, 1);
+}
+
+/**
  * Resizes a child. The next neighbor is adjusted to keep the total dimension.
  * If it's the last child, the previous neighbor is adjusted.
  *

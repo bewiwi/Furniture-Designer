@@ -120,9 +120,14 @@ export function renderForm(container, furniture, selectedId, callbacks) {
             return `
             <div class="form-group row">
               <label title="${childName}">${childName}</label>
-              <div class="input-unit">
-                <input type="number" class="prop-child-size" data-index="${idx}" value="${size}" min="10">
-                <span>mm</span>
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <div class="input-unit">
+                  <input type="number" class="prop-child-size" data-index="${idx}" value="${size}" min="10">
+                  <span>mm</span>
+                </div>
+                <button class="btn btn-ghost btn-remove-single" data-index="${idx}" title="${t('form.sub.remove_single') || 'Remove'}">
+                  <span style="color: var(--danger)">🗑️</span>
+                </button>
               </div>
             </div>
             `;
@@ -183,11 +188,22 @@ function attachListeners(container, furniture, selectedId, callbacks) {
     };
   }
 
-  // Remove Subdivisions
+  // Remove Subdivisions (All)
   const btnRemove = container.querySelector('#btn-remove-sub');
   if (btnRemove) {
     btnRemove.onclick = () => callbacks.onRemoveSubdivision(selectedId);
   }
+
+  // Remove Single Subdivision
+  const btnRemoveSingles = container.querySelectorAll('.btn-remove-single');
+  btnRemoveSingles.forEach((btn) => {
+    btn.onclick = (e) => {
+      const idx = parseInt(e.currentTarget.dataset.index, 10);
+      if (callbacks.onRemoveSingleChild) {
+        callbacks.onRemoveSingleChild(selectedId, idx);
+      }
+    };
+  });
 
   // Resize Children
   const childSizeInputs = container.querySelectorAll('.prop-child-size');

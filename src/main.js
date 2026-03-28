@@ -11,6 +11,7 @@ import {
   findNodeById,
   subdivide,
   removeSubdivision,
+  removeSingleChild,
   resizeChild,
   getNodeDimensions,
   cloneFurniture,
@@ -202,6 +203,21 @@ const formCallbacks = {
     if (!node) return;
     removeSubdivision(node);
     saveAndUpdate();
+  },
+
+  onRemoveSingleChild(parentNodeId, childIndex) {
+    const node = parentNodeId === appState.furniture.root.id
+      ? appState.furniture.root
+      : findNodeById(appState.furniture.root, parentNodeId);
+
+    if (!node) return;
+
+    try {
+      removeSingleChild(node, childIndex, appState.furniture.thickness);
+      saveAndUpdate();
+    } catch (e) {
+      alert(e.message);
+    }
   },
 
   onResizeChild(parentNodeId, childIndex, newSize) {
