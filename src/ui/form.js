@@ -127,6 +127,10 @@ export function renderForm(container, furniture, selectedId, callbacks) {
             <div class="form-group row">
               <label title="${childName}">${childName}</label>
               <div style="display: flex; align-items: center; gap: 4px;">
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                  <button class="btn btn-ghost btn-move-up" data-index="${idx}" ${idx === 0 ? 'disabled' : ''} style="padding: 2px 4px; font-size: 10px; line-height: 1;" title="${t('form.sub.move_up') || '↑'}">▲</button>
+                  <button class="btn btn-ghost btn-move-down" data-index="${idx}" ${idx === node.children.length - 1 ? 'disabled' : ''} style="padding: 2px 4px; font-size: 10px; line-height: 1;" title="${t('form.sub.move_down') || '↓'}">▼</button>
+                </div>
                 <button class="btn btn-ghost btn-lock-toggle" data-index="${idx}" title="${t('form.sub.lock_toggle')}" style="padding: 4px; filter: grayscale(${isLocked ? 0 : 1}); opacity: ${isLocked ? 1 : 0.6};">
                   ${lockIcon}
                 </button>
@@ -226,6 +230,27 @@ function attachListeners(container, furniture, selectedId, callbacks) {
       const idx = parseInt(e.currentTarget.dataset.index, 10);
       if (callbacks.onToggleLock) {
         callbacks.onToggleLock(selectedId, idx);
+      }
+    };
+  });
+
+  // Reorder (Move Up / Down)
+  const btnMoveUp = container.querySelectorAll('.btn-move-up');
+  btnMoveUp.forEach((btn) => {
+    btn.onclick = (e) => {
+      const idx = parseInt(e.currentTarget.dataset.index, 10);
+      if (callbacks.onReorderChild && idx > 0) {
+        callbacks.onReorderChild(selectedId, idx, idx - 1);
+      }
+    };
+  });
+
+  const btnMoveDown = container.querySelectorAll('.btn-move-down');
+  btnMoveDown.forEach((btn) => {
+    btn.onclick = (e) => {
+      const idx = parseInt(e.currentTarget.dataset.index, 10);
+      if (callbacks.onReorderChild) {
+        callbacks.onReorderChild(selectedId, idx, idx + 1);
       }
     };
   });

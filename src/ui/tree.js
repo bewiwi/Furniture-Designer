@@ -13,8 +13,9 @@ import { t } from '../i18n.js';
  * @param {Object} furniture - The complete furniture
  * @param {string} selectedId - Current selected node ID
  * @param {Function} onSelect - Callback when a node is clicked
+ * @param {Function} onReorder - Callback when a node is drag-and-dropped
  */
-export function renderTree(container, furniture, selectedId, onSelect) {
+export function renderTree(container, furniture, selectedId, onSelect, onReorder) {
   if (!container) return;
 
   const html = `
@@ -22,7 +23,7 @@ export function renderTree(container, furniture, selectedId, onSelect) {
       <h3>${t('tree.title')}</h3>
     </div>
     <div class="tree-content">
-      ${renderNode(furniture.root, 0, selectedId, furniture)}
+      ${renderNode(furniture.root, 0, selectedId, furniture, null, 0)}
     </div>
   `;
 
@@ -31,7 +32,52 @@ export function renderTree(container, furniture, selectedId, onSelect) {
   // Add event listeners
   const items = container.querySelectorAll('.tree-node');
   items.forEach((item) => {
-    item.onclick = () => onSelect(item.dataset.id);
+    item.onclick = (e) => {
+      e.stopPropagation();
+      onSelect(item.dataset.id);
+    };
+
+    if (item.getAttribute('draggable') === 'true') {
+      item.ondragstart = (e) => {
+        e.dataTransfer.setData('text/plain', JSON.stringify({
+          id: item.dataset.id,
+          parentId: item.dataset.parentId,
+          index: parseInt(item.dataset.index, 10)
+        }));
+        e.dataTransfer.effectAllowed = 'move';
+      };
+
+      item.ondragover = (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        item.classList.add('drag-over');
+      };
+
+      item.ondragleave = (e) => {
+        item.classList.remove('drag-over');
+      };
+
+      item.ondrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        item.classList.remove('drag-over');
+
+        const dataStr = e.dataTransfer.getData('text/plain');
+        if (!dataStr) return;
+
+        try {
+          const source = JSON.parse(dataStr);
+          const targetParentId = item.dataset.parentId;
+          const targetIndex = parseInt(item.dataset.index, 10);
+
+          if (source.parentId === targetParentId && source.index !== targetIndex && onReorder) {
+            onReorder(targetParentId, source.index, targetIndex);
+          }
+        } catch (err) {
+          console.error('Drag decoding failed:', err);
+        }
+      };
+    }
   });
 }
 
@@ -42,9 +88,11 @@ export function renderTree(container, furniture, selectedId, onSelect) {
  * @param {number} level - Current depth
  * @param {string} selectedId - Current selection
  * @param {Object} furniture - Furniture data
+ * @param {string|null} parentId - ID of parent node
+ * @param {number} index - Index of this relative to parent
  * @returns {string} HTML string
  */
-function renderNode(node, level, selectedId, furniture) {
+function renderNode(node, level, selectedId, furniture, parentId = null, index = 0) {
   const isSelected = node.id === selectedId;
   const isRoot = node.id === furniture.root.id;
 
@@ -66,6 +114,9 @@ function renderNode(node, level, selectedId, furniture) {
   let html = `
     <div class="tree-node ${isSelected ? 'selected' : ''}" 
          data-id="${node.id}" 
+         data-parent-id="${parentId || ''}"
+         data-index="${index}"
+         draggable="${parentId ? 'true' : 'false'}"
          style="padding-left: ${level * 16 + 12}px">
       <div style="display: flex; align-items: center; gap: 6px; overflow: hidden;">
         <span class="icon">${icon}</span>
@@ -77,8 +128,8 @@ function renderNode(node, level, selectedId, furniture) {
 
   // Recursively render children
   if (node.children && node.children.length > 0) {
-    node.children.forEach((child) => {
-      html += renderNode(child, level + 1, selectedId, furniture);
+    node.children.forEach((child, i) => {
+      html += renderNode(child, level + 1, selectedId, furniture, node.id, i);
     });
   }
 

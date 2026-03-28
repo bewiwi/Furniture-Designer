@@ -15,6 +15,7 @@ import {
   removeSingleChild,
   resizeChild,
   toggleChildLock,
+  reorderChild,
   getNodeDimensions,
   cloneFurniture,
 } from './model.js';
@@ -133,7 +134,8 @@ function fullUpdate() {
     document.getElementById('tree-panel'),
     appState.furniture,
     appState.selectedNodeId,
-    onSelectNode
+    onSelectNode,
+    formCallbacks.onReorderChild
   );
 
   renderForm(
@@ -267,6 +269,21 @@ const formCallbacks = {
 
     try {
       addSingleChild(node, appState.furniture.thickness);
+      saveAndUpdate();
+    } catch (e) {
+      alert(e.message);
+    }
+  },
+
+  onReorderChild(parentNodeId, oldIndex, newIndex) {
+    const node = parentNodeId === appState.furniture.root.id
+      ? appState.furniture.root
+      : findNodeById(appState.furniture.root, parentNodeId);
+
+    if (!node) return;
+
+    try {
+      reorderChild(node, oldIndex, newIndex);
       saveAndUpdate();
     } catch (e) {
       alert(e.message);

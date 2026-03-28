@@ -158,6 +158,30 @@ export function addSingleChild(node, thickness, initialSize = 100) {
 }
 
 /**
+ * Reorders a child by moving it to a new index within the same parent.
+ *
+ * @param {Object} node - The parent node.
+ * @param {number} oldIndex - Current index of the child.
+ * @param {number} newIndex - Target index.
+ */
+export function reorderChild(node, oldIndex, newIndex) {
+  if (!node.children || oldIndex < 0 || oldIndex >= node.children.length) {
+    throw new Error('Invalid source index');
+  }
+  if (newIndex < 0 || newIndex >= node.children.length) {
+    throw new Error('Invalid target index');
+  }
+
+  // Remove elements from the arrays
+  const movedChild = node.children.splice(oldIndex, 1)[0];
+  const movedSize = node.sizes.splice(oldIndex, 1)[0];
+
+  // Insert them at the new index
+  node.children.splice(newIndex, 0, movedChild);
+  node.sizes.splice(newIndex, 0, movedSize);
+}
+
+/**
  * Toggles the 'locked' state of a child component.
  * Prevents locking the very last unlocked component.
  */
