@@ -121,11 +121,15 @@ export function groupPlanks(planks) {
   for (const p of planks) {
     // Key based on dimensions and type
     const key = `${p.w}x${p.h}x${p.d}-${p.type}`;
+    
+    // Plank area is the product of the two largest dimensions (length x width)
+    const dims = [p.w, p.h, p.d].sort((a, b) => b - a);
+    const area = (dims[0] * dims[1]) / 1000000;
 
     if (groups.has(key)) {
       const g = groups.get(key);
       g.count++;
-      g.totalArea += (p.w * p.h) / 1000000;
+      g.totalArea += area;
     } else {
       // Clean name removes the suffix conceptually for grouping
       let cleanName = p.name;
@@ -140,7 +144,7 @@ export function groupPlanks(planks) {
         d: p.d,
         type: p.type,
         count: 1,
-        totalArea: (p.w * p.h) / 1000000,
+        totalArea: area,
       });
     }
   }

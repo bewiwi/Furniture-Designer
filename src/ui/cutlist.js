@@ -17,10 +17,22 @@ import { escapeHtml } from '../utils.js';
 export function renderCutList(container, planks) {
   if (!container) return;
 
+  container.innerHTML = generateCutListHtml(planks);
+
+  attachCutlistListeners(container);
+}
+
+/**
+ * Generates the HTML for the cut list table and footer.
+ *
+ * @param {Object[]} planks 
+ * @returns {string}
+ */
+export function generateCutListHtml(planks) {
   const grouped = groupPlanks(planks);
   const totalArea = grouped.reduce((sum, g) => sum + g.totalArea, 0);
 
-  const html = `
+  return `
     <div class="cutlist-header">
       <div class="title">
         <span class="icon">📋</span>
@@ -69,10 +81,6 @@ export function renderCutList(container, planks) {
       </div>
     </div>
   `;
-
-  container.innerHTML = html;
-
-  attachCutlistListeners(container);
 }
 
 function attachCutlistListeners(container) {

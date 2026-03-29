@@ -38,7 +38,7 @@ import {
   saveTheme,
   loadTheme,
 } from './storage.js';
-import { exportSTL, exportDXF } from './exporter.js';
+import { exportSTL, exportDXF, exportPlan } from './exporter.js';
 import { renderTree } from './ui/tree.js';
 import { renderForm } from './ui/form.js';
 import { renderToolbar } from './ui/toolbar.js';
@@ -372,6 +372,10 @@ const toolbarCallbacks = {
 
   onExportDXF() {
     exportDXF(appState.geometries, appState.furniture.name || 'furniture');
+  },
+
+  onExportPlan() {
+    exportPlan(appState.furniture, appState.planks);
   },
 
   onUndo() {

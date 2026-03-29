@@ -40,6 +40,7 @@ export function renderToolbar(container, callbacks, state) {
     <div class="toolbar-right">
       <button class="btn export" id="btn-stl" title="${t('tool.export_stl.title')}">${t('tool.export_stl')}</button>
       <button class="btn export" id="btn-dxf" title="${t('tool.export_dxf.title')}">${t('tool.export_dxf')}</button>
+      <button class="btn export" id="btn-plan" title="${t('tool.export_plan.title')}">${t('tool.export_plan')}</button>
       <div class="divider"></div>
       <button class="btn nav theme-toggle" id="btn-theme" title="${t('tool.theme.title')}">
         ${state.currentTheme === 'light' ? '☀️' : '🌙'}
@@ -78,6 +79,7 @@ function attachToolbarListeners(container, callbacks) {
   // Export
   container.querySelector('#btn-stl').onclick = () => callbacks.onExportSTL();
   container.querySelector('#btn-dxf').onclick = () => callbacks.onExportDXF();
+  container.querySelector('#btn-plan').onclick = () => callbacks.onExportPlan();
 
   // Undo/Redo
   container.querySelector('#btn-undo').onclick = () => callbacks.onUndo();
