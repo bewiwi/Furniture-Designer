@@ -277,6 +277,38 @@ export function resizeChild(node, childIndex, newSize) {
 }
 
 /**
+ * Equalizes sizes of all unlocked children in a subdivided node.
+ * Locked children retain their current size; the remaining space
+ * is distributed equally among unlocked children.
+ *
+ * @param {Object} node - The parent node (must be subdivided)
+ */
+export function equalizeSizes(node) {
+  if (!node.direction || !node.sizes || node.sizes.length === 0) return;
+
+  const totalSpace = node.sizes.reduce((sum, s) => sum + s, 0);
+
+  // Collect locked vs unlocked indices
+  const lockedSpace = node.sizes.reduce(
+    (sum, s, i) => sum + (node.children[i].locked ? s : 0), 0
+  );
+  const freeIndices = node.sizes
+    .map((_, i) => i)
+    .filter(i => !node.children[i].locked);
+
+  if (freeIndices.length === 0) return; // All locked, nothing to do
+
+  const freeSpace = totalSpace - lockedSpace;
+  const equalSize = Math.floor(freeSpace / freeIndices.length);
+  const remainder = freeSpace - equalSize * freeIndices.length;
+
+  freeIndices.forEach((idx, i) => {
+    // Give remainder to the last free child
+    node.sizes[idx] = i === freeIndices.length - 1 ? equalSize + remainder : equalSize;
+  });
+}
+
+/**
  * Calculates available space in a node for a given direction
  *
  * @param {number} totalDimension - Total dimension of the compartment in the subdivision direction
@@ -355,11 +387,20 @@ export function getNodeDimensions(furniture, nodeId) {
   let h = furniture.height - 2 * T;
 
   // Traverse the path to accumulate offsets
-  for (let p = 0; p < path.length - 1; p++) {
-    const { node: parentNode, childIndex } = path[p];
+  // The path returned by getNodePath is:
+  // [ {node: root, childIndex: i}, {node: child1, childIndex: j}, ..., targetNode ]
+  // We want to apply the subdivision of root to find child1's dims,
+  // then apply child1's subdivision to find child2's dims, etc.
+  for (let p = 0; p < path.length; p++) {
+    const segment = path[p];
+    if (segment.childIndex === undefined) break; // This is the target node itself
+
+    const parentNode = segment.node;
+    const childIndex = segment.childIndex;
 
     if (parentNode.direction === 'row') {
-      // Vertically stacked rows: adjust y and h
+      // Rows are stacked vertically (along Y axis)
+      // All children have the same width as the parent
       let offsetY = 0;
       for (let i = 0; i < childIndex; i++) {
         offsetY += parentNode.sizes[i] + T;
@@ -367,7 +408,8 @@ export function getNodeDimensions(furniture, nodeId) {
       y += offsetY;
       h = parentNode.sizes[childIndex];
     } else if (parentNode.direction === 'col') {
-      // Side-by-side columns: adjust x and w
+      // Columns are side-by-side (along X axis)
+      // All children have the same height as the parent
       let offsetX = 0;
       for (let i = 0; i < childIndex; i++) {
         offsetX += parentNode.sizes[i] + T;

@@ -153,7 +153,10 @@ export function renderForm(container, furniture, selectedId, callbacks) {
     
     html += `
       <section class="form-section">
-        <legend>${dirLabel}</legend>
+        <div class="legend-row">
+          <legend>${dirLabel}</legend>
+          <button class="btn btn-small" id="btn-equalize" title="${t('form.sub.equalize')}">⚖</button>
+        </div>
         <div class="children-list">
           ${node.sizes.map((size, idx) => {
             const childNode = node.children[idx];
@@ -254,6 +257,16 @@ function attachListeners(container, furniture, selectedId, callbacks) {
   const btnRemove = container.querySelector('#btn-remove-sub');
   if (btnRemove) {
     btnRemove.onclick = () => callbacks.onRemoveSubdivision(selectedId);
+  }
+
+  // Equalize Sizes
+  const btnEqualize = container.querySelector('#btn-equalize');
+  if (btnEqualize) {
+    btnEqualize.onclick = () => {
+      if (callbacks.onEqualizeSizes) {
+        callbacks.onEqualizeSizes(selectedId);
+      }
+    };
   }
 
   // Remove Single Subdivision

@@ -34,6 +34,7 @@ const dictionaries = {
     'form.sub.move_down': 'Move down',
     'form.sub.row_prefix': 'Row',
     'form.sub.col_prefix': 'Column',
+    'form.sub.equalize': '⚖ Equalize Sizes',
 
     // Toolbar
     'tool.new': '📄 New',
@@ -122,6 +123,7 @@ const dictionaries = {
     'form.sub.move_down': 'Déplacer vers le bas',
     'form.sub.row_prefix': 'Rangée',
     'form.sub.col_prefix': 'Colonne',
+    'form.sub.equalize': '⚖ Égaliser les tailles',
 
     // Toolbar
     'tool.new': '📄 Nouveau',

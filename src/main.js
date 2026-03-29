@@ -16,6 +16,7 @@ import {
   resizeChild,
   toggleChildLock,
   reorderChild,
+  equalizeSizes,
   getNodeDimensions,
   cloneFurniture,
 } from './model.js';
@@ -300,6 +301,14 @@ const formCallbacks = {
     } catch (e) {
       alert(e.message);
     }
+  },
+
+  onEqualizeSizes(nodeId) {
+    const node = resolveNode(nodeId);
+    if (!node) return;
+
+    equalizeSizes(node);
+    saveAndUpdate();
   },
 };
 

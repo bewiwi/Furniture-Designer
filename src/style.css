@@ -359,6 +359,21 @@ html, body {
   width: 100%;
 }
 
+.legend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-sm);
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--border);
+}
+
+.legend-row legend {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
 /* --- Form Layout: headers, groups, grids --- */
 .form-header,
 .tree-header {
@@ -743,6 +758,23 @@ html, body {
 }
 
 .btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: var(--bg-surface);
+  color: var(--accent-warm);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-elevated);
+  border-color: var(--accent-warm);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(201, 166, 107, 0.2);
+}
+
+.btn-secondary:active {
   transform: translateY(0);
 }
 
