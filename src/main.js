@@ -190,7 +190,7 @@ function saveAndUpdate() {
 // =============================================================================
 
 function onSelectNode(nodeId) {
-  appState.selectedNodeId = nodeId;
+  appState.selectedNodeId = appState.selectedNodeId === nodeId ? null : nodeId;
   fullUpdate();
 }
 
