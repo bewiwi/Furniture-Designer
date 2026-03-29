@@ -872,10 +872,24 @@ html, body {
   flex-shrink: 0;
 }
 
+.cutlist-header .title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
 .cutlist-header h3 {
   font-size: 12px;
   font-weight: 600;
   color: var(--accent-secondary);
+  margin: 0;
+}
+
+.icon {
+  font-size: 14px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
 }
 
 .cutlist-body {
