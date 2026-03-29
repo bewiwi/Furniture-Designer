@@ -18,30 +18,31 @@
     - **🛠️ STL**: For 3D printing or importing into other CAD software.
     - **📐 DXF**: For CNC or laser cutting.
 - **Full History**: **Undo/Redo** support (Ctrl+Z / Ctrl+Y) with local persistence (`localStorage`).
-- **"Dark Workshop" Theme**: Elegant and high-contrast interface optimized for design work.
+- **Themes**: Switch between **Dark Workshop** and **Light Mode** using the theme toggle.
 
 ## 🚀 Installation & Launch
 
-### Prerequisites
-- [Node.js](https://nodejs.org/) (Version 18 or higher recommended)
-- A modern browser with WebGL support.
+### Docker (Recommended)
+You can run the application instantly using the pre-built image from **GHCR**:
+```bash
+docker run -d -p 8080:80 ghcr.io/bewiwi/furniture-designer:latest
+```
+Then visit [http://localhost:8080/](http://localhost:8080/).
 
-### Installation
+### Local Development
 1. Clone the repository:
    ```bash
-   git clone <your-repo-url>
-   cd meuble
+   git clone https://github.com/bewiwi/Furniture-Designer.git
+   cd Furniture-Designer
    ```
 2. Install dependencies:
    ```bash
    npm install
    ```
-
-### Development
-Start the Vite development server:
-```bash
-npm run dev
-```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 The application will be available at [http://localhost:5173/](http://localhost:5173/).
 
 ### Production Build
