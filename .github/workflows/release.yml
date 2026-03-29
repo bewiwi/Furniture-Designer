@@ -3,7 +3,8 @@ name: Build and Push Docker Image
 on:
   push:
     tags:
-      - 'v*'  # Triggers on version tags like v1.0.0, v2.1, etc.
+      - 'v*'
+  workflow_dispatch: # Allows manual triggering for testing
 
 env:
   REGISTRY: ghcr.io
