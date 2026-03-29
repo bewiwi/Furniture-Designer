@@ -23,7 +23,16 @@ import {
 } from './model.js';
 import { generatePlanks } from './planks.js';
 import { planksToGeometries, highlightCompartment } from './geometry.js';
-import { initViewer, updateEntities, fitCamera, setPresetView, setRenderCallback, project3DTo2D } from './viewer.js';
+import {
+  initViewer,
+  updateEntities,
+  fitCamera,
+  setPresetView,
+  setRenderCallback,
+  setOnSelectNode,
+  getPickedNodeId,
+  project3DTo2D,
+} from './viewer.js';
 import {
   saveToLocalStorage,
   loadFromLocalStorage,
@@ -119,6 +128,17 @@ function init() {
       // Attach dynamically projected quotes overlay to the render loop
       setRenderCallback(() => {
         renderQuotes(appState.furniture, appState.selectedNodeId, project3DTo2D);
+      });
+
+      // Handle selection via click on 3D viewer
+      setOnSelectNode((x, y) => {
+        const pickedId = getPickedNodeId(x, y, appState.furniture);
+        if (pickedId) {
+          onSelectNode(pickedId);
+        } else {
+          // Reset selection to root when clicking empty space
+          onSelectNode(appState.furniture.root.id);
+        }
       });
     } catch (e) {
       console.error('Failed to initialize 3D viewer:', e);

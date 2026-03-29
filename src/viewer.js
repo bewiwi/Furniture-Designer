@@ -6,6 +6,7 @@
  */
 
 import reglRenderer from '@jscad/regl-renderer';
+import { getNodeDimensions } from './model.js';
 const { prepareRender, drawCommands, cameras, controls, entitiesFromSolids } = reglRenderer;
 
 const perspectiveCamera = cameras.perspective;
@@ -29,20 +30,20 @@ const state = {
   lastMouse: [0, 0],
   initialized: false,
   onRender: null,
+  onSelectNode: null,
   resizeObserver: null,
   // Idle throttling: reduce GPU work when nothing is happening
   lastActivityTime: 0,
   dirty: true,
+  // Picking support
+  mouseStart: [0, 0],
 };
+
+// ... (rest of the file constants)
 
 // Idle threshold: after this many ms of no interaction, drop to low-fps mode
 const IDLE_THRESHOLD_MS = 2000;
 const IDLE_FRAME_INTERVAL_MS = 500; // ~2fps when idle
-
-// Pre-allocated DOMMatrix/DOMPoint objects to avoid creating new ones every frame
-const _viewMatrix = new DOMMatrix();
-const _projMatrix = new DOMMatrix();
-const _point = new DOMPoint();
 
 // Static scene entities (created once, reused every frame to prevent WebGL buffer leaks)
 const GRID_ENTITY = Object.freeze({
@@ -64,6 +65,24 @@ const AXIS_ENTITY = Object.freeze({
     show: true,
   },
 });
+
+// Pre-allocated DOMMatrix/DOMPoint objects to avoid creating new ones every frame
+// Initialized lazily to avoid ReferenceErrors in non-browser environments (like Vitest)
+let _viewMatrix, _projMatrix, _point;
+
+function initGlobals() {
+  if (_viewMatrix) return;
+  if (typeof DOMMatrix !== 'undefined') {
+    _viewMatrix = new DOMMatrix();
+    _projMatrix = new DOMMatrix();
+    _point = new DOMPoint();
+  } else {
+    // Fallback for Node.js/Vitest
+    _viewMatrix = { a: 1 };
+    _projMatrix = { a: 1 };
+    _point = { x: 0 };
+  }
+}
 
 /**
  * Initialize the 3D viewer in a container element (div).
@@ -233,48 +252,113 @@ export function setRenderCallback(cb) {
 }
 
 /**
+ * Set a callback to be called when a 3D element is clicked.
+ * @param {Function} cb - (nodeId) => void
+ */
+export function setOnSelectNode(cb) {
+  state.onSelectNode = cb;
+}
+
+/**
  * Project a 3D point to 2D screen coordinates using the current camera matrices.
  * Reuses pre-allocated DOMMatrix/DOMPoint objects to avoid GC pressure at 60fps.
  *
  * @param {number} x, y, z
  * @returns {{x, y} | null} Screen coordinates
  */
-export function project3DTo2D(x, y, z) {
+export const project3DTo2D = (x, y, z) => {
   if (!state.camera || !state.container || !state.camera.projection || !state.camera.view) {
     return null;
   }
 
+  initGlobals();
+  if (typeof DOMPoint === 'undefined' || typeof DOMMatrix === 'undefined') return null;
+
   const w = state.container.clientWidth;
   const h = state.container.clientHeight;
 
-  // Reuse pre-allocated matrices — avoids creating new DOMMatrix/DOMPoint every frame
-  _viewMatrix.a = 1; // Reset by loading from typed array
-  const viewArr = state.camera.view;
-  _viewMatrix.m11 = viewArr[0];  _viewMatrix.m12 = viewArr[1];  _viewMatrix.m13 = viewArr[2];  _viewMatrix.m14 = viewArr[3];
-  _viewMatrix.m21 = viewArr[4];  _viewMatrix.m22 = viewArr[5];  _viewMatrix.m23 = viewArr[6];  _viewMatrix.m24 = viewArr[7];
-  _viewMatrix.m31 = viewArr[8];  _viewMatrix.m32 = viewArr[9];  _viewMatrix.m33 = viewArr[10]; _viewMatrix.m34 = viewArr[11];
-  _viewMatrix.m41 = viewArr[12]; _viewMatrix.m42 = viewArr[13]; _viewMatrix.m43 = viewArr[14]; _viewMatrix.m44 = viewArr[15];
+  try {
+    // regl-renderer uses column-major arrays
+    const viewMatrix = new DOMMatrix(state.camera.view);
+    const projMatrix = new DOMMatrix(state.camera.projection);
 
-  const projArr = state.camera.projection;
-  _projMatrix.m11 = projArr[0];  _projMatrix.m12 = projArr[1];  _projMatrix.m13 = projArr[2];  _projMatrix.m14 = projArr[3];
-  _projMatrix.m21 = projArr[4];  _projMatrix.m22 = projArr[5];  _projMatrix.m23 = projArr[6];  _projMatrix.m24 = projArr[7];
-  _projMatrix.m31 = projArr[8];  _projMatrix.m32 = projArr[9];  _projMatrix.m33 = projArr[10]; _projMatrix.m34 = projArr[11];
-  _projMatrix.m41 = projArr[12]; _projMatrix.m42 = projArr[13]; _projMatrix.m43 = projArr[14]; _projMatrix.m44 = projArr[15];
+    const point = new DOMPoint(x, y, z, 1);
+    const pv = point.matrixTransform(viewMatrix);
+    const pProj = pv.matrixTransform(projMatrix);
 
-  _point.x = x; _point.y = y; _point.z = z; _point.w = 1;
-  const pv = _point.matrixTransform(_viewMatrix);
-  const pProj = pv.matrixTransform(_projMatrix);
+    if (pProj.w <= 0) return null;
 
-  // Behind camera
-  if (pProj.w <= 0) return null;
+    const ndcX = pProj.x / pProj.w;
+    const ndcY = pProj.y / pProj.w;
 
-  const ndcX = pProj.x / pProj.w;
-  const ndcY = pProj.y / pProj.w;
+    const screenX = ((ndcX + 1) / 2) * w;
+    const screenY = ((1 - ndcY) / 2) * h;
 
-  const screenX = ((ndcX + 1) / 2) * w;
-  const screenY = ((1 - ndcY) / 2) * h;
+    return { x: screenX, y: screenY };
+  } catch (err) {
+    return null;
+  }
+}
 
-  return { x: screenX, y: screenY };
+/**
+ * Checks which compartment (if any) is under the given screen coordinates.
+ *
+ * @param {number} mouseX, mouseY - Screen coordinates
+ * @param {Object} furniture - The current furniture model
+ * @param {Function} [projectFunc] - Optional projection function (defaults to project3DTo2D)
+ * @returns {string|null} Node ID or null
+ */
+export function getPickedNodeId(mouseX, mouseY, furniture, projectFunc = project3DTo2D) {
+  if (!furniture || !furniture.root) return null;
+
+  // 1. Gather all leaf nodes and their 3D boundaries
+  const leafNodes = [];
+  const traverse = (node) => {
+    if (!node.direction || node.children.length === 0) {
+      leafNodes.push(node);
+    } else {
+      for (const child of node.children) {
+        traverse(child);
+      }
+    }
+  };
+  traverse(furniture.root);
+
+  let bestNodeId = null;
+  let minDistance = Infinity;
+
+  // 2. For each leaf, check if mouse is inside its projected front face
+  for (const node of leafNodes) {
+    const d = getNodeDimensions(furniture, node.id);
+    if (!d) continue;
+
+    // Use front face corners at z = depth
+    const z = furniture.depth;
+    const corners = [
+      projectFunc(d.x, d.y, z),
+      projectFunc(d.x + d.w, d.y, z),
+      projectFunc(d.x + d.w, d.y + d.h, z),
+      projectFunc(d.x, d.y + d.h, z),
+    ];
+
+    if (corners.some((c) => !c)) continue; 
+
+    // Simple point-in-polygon (winding number or min/max)
+    const minX = Math.min(...corners.map((c) => c.x));
+    const maxX = Math.max(...corners.map((c) => c.x));
+    const minY = Math.min(...corners.map((c) => c.y));
+    const maxY = Math.max(...corners.map((c) => c.y));
+
+    if (mouseX >= minX && mouseX <= maxX && mouseY >= minY && mouseY <= maxY) {
+      const area = d.w * d.h;
+      if (area < minDistance) {
+        minDistance = area;
+        bestNodeId = node.id;
+      }
+    }
+  }
+
+  return bestNodeId;
 }
 
 // =============================================================================
@@ -291,6 +375,7 @@ function onMouseDown(e) {
   state.isDragging = true;
   state.dragButton = e.button;
   state.lastMouse = [e.clientX, e.clientY];
+  state.mouseStart = [e.clientX, e.clientY];
   markActive();
 }
 
@@ -314,7 +399,28 @@ function onMouseMove(e) {
   }
 }
 
-function onMouseUp() {
+function onMouseUp(e) {
+  if (!state.isDragging) return;
+
+  // Selection Logic: if it's a left click and the mouse hasn't moved much, it's a "click"
+  if (state.dragButton === 0 && state.onSelectNode) {
+    const dx = Math.abs(e.clientX - state.mouseStart[0]);
+    const dy = Math.abs(e.clientY - state.mouseStart[1]);
+    
+    // Tolerance of 3 pixels to distinguish from tiny movements during clicking
+    if (dx < 4 && dy < 4) {
+      // We need the furniture object to perform picking. 
+      // Since viewer is agnostic of the full app state, we can't easily get it here
+      // unless we pass it to the callback or store it in the viewer state.
+      // Let's assume the callback will handle the actual picking using getPickedNodeId
+      // and providing the current furniture.
+      const rect = state.container.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      state.onSelectNode(x, y);
+    }
+  }
+
   state.isDragging = false;
   state.dragButton = -1;
 }
