@@ -35,6 +35,8 @@ import {
   canRedo,
   saveLanguage,
   loadLanguage,
+  saveTheme,
+  loadTheme,
 } from './storage.js';
 import { exportSTL, exportDXF } from './exporter.js';
 import { renderTree } from './ui/tree.js';
@@ -53,6 +55,7 @@ const appState = {
   selectedNodeId: null,
   planks: [],
   geometries: [],
+  currentTheme: 'dark',
 };
 
 // =============================================================================
@@ -87,6 +90,12 @@ function init() {
 
   // Set document title
   document.title = t('app.title');
+
+  // Initialize Theme
+  appState.currentTheme = loadTheme();
+  if (appState.currentTheme === 'light') {
+    document.body.classList.add('theme-light');
+  }
 
   // Load from localStorage or create default furniture
   const saved = loadFromLocalStorage();
@@ -152,11 +161,16 @@ function fullUpdate() {
   updateEntities(allGeometries);
 
   // 5. Render UI components
-  renderToolbar(
-    document.getElementById('toolbar'),
-    toolbarCallbacks,
-    { canUndo: canUndo(), canRedo: canRedo(), currentLang: getLanguage() }
-  );
+    renderToolbar(
+      document.getElementById('toolbar'),
+      toolbarCallbacks,
+      {
+        canUndo: canUndo(),
+        canRedo: canRedo(),
+        currentLang: getLanguage(),
+        currentTheme: appState.currentTheme,
+      }
+    );
 
   renderTree(
     document.getElementById('tree-panel'),
@@ -392,6 +406,13 @@ const toolbarCallbacks = {
     saveLanguage(lang);
     setLanguage(lang);
     document.title = t('app.title');
+    fullUpdate();
+  },
+
+  onThemeToggle() {
+    appState.currentTheme = appState.currentTheme === 'light' ? 'dark' : 'light';
+    saveTheme(appState.currentTheme);
+    document.body.classList.toggle('theme-light', appState.currentTheme === 'light');
     fullUpdate();
   }
 };

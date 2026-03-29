@@ -8,6 +8,7 @@
 
 import { describe, it, expect } from 'vitest';
 import {
+  generateId,
   createFurniture,
   createNode,
   subdivide,
@@ -477,5 +478,47 @@ describe('normalizeTree', () => {
     // Child 0 subdivision was col, should be rescaled from 960 available to 460 available
     // (460 - 20) / 2 = 220
     expect(f.root.children[0].sizes).toEqual([220, 220]);
+  });
+});
+
+describe('generateId', () => {
+  it('generates a valid UUID string', () => {
+    const id = generateId();
+    expect(typeof id).toBe('string');
+    expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+  });
+
+  it('generates unique IDs', () => {
+    const id1 = generateId();
+    const id2 = generateId();
+    expect(id1).not.toBe(id2);
+  });
+});
+
+describe('removeSubdivision (Deep)', () => {
+  it('clears nested structure completely', () => {
+    const f = createFurniture();
+    subdivide(f.root, 'row', 2, 1000, 20);
+    subdivide(f.root.children[0], 'col', 2, 1000, 20);
+    
+    removeSubdivision(f.root);
+    expect(f.root.direction).toBeNull();
+    expect(f.root.children).toHaveLength(0);
+    expect(f.root.sizes).toHaveLength(0);
+  });
+});
+
+describe('addSingleChild (Advanced)', () => {
+  it('takes space from the last unlocked child that has enough space', () => {
+    const node = createNode();
+    subdivide(node, 'row', 2, 1000, 20);
+    node.sizes = [500, 460]; // Space available = 1000 - 20 = 980 total sum
+    
+    // Add child, should take from index 1 (last unlocked)
+    addSingleChild(node, 20, 100);
+    
+    expect(node.children).toHaveLength(3);
+    expect(node.sizes[1]).toBe(460 - 100 - 20);
+    expect(node.sizes[2]).toBe(100);
   });
 });

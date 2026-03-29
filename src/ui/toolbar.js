@@ -41,6 +41,9 @@ export function renderToolbar(container, callbacks, state) {
       <button class="btn export" id="btn-stl" title="${t('tool.export_stl.title')}">${t('tool.export_stl')}</button>
       <button class="btn export" id="btn-dxf" title="${t('tool.export_dxf.title')}">${t('tool.export_dxf')}</button>
       <div class="divider"></div>
+      <button class="btn nav theme-toggle" id="btn-theme" title="${t('tool.theme.title')}">
+        ${state.currentTheme === 'light' ? '☀️' : '🌙'}
+      </button>
       <select id="lang-select" class="lang-switcher">
         <option value="en" ${state.currentLang === 'en' ? 'selected' : ''}>🇬🇧 EN</option>
         <option value="fr" ${state.currentLang === 'fr' ? 'selected' : ''}>🇫🇷 FR</option>
@@ -89,6 +92,16 @@ function attachToolbarListeners(container, callbacks) {
       callbacks.onSetView(btn.dataset.view);
     };
   });
+
+  // Theme Toggle
+  const themeBtn = container.querySelector('#btn-theme');
+  if (themeBtn) {
+    themeBtn.onclick = () => {
+      if (callbacks.onThemeToggle) {
+        callbacks.onThemeToggle();
+      }
+    };
+  }
 
   // Language Switcher
   const langSelect = container.querySelector('#lang-select');

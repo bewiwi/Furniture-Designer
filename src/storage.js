@@ -10,12 +10,37 @@ import { validateFurniture, downloadBlob, sanitizeFileName } from './utils.js';
 
 const STORAGE_KEY = 'furniture-designer-app-v1';
 const LANG_KEY = 'furniture-designer-lang';
+const THEME_KEY = 'furniture-designer-theme';
 const HISTORY_LIMIT = 50;
 
 const state = {
   history: [],
   currentIndex: -1,
 };
+
+/**
+ * Saves the user's theme preference.
+ * @param {string} theme ('dark' | 'light')
+ */
+export function saveTheme(theme) {
+  try {
+    localStorage.setItem(THEME_KEY, theme);
+  } catch (e) {
+    console.error('Failed to save theme:', e);
+  }
+}
+
+/**
+ * Loads the user's theme preference (defaults to 'dark').
+ * @returns {string} 
+ */
+export function loadTheme() {
+  try {
+    return localStorage.getItem(THEME_KEY) || 'dark';
+  } catch (e) {
+    return 'dark';
+  }
+}
 
 /**
  * Saves the user's language preference.
