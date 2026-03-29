@@ -130,6 +130,7 @@ export function groupPlanks(planks) {
       const g = groups.get(key);
       g.count++;
       g.totalArea += area;
+      g.ids.push(p.id);
     } else {
       // Clean name removes the suffix conceptually for grouping
       let cleanName = p.name;
@@ -145,6 +146,7 @@ export function groupPlanks(planks) {
         type: p.type,
         count: 1,
         totalArea: area,
+        ids: [p.id],
       });
     }
   }

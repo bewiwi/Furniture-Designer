@@ -66,6 +66,7 @@ const appState = {
   planks: [],
   geometries: [],
   currentTheme: 'dark',
+  highlightedPlankIds: [],
 };
 
 // =============================================================================
@@ -167,8 +168,8 @@ function fullUpdate() {
   // 1. Regenerate planks
   appState.planks = generatePlanks(appState.furniture);
 
-  // 2. Convert to geometries
-  appState.geometries = planksToGeometries(appState.planks);
+  // 2. Convert to geometries with optional highlighting
+  appState.geometries = planksToGeometries(appState.planks, appState.highlightedPlankIds);
 
   // 3. Add selection highlight for the current compartment
   const allGeometries = [...appState.geometries];
@@ -213,7 +214,23 @@ function fullUpdate() {
 
   renderCutList(
     document.getElementById('cutlist-panel'),
-    appState.planks
+    appState.planks,
+    (ids) => {
+      appState.highlightedPlankIds = ids;
+      // We don't want to perform a full re-render of the DOM for a simple hover
+      // Update only the 3D geometries for smoothness
+      const newGeometries = planksToGeometries(appState.planks, appState.highlightedPlankIds);
+      const allNew = [...newGeometries];
+      if (appState.selectedNodeId) {
+        const dims = getNodeDimensions(appState.furniture, appState.selectedNodeId);
+        if (dims) {
+          allNew.push(
+            highlightCompartment(dims.x, dims.y, dims.w, dims.h, appState.furniture.depth)
+          );
+        }
+      }
+      updateEntities(allNew);
+    }
   );
 }
 

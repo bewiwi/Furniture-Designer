@@ -13,13 +13,14 @@ import { escapeHtml } from '../utils.js';
  *
  * @param {HTMLElement} container - Cut list container
  * @param {Object[]} planks - All furniture planks
+ * @param {Function} onHover - Callback when a plank group is hovered (ids[]) => void
  */
-export function renderCutList(container, planks) {
+export function renderCutList(container, planks, onHover) {
   if (!container) return;
 
   container.innerHTML = generateCutListHtml(planks);
 
-  attachCutlistListeners(container);
+  attachCutlistListeners(container, onHover);
 }
 
 /**
@@ -62,7 +63,7 @@ export function generateCutListHtml(planks) {
             const width = Math.round(dims[1]);
             const thickness = Math.round(dims[2]);
             return `
-            <tr>
+            <tr data-plank-ids="${g.ids.join(',')}">
               <td class="qty">${g.count}</td>
               <td class="name">${t(g.name, { count: g.count, suffix: g.suffix || '' })} ${g.count > 1 ? '<span class="multi">(\u00d7' + g.count + ')</span>' : ''}</td>
               <td class="dim">${length} mm</td>
@@ -83,14 +84,24 @@ export function generateCutListHtml(planks) {
   `;
 }
 
-function attachCutlistListeners(container) {
+function attachCutlistListeners(container, onHover) {
   const btn = container.querySelector('#btn-toggle-cutlist');
-  const table = container.querySelector('.cutlist-body');
+  const tableBody = container.querySelector('.cutlist-body');
 
   btn.onclick = () => {
-    const isCollapsed = table.classList.toggle('collapsed');
+    const isCollapsed = tableBody.classList.toggle('collapsed');
     btn.innerText = isCollapsed ? t('cutlist.expand') : t('cutlist.collapse');
   };
+
+  if (onHover) {
+    const rows = container.querySelectorAll('.cutlist-table tbody tr');
+    rows.forEach((row) => {
+      const ids = row.dataset.plankIds ? row.dataset.plankIds.split(',') : [];
+      
+      row.onmouseenter = () => onHover(ids);
+      row.onmouseleave = () => onHover([]);
+    });
+  }
 }
 
 

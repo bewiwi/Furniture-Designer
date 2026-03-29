@@ -23,9 +23,12 @@ const TYPE_COLORS = {
  * Converts a list of plank objects into JSCAD geometries.
  *
  * @param {Object[]} planks - List of planks { name, w, h, d, x, y, z, type }
+ * @param {string[]} highlightIds - Optional list of plank IDs to highlight
  * @returns {Object[]} List of JSCAD solids
  */
-export function planksToGeometries(planks) {
+export function planksToGeometries(planks, highlightIds = []) {
+  const highlightSet = new Set(highlightIds);
+
   return planks.map((p) => {
     // JSCAD cuboid is centered on origin, so we need to offset it
     // centered [w/2, h/2, d/2]
@@ -37,8 +40,14 @@ export function planksToGeometries(planks) {
     // Position it at its absolute coordinates
     const translated = translate([p.x, p.y, p.z], solid);
 
-    // Apply color based on type
-    const color = TYPE_COLORS[p.type] || [0.5, 0.5, 0.5, 1];
+    // Apply color based on type, or highlight color if ID matches
+    let color = TYPE_COLORS[p.type] || [0.5, 0.5, 0.5, 1];
+    
+    if (highlightSet.has(p.id)) {
+      // Use a distinct bright blue color for highlighting
+      color = [0, 0.6, 1, 1];
+    }
+
     return colorize(color, translated);
   });
 }

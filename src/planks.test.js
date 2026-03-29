@@ -90,9 +90,9 @@ describe('generatePlanks', () => {
 describe('groupPlanks', () => {
   it('groups identical planks and sums area', () => {
     const planks = [
-      { name: 'p1', w: 100, h: 500, d: 20, type: 'shelf' },
-      { name: 'p2', w: 100, h: 500, d: 20, type: 'shelf' },
-      { name: 'p3', w: 200, h: 500, d: 20, type: 'separator' }
+      { id: 'id1', name: 'p1', w: 100, h: 500, d: 20, type: 'shelf' },
+      { id: 'id2', name: 'p2', w: 100, h: 500, d: 20, type: 'shelf' },
+      { id: 'id3', name: 'p3', w: 200, h: 500, d: 20, type: 'separator' }
     ];
 
     const groups = groupPlanks(planks);
@@ -101,5 +101,8 @@ describe('groupPlanks', () => {
     const shelfGroup = groups.find(g => g.type === 'shelf');
     expect(shelfGroup.count).toBe(2);
     expect(shelfGroup.totalArea).toBeCloseTo(0.1, 5); // (100*500*2) / 1,000,000 = 0.1 m²
+    expect(shelfGroup.ids).toHaveLength(2);
+    expect(shelfGroup.ids).toContain('id1');
+    expect(shelfGroup.ids).toContain('id2');
   });
 });
