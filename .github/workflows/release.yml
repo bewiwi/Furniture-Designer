@@ -4,11 +4,10 @@ on:
   push:
     tags:
       - 'v*'
-  workflow_dispatch: # Allows manual triggering for testing
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
-  # IMAGE_NAME must be lowercase for GHCR
   IMAGE_NAME: bewiwi/furniture-designer
 
 jobs:
@@ -32,7 +31,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
+      - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
