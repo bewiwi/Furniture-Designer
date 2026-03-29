@@ -11,12 +11,64 @@ import { validateFurniture, downloadBlob, sanitizeFileName } from './utils.js';
 const STORAGE_KEY = 'furniture-designer-app-v1';
 const LANG_KEY = 'furniture-designer-lang';
 const THEME_KEY = 'furniture-designer-theme';
+const TREE_WIDTH_KEY = 'furniture-designer-tree-width';
+const PROPS_WIDTH_KEY = 'furniture-designer-props-width';
 const HISTORY_LIMIT = 50;
 
 const state = {
   history: [],
   currentIndex: -1,
 };
+
+/**
+ * Saves the user's tree panel width preference.
+ * @param {number} width 
+ */
+export function saveTreeWidth(width) {
+  try {
+    localStorage.setItem(TREE_WIDTH_KEY, width.toString());
+  } catch (e) {
+    console.error('Failed to save tree width:', e);
+  }
+}
+
+/**
+ * Loads the user's tree panel width preference (defaults to 220).
+ * @returns {number} 
+ */
+export function loadTreeWidth() {
+  try {
+    const val = localStorage.getItem(TREE_WIDTH_KEY);
+    return val ? parseInt(val, 10) : 220;
+  } catch (e) {
+    return 220;
+  }
+}
+
+/**
+ * Saves the user's properties panel width preference.
+ * @param {number} width 
+ */
+export function savePropsWidth(width) {
+  try {
+    localStorage.setItem(PROPS_WIDTH_KEY, width.toString());
+  } catch (e) {
+    console.error('Failed to save props width:', e);
+  }
+}
+
+/**
+ * Loads the user's properties panel width preference (defaults to 260).
+ * @returns {number} 
+ */
+export function loadPropsWidth() {
+  try {
+    const val = localStorage.getItem(PROPS_WIDTH_KEY);
+    return val ? parseInt(val, 10) : 260;
+  } catch (e) {
+    return 260;
+  }
+}
 
 /**
  * Saves the user's theme preference.

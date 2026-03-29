@@ -53,6 +53,7 @@ import { renderForm } from './ui/form.js';
 import { renderToolbar } from './ui/toolbar.js';
 import { renderCutList } from './ui/cutlist.js';
 import { renderQuotes } from './ui/quotes.js';
+import { initResizers } from './ui/resizer.js';
 import { setLanguage, getLanguage, t } from './i18n.js';
 
 // =============================================================================
@@ -151,6 +152,9 @@ function init() {
 
   // Keyboard shortcuts
   document.addEventListener('keydown', handleKeyboard);
+
+  // Initialize resizers
+  initResizers(document.getElementById('workspace'));
 
   console.log('🪵 Furniture Designer initialized');
 }
