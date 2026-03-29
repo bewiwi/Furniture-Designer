@@ -20,6 +20,8 @@ import {
   findNodeById,
   getNodePath,
   getNodeDimensions,
+  equalizeSizes,
+  normalizeTree,
   cloneFurniture,
   getAvailableSpace,
 } from './model.js';
@@ -422,5 +424,58 @@ describe('getAvailableSpace', () => {
     expect(getAvailableSpace(1000, 3, 18)).toBe(1000 - 2 * 18);
     expect(getAvailableSpace(1000, 1, 18)).toBe(1000);
     expect(getAvailableSpace(500, 0, 18)).toBe(500);
+  });
+});
+
+describe('equalizeSizes', () => {
+  it('equalizes sizes and fits the available space', () => {
+    const f = createFurniture('Test', 1000, 1000, 300, 20);
+    // Root inner space is 960x960
+    subdivide(f.root, 'row', 3, 960, 20);
+    // Initially sizes are roughly (960 - 2*20)/3 = 306, 306, 308
+    
+    // Force corrupted sizes
+    f.root.sizes = [500, 500, 500];
+    
+    equalizeSizes(f.root, 960, 20);
+    
+    // (960 - 2*20) / 3 = 920 / 3 = 306 with remainder 2
+    expect(f.root.sizes).toEqual([306, 306, 308]);
+  });
+
+  it('respects locked sizes', () => {
+    const f = createFurniture('Test', 1000, 1000, 300, 20);
+    subdivide(f.root, 'row', 3, 960, 20);
+    
+    f.root.children[0].locked = true;
+    f.root.sizes = [400, 100, 100]; // Total 600, but space is 960
+    
+    equalizeSizes(f.root, 960, 20);
+    
+    // Space for free: 960 - 2*20 - 400 (locked) = 920 - 400 = 520
+    // 520 / 2 = 260
+    expect(f.root.sizes).toEqual([400, 260, 260]);
+  });
+});
+
+describe('normalizeTree', () => {
+  it('rescales the entire tree when available space changes', () => {
+    const f = createFurniture('Test', 1000, 1000, 300, 20);
+    subdivide(f.root, 'row', 2, 960, 20); // sizes [470, 470]
+    subdivide(f.root.children[0], 'col', 2, 960, 20); // sizes [470, 470]
+    
+    // Change furniture width
+    f.width = 500;
+    // New root inner width: 500 - 40 = 460
+    // New root inner height: 1000 - 40 = 960
+    
+    normalizeTree(f.root, 460, 960, 20);
+    
+    // Root subdivision was row, so height should stay same ratio (equal)
+    expect(f.root.sizes).toEqual([470, 470]);
+    
+    // Child 0 subdivision was col, should be rescaled from 960 available to 460 available
+    // (460 - 20) / 2 = 220
+    expect(f.root.children[0].sizes).toEqual([220, 220]);
   });
 });

@@ -17,6 +17,7 @@ import {
   toggleChildLock,
   reorderChild,
   equalizeSizes,
+  normalizeTree,
   getNodeDimensions,
   cloneFurniture,
 } from './model.js';
@@ -207,6 +208,16 @@ const formCallbacks = {
     const numVal = typeof value === 'number' ? value : parseInt(value, 10);
     if (isNaN(numVal) || numVal < 1) return;
     appState.furniture[field] = numVal;
+
+    if (field === 'width' || field === 'height' || field === 'thickness') {
+      normalizeTree(
+        appState.furniture.root,
+        appState.furniture.width - 2 * appState.furniture.thickness,
+        appState.furniture.height - 2 * appState.furniture.thickness,
+        appState.furniture.thickness
+      );
+    }
+
     saveAndUpdate();
   },
 
@@ -307,7 +318,11 @@ const formCallbacks = {
     const node = resolveNode(nodeId);
     if (!node) return;
 
-    equalizeSizes(node);
+    const dims = getNodeDimensions(appState.furniture, nodeId);
+    if (!dims) return;
+
+    const availableSpace = node.direction === 'row' ? dims.h : dims.w;
+    equalizeSizes(node, availableSpace, appState.furniture.thickness);
     saveAndUpdate();
   },
 };

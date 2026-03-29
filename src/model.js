@@ -282,30 +282,78 @@ export function resizeChild(node, childIndex, newSize) {
  * is distributed equally among unlocked children.
  *
  * @param {Object} node - The parent node (must be subdivided)
+ * @param {number} availableSpace - The actual space available for children in the parent
+ * @param {number} T - Thickness
  */
-export function equalizeSizes(node) {
+export function equalizeSizes(node, availableSpace, T) {
   if (!node.direction || !node.sizes || node.sizes.length === 0) return;
 
-  const totalSpace = node.sizes.reduce((sum, s) => sum + s, 0);
+  const count = node.sizes.length;
+  const lockedIndices = node.children.map((c, i) => c.locked ? i : -1).filter(i => i !== -1);
+  const lockedSpace = lockedIndices.reduce((sum, i) => sum + node.sizes[i], 0);
+  const freeCount = count - lockedIndices.length;
 
-  // Collect locked vs unlocked indices
-  const lockedSpace = node.sizes.reduce(
-    (sum, s, i) => sum + (node.children[i].locked ? s : 0), 0
-  );
-  const freeIndices = node.sizes
-    .map((_, i) => i)
-    .filter(i => !node.children[i].locked);
+  if (freeCount === 0) return;
 
-  if (freeIndices.length === 0) return; // All locked, nothing to do
+  const totalT = (count - 1) * T;
+  const targetFreeSpace = Math.max(0, availableSpace - totalT - lockedSpace);
+  const equalSize = Math.floor(targetFreeSpace / freeCount);
+  const remainder = targetFreeSpace - (equalSize * freeCount);
 
-  const freeSpace = totalSpace - lockedSpace;
-  const equalSize = Math.floor(freeSpace / freeIndices.length);
-  const remainder = freeSpace - equalSize * freeIndices.length;
+  for (let i = 0; i < count; i++) {
+    if (!node.children[i].locked) {
+      node.sizes[i] = equalSize;
+    }
+  }
 
-  freeIndices.forEach((idx, i) => {
-    // Give remainder to the last free child
-    node.sizes[idx] = i === freeIndices.length - 1 ? equalSize + remainder : equalSize;
-  });
+  // Add remainder to the last free child
+  const lastFreeIdx = [...Array(count).keys()].reverse().find(i => !node.children[i].locked);
+  node.sizes[lastFreeIdx] += remainder;
+}
+
+/**
+ * Recursively rescales the whole tree so all children fit their parent containers.
+ * Useful when global dimensions or thickness change.
+ *
+ * @param {Object} node - Current node
+ * @param {number} availableW - Available inner width
+ * @param {number} availableH - Available inner height
+ * @param {number} T - Thickness
+ */
+export function normalizeTree(node, availableW, availableH, T) {
+  if (!node.direction || !node.children.length) return;
+
+  const count = node.children.length;
+  const availableDim = node.direction === 'row' ? availableH : availableW;
+  const totalT = (count - 1) * T;
+  const currentSum = node.sizes.reduce((sum, s) => sum + s, 0);
+  const targetSum = Math.max(0, availableDim - totalT);
+
+  if (currentSum > 0 && targetSum > 0) {
+    const scale = targetSum / currentSum;
+    let newSum = 0;
+    for (let i = 0; i < count; i++) {
+      node.sizes[i] = Math.floor(node.sizes[i] * scale);
+      newSum += node.sizes[i];
+    }
+    // Adjust remainder due to flooring
+    const diff = targetSum - newSum;
+    node.sizes[count - 1] += diff;
+  } else if (targetSum > 0) {
+    // If current sizes are 0 or negative, equalize them
+    const equalSize = Math.floor(targetSum / count);
+    const remainder = targetSum - (equalSize * count);
+    for (let i = 0; i < count; i++) {
+      node.sizes[i] = i === count - 1 ? equalSize + remainder : equalSize;
+    }
+  }
+
+  // Recurse into children
+  for (let i = 0; i < count; i++) {
+    const childW = node.direction === 'col' ? node.sizes[i] : availableW;
+    const childH = node.direction === 'row' ? node.sizes[i] : availableH;
+    normalizeTree(node.children[i], childW, childH, T);
+  }
 }
 
 /**
