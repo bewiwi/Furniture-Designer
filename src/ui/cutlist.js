@@ -8,19 +8,23 @@ import { groupPlanks } from '../planks.js';
 import { t } from '../i18n.js';
 import { escapeHtml } from '../utils.js';
 
+// Module-level reference to planks for hole lookup
+let _planksRef = null;
+
 /**
  * Renders the cut list.
  *
  * @param {HTMLElement} container - Cut list container
  * @param {Object[]} planks - All furniture planks
- * @param {Function} onHover - Callback when a plank group is hovered (ids[]) => void
+ * @param {Object} callbacks - { onHover, onOpenDetail }
  */
-export function renderCutList(container, planks, onHover) {
+export function renderCutList(container, planks, { onHover, onOpenDetail }) {
   if (!container) return;
 
+  _planksRef = planks;
   container.innerHTML = generateCutListHtml(planks);
 
-  attachCutlistListeners(container, onHover);
+  attachCutlistListeners(container, onHover, onOpenDetail);
 }
 
 /**
@@ -46,12 +50,15 @@ export function generateCutListHtml(planks) {
       <table class="cutlist-table">
         <thead>
           <tr>
+            <th class="label">${t('cutlist.label')}</th>
             <th class="qty">${t('cutlist.qty')}</th>
             <th class="name">${t('cutlist.name')}</th>
             <th class="dim">${t('cutlist.length')}</th>
             <th class="dim">${t('cutlist.width')}</th>
             <th class="thick">${t('cutlist.thickness')}</th>
+            <th class="holes">${t('cutlist.holes')}</th>
             <th class="type">${t('cutlist.type')}</th>
+            <th class="actions"></th>
           </tr>
         </thead>
         <tbody>
@@ -62,14 +69,22 @@ export function generateCutListHtml(planks) {
             const length = Math.round(dims[0]);
             const width = Math.round(dims[1]);
             const thickness = Math.round(dims[2]);
+            // Count holes from first plank instance
+            const firstPlank = _planksRef ? _planksRef.find(p => p.id === g.ids[0]) : null;
+            const holeCount = firstPlank?.holes?.length || 0;
             return `
-            <tr data-plank-ids="${g.ids.join(',')}">
+            <tr data-plank-ids="${g.ids.join(',')}" data-label="${g.label}">
+              <td class="label"><strong>${g.label}</strong></td>
               <td class="qty">${g.count}</td>
               <td class="name">${t(g.name, { count: g.count, suffix: g.suffix || '' })} ${g.count > 1 ? '<span class="multi">(\u00d7' + g.count + ')</span>' : ''}</td>
               <td class="dim">${length} mm</td>
               <td class="dim">${width} mm</td>
               <td class="thick">${thickness} mm</td>
+              <td class="holes">${holeCount > 0 ? holeCount : '—'}</td>
               <td class="type"><span class="badge ${g.type}">${t(`type.${g.type}`)}</span></td>
+              <td class="actions">
+                <button class="btn-detail" title="${t('cutlist.view_detail')}">🔍</button>
+              </td>
             </tr>
           `}).join('')}
         </tbody>
@@ -84,7 +99,7 @@ export function generateCutListHtml(planks) {
   `;
 }
 
-function attachCutlistListeners(container, onHover) {
+function attachCutlistListeners(container, onHover, onOpenDetail) {
   const btn = container.querySelector('#btn-toggle-cutlist');
   const tableBody = container.querySelector('.cutlist-body');
 
@@ -93,15 +108,24 @@ function attachCutlistListeners(container, onHover) {
     btn.innerText = isCollapsed ? t('cutlist.expand') : t('cutlist.collapse');
   };
 
-  if (onHover) {
-    const rows = container.querySelectorAll('.cutlist-table tbody tr');
-    rows.forEach((row) => {
-      const ids = row.dataset.plankIds ? row.dataset.plankIds.split(',') : [];
-      
+  const rows = container.querySelectorAll('.cutlist-table tbody tr');
+  rows.forEach((row) => {
+    const ids = row.dataset.plankIds ? row.dataset.plankIds.split(',') : [];
+    const label = row.dataset.label;
+    
+    if (onHover) {
       row.onmouseenter = () => onHover(ids);
       row.onmouseleave = () => onHover([]);
-    });
-  }
+    }
+
+    if (onOpenDetail) {
+      const btnDetail = row.querySelector('.btn-detail');
+      btnDetail.onclick = (e) => {
+        e.stopPropagation();
+        onOpenDetail(label);
+      };
+    }
+  });
 }
 
 

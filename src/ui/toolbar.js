@@ -28,7 +28,11 @@ export function renderToolbar(container, callbacks, state) {
     </div>
     
     <div class="toolbar-center">
-      <div class="view-controls">
+      <div class="nav-switcher">
+        <button class="btn btn-nav ${state.currentView === 'design' ? 'active' : ''}" data-view="design">${t('view.design')}</button>
+        <button class="btn btn-nav ${state.currentView === 'cut-list' ? 'active' : ''}" data-view="cut-list">${t('view.cutlist')}</button>
+      </div>
+      <div class="view-controls" style="${state.currentView === 'design' ? '' : 'display: none;'}">
         <button class="btn view" data-view="front">${t('tool.view.front')}</button>
         <button class="btn view" data-view="top">${t('tool.view.top')}</button>
         <button class="btn view" data-view="right">${t('tool.view.side')}</button>
@@ -85,7 +89,17 @@ function attachToolbarListeners(container, callbacks) {
   container.querySelector('#btn-undo').onclick = () => callbacks.onUndo();
   container.querySelector('#btn-redo').onclick = () => callbacks.onRedo();
 
-  // Views
+  // View Switcher (Design / Cut List)
+  const navBtns = container.querySelectorAll('.btn-nav');
+  navBtns.forEach(btn => {
+    btn.onclick = () => {
+      if (callbacks.onChangeView) {
+        callbacks.onChangeView(btn.dataset.view);
+      }
+    };
+  });
+
+  // Views (3D Presets)
   const viewBtns = container.querySelectorAll('.btn.view');
   viewBtns.forEach((btn) => {
     btn.onclick = () => {

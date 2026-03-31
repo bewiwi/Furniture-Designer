@@ -5,6 +5,8 @@
  * Calculates dimensions and absolute positions.
  */
 
+import { computeHoles } from './holes.js';
+
 /**
  * Generates the full list of planks for a furniture item.
  *
@@ -29,6 +31,15 @@ export function generatePlanks(furniture) {
 
   // --- Recursive internal partitions ---
   generateInner(root, T, T, innerWidth, height - 2 * T, depth, T, planks);
+
+  // --- Compute assembly holes ---
+  const dowelConfig = furniture.dowelConfig || {
+    diameter: 8, depth: 15, edgeMargin: 50, spacing: 200,
+  };
+  const holesMap = computeHoles(planks, dowelConfig);
+  for (const p of planks) {
+    p.holes = holesMap.get(p.id) || [];
+  }
 
   return planks;
 }
@@ -151,9 +162,22 @@ export function groupPlanks(planks) {
     }
   }
 
-  return Array.from(groups.values()).sort((a, b) => {
-    // Sort by type then width
-    if (a.type !== b.type) return a.type.localeCompare(b.type);
-    return b.w - a.w;
-  });
+  return Array.from(groups.values())
+    .sort((a, b) => {
+      // Sort by type then width
+      if (a.type !== b.type) return a.type.localeCompare(b.type);
+      return b.w - a.w;
+    })
+    .map((g, index) => {
+      // Assign label (A, B, C...) based on sorted index
+      // If more than 26 groups, uses AA, AB... pattern
+      let label = '';
+      let n = index;
+      do {
+        label = String.fromCharCode(65 + (n % 26)) + label;
+        n = Math.floor(n / 26) - 1;
+      } while (n >= 0);
+      
+      return { ...g, label };
+    });
 }

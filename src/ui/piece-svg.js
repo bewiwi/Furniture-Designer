@@ -235,15 +235,11 @@ export function generatePieceSvg(L, W, label, plank = null, holes = null, subtit
 
       <!-- Length quote (top - above Top edge) -->
       <line class="q-ln" x1="${x0}" y1="${y0 - drawT - quoteOffset}" x2="${x0 + drawL}" y2="${y0 - drawT - quoteOffset}" />
-      <rect x="${x0 + drawL / 2 - 35}" y="${y0 - drawT - quoteOffset - 10}" width="70" height="20" fill="white" />
-      <text class="q-tx" x="${x0 + drawL / 2}" y="${y0 - drawT - quoteOffset + 5}">${L} mm</text>
+      <text class="q-tx q-halo" x="${x0 + drawL / 2}" y="${y0 - drawT - quoteOffset + 5}">${L} mm</text>
 
       <!-- Width quote (left - outside Left edge) -->
       <line class="q-ln" x1="${x0 - drawT - quoteOffset}" y1="${y0}" x2="${x0 - drawT - quoteOffset}" y2="${y0 + drawW}" />
-      <g transform="rotate(-90,${x0 - drawT - quoteOffset},${y0 + drawW / 2})">
-        <rect x="${x0 - drawT - quoteOffset - 35}" y="${y0 + drawW / 2 - 10}" width="70" height="20" fill="white" />
-        <text class="q-tx" x="${x0 - drawT - quoteOffset}" y="${y0 + drawW / 2 + 5}">${W} mm</text>
-      </g>
+      <text class="q-tx q-halo" x="${x0 - drawT - quoteOffset}" y="${y0 + drawW / 2 + 5}" transform="rotate(-90,${x0 - drawT - quoteOffset},${y0 + drawW / 2 + 5})">${W} mm</text>
     </svg>
   `;
 }

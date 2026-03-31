@@ -41,6 +41,12 @@ export function createFurniture(name = 'My Furniture', width = 1000, height = 20
     height,
     depth,
     thickness,
+    dowelConfig: {
+      diameter: 8,      // mm — dowel pin diameter
+      depth: 15,        // mm — hole depth into each piece
+      edgeMargin: 50,   // mm — distance from corner to first hole
+      spacing: 200,     // mm — distance between consecutive holes
+    },
     root: createNode(),
   };
 }

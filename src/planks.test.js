@@ -105,4 +105,36 @@ describe('groupPlanks', () => {
     expect(shelfGroup.ids).toContain('id1');
     expect(shelfGroup.ids).toContain('id2');
   });
+
+  it('assigns labels A, B, C... to groups', () => {
+    const planks = [
+      { id: '1', name: 'p1', w: 800, h: 500, d: 20, type: 'shelf' },
+      { id: '2', name: 'p2', w: 700, h: 500, d: 20, type: 'shelf' },
+      { id: '3', name: 'p3', w: 600, h: 500, d: 20, type: 'shelf' }
+    ];
+
+    const groups = groupPlanks(planks);
+    // Sort logic in groupPlanks sorts by type then width (descending)
+    expect(groups[0].label).toBe('A');
+    expect(groups[0].w).toBe(800);
+    
+    expect(groups[1].label).toBe('B');
+    expect(groups[1].w).toBe(700);
+    
+    expect(groups[2].label).toBe('C');
+    expect(groups[2].w).toBe(600);
+  });
+
+  it('assigns multi-letter labels (AA, AB...) for many groups', () => {
+    // We'll create 27 groups
+    const planks = [];
+    for (let i = 0; i < 27; i++) {
+      planks.push({ id: `id${i}`, name: `p${i}`, w: 1000 - i, h: 500, d: 20, type: 'shelf' });
+    }
+
+    const groups = groupPlanks(planks);
+    expect(groups).toHaveLength(27);
+    expect(groups[25].label).toBe('Z');
+    expect(groups[26].label).toBe('AA');
+  });
 });

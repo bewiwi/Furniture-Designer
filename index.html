@@ -11,23 +11,26 @@
 <body>
   <div id="app">
     <header id="toolbar"></header>
-    <main id="workspace">
-      <aside id="tree-panel"></aside>
-      <div id="tree-resizer" class="resizer horizontal"></div>
-      <section id="viewer-panel">
-        <div id="viewer-container"></div>
-        <svg id="quotes-overlay" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent-primary)" />
-            </marker>
-          </defs>
-        </svg>
-      </section>
-      <div id="props-resizer" class="resizer horizontal"></div>
-      <aside id="properties-panel"></aside>
+    <main id="view-design">
+      <div id="workspace">
+        <aside id="tree-panel"></aside>
+        <div id="tree-resizer" class="resizer horizontal"></div>
+        <section id="viewer-panel">
+          <div id="viewer-container"></div>
+          <svg id="quotes-overlay" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent-primary)" />
+              </marker>
+            </defs>
+          </svg>
+        </section>
+        <div id="props-resizer" class="resizer horizontal"></div>
+        <aside id="properties-panel"></aside>
+      </div>
+      <footer id="cutlist-panel"></footer>
     </main>
-    <footer id="cutlist-panel"></footer>
+    <main id="view-cutlist" style="display: none;"></main>
   </div>
   <script type="module" src="/src/main.js"></script>
 </body>
