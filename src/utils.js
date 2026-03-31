@@ -74,6 +74,32 @@ export function validateFurniture(data) {
     data.name = 'Imported Furniture';
   }
 
+  // Migrate: add dowelConfig if missing (backward compatibility)
+  if (!data.dowelConfig || typeof data.dowelConfig !== 'object') {
+    data.dowelConfig = {
+      diameter: 8,
+      dowelLength: 30,
+      edgeMargin: 50,
+      spacing: 200,
+    };
+  } else {
+    // Migration: verify fields and default missing ones
+    const dc = data.dowelConfig;
+    dc.diameter = dc.diameter || 8;
+    
+    // Migrate old 'depth' property to 'dowelLength' (typically 2x depth)
+    if (dc.depth && !dc.dowelLength) {
+      dc.dowelLength = dc.depth * 2;
+      delete dc.depth;
+    } else {
+      dc.dowelLength = dc.dowelLength || 30;
+      delete dc.depth; // Cleanup if both existed
+    }
+    
+    dc.edgeMargin = dc.edgeMargin || 50;
+    dc.spacing = dc.spacing || 200;
+  }
+
   // Validate root node
   if (!data.root || typeof data.root !== 'object') {
     throw new Error('Missing or invalid root node');

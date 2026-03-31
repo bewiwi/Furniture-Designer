@@ -59,18 +59,29 @@ const dictionaries = {
     'tool.view.top': 'Top',
     'tool.view.side': 'Side',
     'tool.view.iso': '3D View',
+    'view.design': 'Design',
+    'view.cutlist': 'Cut List',
 
     // Cut List
     'cutlist.title': 'Cut List — {count} pieces ({unique} unique)',
     'cutlist.collapse': '▲ Collapse',
     'cutlist.expand': '▼ Expand',
+    'cutlist.label': 'LABEL',
     'cutlist.qty': 'QTY',
     'cutlist.name': 'NAME',
     'cutlist.length': 'LENGTH',
     'cutlist.width': 'WIDTH',
     'cutlist.thickness': 'THICKNESS',
     'cutlist.type': 'TYPE',
+    'cutlist.view_detail': 'View Detail',
     'cutlist.total_area': 'Total surface area: {area} m²',
+
+    // Piece Detail
+    'piece_detail.title': 'Piece {label}: {name}',
+    'piece_detail.dimensions': 'Dimensions',
+    'piece_detail.quantity': 'Quantity',
+    'piece_detail.total_area': 'Total Area',
+    'piece_detail.close': 'Close',
 
     // Planks & Errors
     'type.frameV': 'V Frame',
@@ -83,6 +94,17 @@ const dictionaries = {
     'plank.top_rail': 'Top rail',
     'plank.shelf': 'Shelf',
     'plank.separator': 'Separator',
+    // Dowel / Assembly Holes
+    'form.dowel.title': 'Assembly Dowels',
+    'form.dowel.diameter': 'Diameter',
+    'form.dowel.dowelLength': 'Dowel Length',
+    'form.dowel.margin': 'Edge Margin',
+    'form.dowel.spacing': 'Spacing',
+    'cutlist.holes': 'HOLES',
+    'cutlist.holes_count': '{count} holes',
+    'piece_detail.holes': 'Holes',
+    'piece_detail.hole_spec': '{count}× Ø{diameter} ↧{depth}',
+
     'error.subdivisions_range': 'Number of subdivisions must be between 2 and 20',
     'error.not_enough_space': 'Not enough space for this subdivision',
     'error.invalid_child': 'Invalid child index',
@@ -151,18 +173,29 @@ const dictionaries = {
     'tool.view.top': 'Dessus',
     'tool.view.side': 'Côté',
     'tool.view.iso': 'Vue 3D',
+    'view.design': 'Conception',
+    'view.cutlist': 'Liste de Débit',
 
     // Cut List
     'cutlist.title': 'Liste de débit — {count} pièces ({unique} uniques)',
     'cutlist.collapse': '▲ Replier',
     'cutlist.expand': '▼ Déplier',
+    'cutlist.label': 'REPÈRE',
     'cutlist.qty': 'QTÉ',
     'cutlist.name': 'NOM',
     'cutlist.length': 'LONGUEUR',
     'cutlist.width': 'LARGEUR',
     'cutlist.thickness': 'ÉPAISSEUR',
     'cutlist.type': 'TYPE',
+    'cutlist.view_detail': 'Voir Détail',
     'cutlist.total_area': 'Surface totale : {area} m²',
+
+    // Piece Detail
+    'piece_detail.title': 'Pièce {label} : {name}',
+    'piece_detail.dimensions': 'Dimensions',
+    'piece_detail.quantity': 'Quantité',
+    'piece_detail.total_area': 'Surface Totale',
+    'piece_detail.close': 'Fermer',
 
     // Planks & Errors
     'type.frameV': 'Cadre V',
@@ -175,6 +208,17 @@ const dictionaries = {
     'plank.top_rail': 'Traverse haute',
     'plank.shelf': 'Étagère',
     'plank.separator': 'Séparation',
+    // Tourillons / Perçages d'assemblage
+    'form.dowel.title': 'Tourillons d\'assemblage',
+    'form.dowel.diameter': 'Diamètre',
+    'form.dowel.dowelLength': 'Longueur du tourillon',
+    'form.dowel.margin': 'Marge au bord',
+    'form.dowel.spacing': 'Espacement',
+    'cutlist.holes': 'PERÇAGES',
+    'cutlist.holes_count': '{count} perçages',
+    'piece_detail.holes': 'Perçages',
+    'piece_detail.hole_spec': '{count}× Ø{diameter} ↧{depth}',
+
     'error.subdivisions_range': 'Le nombre de subdivisions doit être entre 2 et 20',
     'error.not_enough_space': 'Pas assez d\'espace pour cette subdivision',
     'error.invalid_child': 'Index enfant invalide',

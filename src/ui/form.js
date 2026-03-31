@@ -68,6 +68,30 @@ export function renderForm(container, furniture, selectedId, callbacks) {
           </div>
         </div>
       </section>
+
+      <section class="form-section">
+        <legend>${t('form.dowel.title')}</legend>
+        <div class="form-row">
+          <div class="form-group">
+            <label>${t('form.dowel.diameter')} <span>(mm)</span></label>
+            <input type="number" id="prop-dowel-diameter" value="${furniture.dowelConfig?.diameter ?? 8}" min="3" max="20" step="1">
+          </div>
+          <div class="form-group">
+            <label>${t('form.dowel.dowelLength')} <span>(mm)</span></label>
+            <input type="number" id="prop-dowel-length" value="${furniture.dowelConfig?.dowelLength ?? 30}" min="10" max="100" step="1">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>${t('form.dowel.margin')} <span>(mm)</span></label>
+            <input type="number" id="prop-dowel-margin" value="${furniture.dowelConfig?.edgeMargin ?? 50}" min="10" max="200" step="5">
+          </div>
+          <div class="form-group">
+            <label>${t('form.dowel.spacing')} <span>(mm)</span></label>
+            <input type="number" id="prop-dowel-spacing" value="${furniture.dowelConfig?.spacing ?? 200}" min="50" max="500" step="10">
+          </div>
+        </div>
+      </section>
     `;
   } else if (dims) {
     const path = getNodePath(furniture.root, selectedId);
@@ -235,6 +259,26 @@ function attachListeners(container, furniture, selectedId, callbacks) {
       });
     }
   });
+
+  // Dowel Config Listeners
+  const dowelInputs = [
+    { id: 'prop-dowel-diameter', key: 'diameter' },
+    { id: 'prop-dowel-length', key: 'dowelLength' },
+    { id: 'prop-dowel-margin', key: 'edgeMargin' },
+    { id: 'prop-dowel-spacing', key: 'spacing' },
+  ];
+  for (const { id, key } of dowelInputs) {
+    const input = container.querySelector(`#${id}`);
+    if (input) {
+      input.addEventListener('change', (e) => {
+        const val = parseInt(e.target.value, 10);
+        if (isNaN(val) || val < 1) return;
+        if (callbacks.onChangeDowelConfig) {
+          callbacks.onChangeDowelConfig(key, val);
+        }
+      });
+    }
+  }
 
   // Subdivide Actions
   const btnSubRow = container.querySelector('#btn-sub-row');

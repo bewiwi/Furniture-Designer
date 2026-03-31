@@ -33,6 +33,23 @@ vi.mock('./i18n.js', () => ({
   t: (key) => key,
 }));
 
+describe('dowelConfig migration via utils.validateFurniture', () => {
+  // Test requires validateFurniture which is in utils.js
+  const { validateFurniture } = require('./utils.js');
+  
+  it('migrates older depth to dowelLength', () => {
+    const data = { 
+      width: 100, height: 100, depth: 100, thickness: 18, 
+      root: { id: 'root', direction: null, children: [], sizes: [] }, 
+      dowelConfig: { diameter: 8, depth: 15, edgeMargin: 50, spacing: 200 } 
+    };
+    const validated = validateFurniture(data);
+    expect(validated.dowelConfig.dowelLength).toBeDefined();
+    expect(validated.dowelConfig.dowelLength).toBe(30); // 15 * 2
+    expect(validated.dowelConfig.depth).toBeUndefined();
+  });
+});
+
 describe('createFurniture', () => {
   it('creates furniture with correct defaults', () => {
     const f = createFurniture('Test', 1000, 2000, 300, 18);
