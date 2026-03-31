@@ -33,7 +33,7 @@ const DEFAULT_CONFIG = {
  * Distributes hole positions evenly along a given length.
  *
  * @param {number} length - Edge length available for holes
- * @param {number} edgeMargin - Distance from corner to first hole
+ * @param {number} edgeMargin - Distance from edge to first/last hole
  * @param {number} spacing - Maximum spacing between consecutive holes
  * @returns {number[]} Array of positions (mm from edge start)
  */
@@ -54,7 +54,7 @@ export function distributeHoles(length, edgeMargin, spacing) {
     return [length / 2];
   }
 
-  // Calculate number of holes: at least 2 (one near each corner)
+  // Calculate number of holes: at least 2 (one near each end)
   const count = Math.max(2, Math.floor(usable / safeSpacing) + 1);
 
   // Distribute evenly within the usable range
@@ -153,6 +153,41 @@ export function computeHoles(planks, dowelConfig = DEFAULT_CONFIG) {
     }
   }
 
+  // Post-processing: detect opposing-face collisions on the same board.
+  // If a board has face holes on both sides at the same (contactPos, depthPos),
+  // reduce drilling depth so they don't physically collide inside the panel.
+  for (const p of planks) {
+    const holes = holesMap.get(p.id);
+    if (!holes || holes.length === 0) continue;
+
+    const thickness = Math.min(p.w, p.h);
+
+    // Group face holes by opposing pairs
+    const faceHolesByPos = new Map(); // key: "contactPos|depthPos" → { faces: Set }
+    for (const h of holes) {
+      if (!h.isFace) continue;
+      const key = `${h.contactPos}|${h.depthPos}`;
+      if (!faceHolesByPos.has(key)) {
+        faceHolesByPos.set(key, { faces: new Set(), holes: [] });
+      }
+      faceHolesByPos.get(key).faces.add(h.face);
+      faceHolesByPos.get(key).holes.push(h);
+    }
+
+    // If any position has holes on opposing faces, cap depth
+    for (const [, entry] of faceHolesByPos) {
+      const hasOpposing =
+        (entry.faces.has('left') && entry.faces.has('right')) ||
+        (entry.faces.has('top') && entry.faces.has('bottom'));
+      if (hasOpposing) {
+        const safeDepth = Math.max(5, Math.floor(thickness / 2) - 1);
+        for (const h of entry.holes) {
+          h.depth = safeDepth;
+        }
+      }
+    }
+  }
+
   return holesMap;
 }
 
@@ -207,8 +242,8 @@ function detectJoint(a, b, tol) {
     const overlap = getOverlap(a.x, a.x + a.w, b.x, b.x + b.w);
     if (overlap && overlap.length > 0) {
       return {
-        faceA: 'top',
-        faceB: 'bottom',
+        faceA: 'bottom',
+        faceB: 'top',
         isFaceA: !isVertA,
         isFaceB: !isVertB,
         contactPosA: overlap.midRelA,
@@ -222,8 +257,8 @@ function detectJoint(a, b, tol) {
     const overlap = getOverlap(a.x, a.x + a.w, b.x, b.x + b.w);
     if (overlap && overlap.length > 0) {
       return {
-        faceA: 'bottom',
-        faceB: 'top',
+        faceA: 'top',
+        faceB: 'bottom',
         isFaceA: !isVertA,
         isFaceB: !isVertB,
         contactPosA: overlap.midRelA,
