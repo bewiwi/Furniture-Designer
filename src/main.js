@@ -52,9 +52,12 @@ import { renderTree } from './ui/tree.js';
 import { renderForm } from './ui/form.js';
 import { renderToolbar } from './ui/toolbar.js';
 import { renderCutList } from './ui/cutlist.js';
+import { renderFullCutList } from './ui/cutlist-view.js';
 import { renderQuotes } from './ui/quotes.js';
 import { initResizers } from './ui/resizer.js';
+import { initZoomModal } from './ui/zoom-modal.js';
 import { setLanguage, getLanguage, t } from './i18n.js';
+import { groupPlanks } from './planks.js';
 
 // =============================================================================
 // Application State
@@ -67,6 +70,7 @@ const appState = {
   geometries: [],
   currentTheme: 'dark',
   highlightedPlankIds: [],
+  currentView: 'design',   // 'design' or 'cut-list'
 };
 
 // =============================================================================
@@ -157,6 +161,9 @@ function init() {
   // Initialize resizers
   initResizers(document.getElementById('workspace'));
 
+  // Initialize zoom modal for cut list drawings
+  initZoomModal();
+
   console.log('🪵 Furniture Designer initialized');
 }
 
@@ -168,22 +175,35 @@ function fullUpdate() {
   // 1. Regenerate planks
   appState.planks = generatePlanks(appState.furniture);
 
-  // 2. Convert to geometries with optional highlighting
-  appState.geometries = planksToGeometries(appState.planks, appState.highlightedPlankIds);
+  // 2. Toggle main views visibility
+  const designView = document.getElementById('view-design');
+  const cutlistView = document.getElementById('view-cutlist');
 
-  // 3. Add selection highlight for the current compartment
-  const allGeometries = [...appState.geometries];
-  if (appState.selectedNodeId) {
-    const dims = getNodeDimensions(appState.furniture, appState.selectedNodeId);
-    if (dims) {
-      allGeometries.push(
-        highlightCompartment(dims.x, dims.y, dims.w, dims.h, appState.furniture.depth)
-      );
+  if (appState.currentView === 'design') {
+    designView.style.display = '';
+    cutlistView.style.display = 'none';
+    
+    // Convert to geometries with optional highlighting
+    appState.geometries = planksToGeometries(appState.planks, appState.highlightedPlankIds);
+
+    // Add selection highlight for the current compartment
+    const allGeometries = [...appState.geometries];
+    if (appState.selectedNodeId) {
+      const dims = getNodeDimensions(appState.furniture, appState.selectedNodeId);
+      if (dims) {
+        allGeometries.push(
+          highlightCompartment(dims.x, dims.y, dims.w, dims.h, appState.furniture.depth)
+        );
+      }
     }
-  }
 
-  // 4. Update 3D viewer
-  updateEntities(allGeometries);
+    // Update 3D viewer
+    updateEntities(allGeometries);
+  } else {
+    designView.style.display = 'none';
+    cutlistView.style.display = '';
+    renderFullCutList(cutlistView, appState.planks);
+  }
 
   // 5. Render UI components
     renderToolbar(
@@ -194,44 +214,58 @@ function fullUpdate() {
         canRedo: canRedo(),
         currentLang: getLanguage(),
         currentTheme: appState.currentTheme,
+        currentView: appState.currentView,
       }
     );
 
-  renderTree(
-    document.getElementById('tree-panel'),
-    appState.furniture,
-    appState.selectedNodeId,
-    onSelectNode,
-    formCallbacks.onReorderChild
-  );
+  if (appState.currentView === 'design') {
+    renderTree(
+      document.getElementById('tree-panel'),
+      appState.furniture,
+      appState.selectedNodeId,
+      onSelectNode,
+      formCallbacks.onReorderChild
+    );
 
-  renderForm(
-    document.getElementById('properties-panel'),
-    appState.furniture,
-    appState.selectedNodeId,
-    formCallbacks
-  );
+    renderForm(
+      document.getElementById('properties-panel'),
+      appState.furniture,
+      appState.selectedNodeId,
+      formCallbacks
+    );
 
-  renderCutList(
-    document.getElementById('cutlist-panel'),
-    appState.planks,
-    (ids) => {
-      appState.highlightedPlankIds = ids;
-      // We don't want to perform a full re-render of the DOM for a simple hover
-      // Update only the 3D geometries for smoothness
-      const newGeometries = planksToGeometries(appState.planks, appState.highlightedPlankIds);
-      const allNew = [...newGeometries];
-      if (appState.selectedNodeId) {
-        const dims = getNodeDimensions(appState.furniture, appState.selectedNodeId);
-        if (dims) {
-          allNew.push(
-            highlightCompartment(dims.x, dims.y, dims.w, dims.h, appState.furniture.depth)
-          );
+    renderCutList(
+      document.getElementById('cutlist-panel'),
+      appState.planks,
+      {
+        onHover: (ids) => {
+          appState.highlightedPlankIds = ids;
+          // We don't want to perform a full re-render of the DOM for a simple hover
+          // Update only the 3D geometries for smoothness
+          const newGeometries = planksToGeometries(appState.planks, appState.highlightedPlankIds);
+          const allNew = [...newGeometries];
+          if (appState.selectedNodeId) {
+            const dims = getNodeDimensions(appState.furniture, appState.selectedNodeId);
+            if (dims) {
+              allNew.push(
+                highlightCompartment(dims.x, dims.y, dims.w, dims.h, appState.furniture.depth)
+              );
+            }
+          }
+          updateEntities(allNew);
+        },
+        onOpenDetail: (label) => {
+          appState.currentView = 'cut-list';
+          fullUpdate();
+          // Optional: scroll to the specific piece after view switch
+          setTimeout(() => {
+            const el = document.querySelector(`[data-label="${label}"]`);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 50);
         }
       }
-      updateEntities(allNew);
-    }
-  );
+    );
+  }
 }
 
 /**
@@ -380,6 +414,14 @@ const formCallbacks = {
     equalizeSizes(node, availableSpace, appState.furniture.thickness);
     saveAndUpdate();
   },
+
+  onChangeDowelConfig(key, value) {
+    if (!appState.furniture.dowelConfig) {
+      appState.furniture.dowelConfig = { diameter: 8, depth: 15, edgeMargin: 50, spacing: 200 };
+    }
+    appState.furniture.dowelConfig[key] = value;
+    saveAndUpdate();
+  },
 };
 
 const toolbarCallbacks = {
@@ -458,6 +500,11 @@ const toolbarCallbacks = {
     appState.currentTheme = appState.currentTheme === 'light' ? 'dark' : 'light';
     saveTheme(appState.currentTheme);
     document.body.classList.toggle('theme-light', appState.currentTheme === 'light');
+    fullUpdate();
+  },
+
+  onChangeView(view) {
+    appState.currentView = view;
     fullUpdate();
   }
 };

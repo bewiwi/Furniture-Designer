@@ -8,6 +8,7 @@
 import { t } from '../i18n.js';
 import { groupPlanks } from '../planks.js';
 import { generatePieceViews } from './piece-svg.js';
+import { openZoomModal } from './zoom-modal.js';
 
 /**
  * Renders the full cut list view.
@@ -105,4 +106,11 @@ export function renderFullCutList(container, planks) {
       </div>
     </div>
   `;
+
+  // Zoom modal — delegated click on SVGs
+  container.querySelectorAll('.card-viz').forEach(viz => {
+    viz.addEventListener('click', () => {
+      openZoomModal(viz.innerHTML);
+    });
+  });
 }
