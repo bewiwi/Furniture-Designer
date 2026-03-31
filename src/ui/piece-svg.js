@@ -28,48 +28,33 @@ import { t } from '../i18n.js';
  * @returns {string} HTML string with one or two SVGs
  */
 export function generatePieceViews(L, W, label, plank = null) {
-  if (!plank || !plank.holes || plank.holes.length === 0) {
-    // No holes — single view, no subtitle
-    return generatePieceSvg(L, W, label, plank, null, null);
+  if (!plank) {
+    // Fallback if no plank data
+    return generatePieceSvg(L, W, label, null, null, null);
   }
 
   const isHorizontal = plank.w >= plank.h;
 
   // Determine which hole.face values correspond to the two wide faces
-  // Vertical plank: left/right are wide faces. Horizontal plank: top/bottom are wide faces.
   const faceAName = isHorizontal ? 'top' : 'left';
   const faceBName = isHorizontal ? 'bottom' : 'right';
 
   // Split face holes into two groups
-  const faceAHoles = plank.holes.filter(h => h.isFace && h.face === faceAName);
-  const faceBHoles = plank.holes.filter(h => h.isFace && h.face === faceBName);
-  const edgeHoles = plank.holes.filter(h => !h.isFace);
+  const holes = plank.holes || [];
+  const faceAHoles = holes.filter(h => h.isFace && h.face === faceAName);
+  const faceBHoles = holes.filter(h => h.isFace && h.face === faceBName);
+  const edgeHoles = holes.filter(h => !h.isFace);
 
-  const hasFaceA = faceAHoles.length > 0;
-  const hasFaceB = faceBHoles.length > 0;
+  const labelA = isHorizontal ? t('piece_detail.face_top') : t('piece_detail.face_left');
+  const labelB = isHorizontal ? t('piece_detail.face_bottom') : t('piece_detail.face_right');
 
-  if (hasFaceA && hasFaceB) {
-    // Two views needed
-    const labelA = isHorizontal ? t('piece_detail.face_top') : t('piece_detail.face_left');
-    const labelB = isHorizontal ? t('piece_detail.face_bottom') : t('piece_detail.face_right');
+  const holesA = [...faceAHoles, ...edgeHoles];
+  const holesB = [...faceBHoles, ...edgeHoles];
 
-    const holesA = [...faceAHoles, ...edgeHoles];
-    const holesB = [...faceBHoles, ...edgeHoles];
+  const svgA = generatePieceSvg(L, W, label, plank, holesA, labelA);
+  const svgB = generatePieceSvg(L, W, label, plank, holesB, labelB);
 
-    const svgA = generatePieceSvg(L, W, label, plank, holesA, labelA);
-    const svgB = generatePieceSvg(L, W, label, plank, holesB, labelB);
-
-    return svgA + svgB;
-  } else {
-    // Single view — show all holes
-    let subtitle = null;
-    if (hasFaceA) {
-      subtitle = isHorizontal ? t('piece_detail.face_top') : t('piece_detail.face_left');
-    } else if (hasFaceB) {
-      subtitle = isHorizontal ? t('piece_detail.face_bottom') : t('piece_detail.face_right');
-    }
-    return generatePieceSvg(L, W, label, plank, plank.holes, subtitle);
-  }
+  return svgA + svgB;
 }
 
 /**
@@ -255,8 +240,10 @@ export function generatePieceSvg(L, W, label, plank = null, holes = null, subtit
 
       <!-- Width quote (left - outside Left edge) -->
       <line class="q-ln" x1="${x0 - drawT - quoteOffset}" y1="${y0}" x2="${x0 - drawT - quoteOffset}" y2="${y0 + drawW}" />
-      <rect x="${x0 - drawT - quoteOffset - 10}" y="${y0 + drawW / 2 - 35}" width="20" height="70" fill="white" transform="rotate(-90,${x0 - drawT - quoteOffset},${y0 + drawW / 2})" />
-      <text class="q-tx" x="${x0 - drawT - quoteOffset - 5}" y="${y0 + drawW / 2 + 5}" transform="rotate(-90,${x0 - drawT - quoteOffset - 5},${y0 + drawW / 2 + 5})">${W} mm</text>
+      <g transform="rotate(-90,${x0 - drawT - quoteOffset},${y0 + drawW / 2})">
+        <rect x="${x0 - drawT - quoteOffset - 35}" y="${y0 + drawW / 2 - 10}" width="70" height="20" fill="white" />
+        <text class="q-tx" x="${x0 - drawT - quoteOffset}" y="${y0 + drawW / 2 + 5}">${W} mm</text>
+      </g>
     </svg>
   `;
 }
