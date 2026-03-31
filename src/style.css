@@ -87,10 +87,23 @@ html, body {
 
 /* --- App Layout --- */
 #app {
-  display: grid;
-  grid-template-rows: 48px 1fr auto;
+  display: flex;
+  flex-direction: column;
   height: 100vh;
   width: 100vw;
+}
+
+#view-design {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  flex: 1;
+  overflow: hidden;
+}
+
+#view-cutlist {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--bg-primary);
 }
 
 /* --- Toolbar --- */
@@ -195,6 +208,34 @@ html, body {
   background: var(--bg-surface);
   color: var(--accent-primary);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Nav Switcher (Design / Cut List) */
+.nav-switcher {
+  display: flex;
+  background: var(--bg-tertiary);
+  padding: 3px;
+  border-radius: var(--radius-lg);
+  margin-right: var(--space-md);
+}
+
+.nav-switcher .btn-nav {
+  padding: 6px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+}
+
+.nav-switcher .btn-nav.active {
+  background: var(--bg-surface);
+  color: var(--accent-highlight);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.nav-switcher .btn-nav:hover:not(.active) {
+  color: var(--text-primary);
 }
 
 /* Language Switcher */
@@ -949,6 +990,31 @@ html, body {
   font-variant-numeric: tabular-nums;
 }
 
+.cutlist-table .label {
+  color: var(--accent-highlight);
+  font-weight: 700;
+}
+
+.cutlist-table .actions {
+  text-align: right;
+  padding-right: var(--space-md);
+}
+
+.btn-detail {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 14px;
+  transition: all var(--transition-fast);
+}
+
+.btn-detail:hover {
+  border-color: var(--accent-primary);
+  background: var(--bg-elevated);
+}
+
 .cutlist-summary {
   padding: var(--space-sm) var(--space-md);
   text-align: right;
@@ -1011,4 +1077,344 @@ html, body {
 /* --- Selection --- */
 ::selection {
   background: rgba(224, 122, 47, 0.3);
+}
+
+/* --- Modal Overlay --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn var(--transition-normal);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: var(--bg-secondary);
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.modal-header {
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  font-size: 18px;
+  color: var(--accent-secondary);
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: var(--space-sm);
+  line-height: 1;
+  transition: color var(--transition-fast);
+}
+
+.btn-close:hover {
+  color: var(--text-primary);
+}
+
+.modal-body {
+  padding: var(--space-lg);
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* --- Piece Detail --- */
+.piece-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: var(--space-xl);
+}
+
+.piece-viz {
+  background: #fff;
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.piece-viz svg {
+  width: 100%;
+  height: 100%;
+  max-height: 400px;
+}
+
+.piece-info h4 {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-xs);
+}
+
+.piece-stats {
+  margin-bottom: var(--space-xl);
+}
+
+.piece-stats-row {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.piece-stats-row .label {
+  color: var(--text-secondary);
+}
+
+.piece-stats-row .value {
+  color: var(--accent-warm);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.modal-footer {
+  padding: var(--space-md) var(--space-lg);
+  border-top: 1px solid var(--border);
+  text-align: right;
+  background: var(--bg-tertiary);
+}
+
+@media (max-width: 768px) {
+  .piece-detail-grid {
+    grid-template-columns: 1fr;
+  }
+  .modal-content {
+    width: 95%;
+  }
+}
+
+/* --- Full Cutlist View (IKEA Style) --- */
+#view-cutlist {
+  flex: 1;
+  overflow-y: auto;
+  background: #ffffff; /* Paper white */
+  color: #000000;
+}
+
+.full-cutlist-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 60px 40px;
+}
+
+.full-cutlist-header {
+  margin-bottom: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-bottom: 4px solid #000;
+  padding-bottom: 20px;
+}
+
+.full-cutlist-header h2 {
+  font-size: 42px;
+  font-weight: 800;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+}
+
+.full-cutlist-stats {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.full-cutlist-stats .divider {
+  margin: 0 10px;
+  opacity: 0.2;
+}
+
+.full-cutlist-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.cutlist-card {
+  padding: 60px 0;
+  border-bottom: 2px solid #eeeeee;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.cutlist-card:last-child {
+  border-bottom: none;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.card-label {
+  background: #000;
+  color: #fff;
+  font-weight: 800;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%; /* IKEA style circular labels */
+  font-size: 24px;
+}
+
+.card-title h3 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+  color: #000;
+}
+
+.card-content {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 40px;
+  align-items: center;
+}
+
+.card-viz {
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.card-viz svg {
+  width: 100%;
+  max-height: 450px;
+}
+
+/* Override SVG internal styles for the IKEA look */
+.card-viz .rect {
+  fill: #fff !important;
+  stroke: #000 !important;
+  stroke-width: 3px !important;
+}
+
+.card-viz .internal-label {
+  fill: #f5f5f5 !important;
+  color: #f5f5f5 !important;
+}
+
+.card-viz .quote-line {
+  stroke: #000 !important;
+  stroke-width: 1.5px !important;
+}
+
+.card-viz .quote-text {
+  fill: #000 !important;
+  font-weight: 800 !important;
+}
+
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px;
+  border: 2px solid #000;
+}
+
+.stat-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-row .label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+}
+
+.stat-row .value {
+  font-size: 20px;
+  color: #000;
+  font-weight: 800;
+}
+
+/* Holes stat row */
+.stat-row.holes-stat {
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
+  margin-top: 5px;
+}
+
+.stat-row.holes-stat .label {
+  color: #e63946;
+}
+
+.stat-row.holes-stat .value {
+  color: #e63946;
+  font-size: 16px;
+}
+
+/* Hole markers in cutlist card SVGs */
+.card-viz .hole-circle {
+  stroke: #e63946 !important;
+  stroke-width: 2px !important;
+}
+
+.card-viz .hole-cross {
+  stroke: #e63946 !important;
+  stroke-width: 1px !important;
+}
+
+.card-viz .hole-quote-line {
+  stroke: #2a9d8f !important;
+}
+
+.card-viz .hole-quote-text {
+  fill: #2a9d8f !important;
+  font-weight: 700 !important;
+}
+
+.card-viz .hole-spec-text {
+  fill: #e63946 !important;
+  font-weight: 800 !important;
 }

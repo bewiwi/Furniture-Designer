@@ -8,7 +8,9 @@ import jscadStlSerializer from '@jscad/stl-serializer';
 import jscadDxfSerializer from '@jscad/dxf-serializer';
 import { downloadBlob, sanitizeFileName } from './utils.js';
 import { generateCutListHtml } from './ui/cutlist.js';
+import { generatePieceViews } from './ui/piece-svg.js';
 import { getNodeDimensions } from './model.js';
+import { groupPlanks } from './planks.js';
 import { t } from './i18n.js';
 
 /**
@@ -139,6 +141,59 @@ export function exportPlan(furniture, planks) {
 
   // 2. Generate HTML
   const cutlistHtml = generateCutListHtml(planks);
+  const grouped = groupPlanks(planks);
+
+  // Build plank lookup for hole data
+  const plankById = new Map();
+  for (const p of planks) {
+    plankById.set(p.id, p);
+  }
+
+  let partsDetailHtml = '';
+  for (const g of grouped) {
+    const dims = [g.w, g.h, g.d].sort((a, b) => b - a);
+    const L = Math.round(dims[0]);
+    const W = Math.round(dims[1]);
+    const T = Math.round(dims[2]);
+
+    // Get representative plank for hole data
+    const representativePlank = plankById.get(g.ids[0]);
+    const holeCount = representativePlank?.holes?.length || 0;
+
+    let holesRow = '';
+    if (holeCount > 0) {
+      holesRow = `<tr><th>${t('piece_detail.holes')}</th><td>${t('piece_detail.hole_spec', {
+        count: holeCount,
+        diameter: representativePlank.holes[0].diameter,
+        depth: representativePlank.holes[0].depth,
+      })}</td></tr>`;
+    }
+
+    partsDetailHtml += `
+      <div class="part-page">
+        <div class="part-header">
+          <h3>${t('piece_detail.title', { label: g.label, name: t(g.name) })}</h3>
+          <span class="badge ${g.type}">${t(`type.${g.type}`)}</span>
+        </div>
+        <div class="part-content">
+          <div class="part-drawing">
+            ${generatePieceViews(L, W, g.label, representativePlank)}
+          </div>
+          <div class="part-info">
+            <table class="detail-table">
+              <tr><th>${t('piece_detail.quantity')}</th><td><strong>${g.count}</strong></td></tr>
+              <tr><th>${t('cutlist.length')}</th><td>${L} mm</td></tr>
+              <tr><th>${t('cutlist.width')}</th><td>${W} mm</td></tr>
+              <tr><th>${t('cutlist.thickness')}</th><td>${T} mm</td></tr>
+              <tr><th>${t('piece_detail.total_area')}</th><td>${g.totalArea.toFixed(2)} m²</td></tr>
+              ${holesRow}
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -161,6 +216,20 @@ export function exportPlan(furniture, planks) {
         .badge.shelf { background: #cfe2ff; color: #084298; }
         .badge.separator { background: #f8d7da; color: #842029; }
         .stats { margin-top: 20px; font-size: 1.1em; font-weight: bold; border-top: 2px solid #eee; padding-top: 15px; }
+
+        /* Detailed Parts Styles */
+        .parts-container { margin-top: 50px; }
+        .part-page { page-break-before: always; margin-top: 40px; border-top: 1px solid #eee; padding-top: 30px; }
+        .part-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .part-header h3 { margin: 0; color: #333; font-size: 1.4em; }
+        .part-content { display: grid; grid-template-columns: 1fr 250px; gap: 30px; align-items: start; }
+        .part-drawing { background: #fff; border: 1px solid #f0f0f0; border-radius: 8px; padding: 15px; display: flex; justify-content: center; }
+        .part-drawing svg { width: 100%; height: auto; max-height: 400px; }
+        .detail-table { width: 100%; border-collapse: collapse; }
+        .detail-table th, .detail-table td { border: none; border-bottom: 1px solid #eee; padding: 8px 0; text-align: left; }
+        .detail-table th { width: 120px; font-size: 0.85em; color: #666; text-transform: uppercase; }
+        .detail-table td { font-size: 1.1em; color: #333; }
+
         .no-print { background: #333; color: white; padding: 15px; border-radius: 8px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
         .btn-print { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 1em; }
         .btn-print:hover { background: #218838; }
@@ -192,6 +261,11 @@ export function exportPlan(furniture, planks) {
         <h2>Cut List</h2>
         ${cutlistHtml}
       </div>
+
+      <div class="parts-container">
+        <h2>Detailed Parts</h2>
+        ${partsDetailHtml}
+      </div>
     </body>
     </html>
   `;
@@ -200,6 +274,7 @@ export function exportPlan(furniture, planks) {
   win.document.write(html);
   win.document.close();
 }
+
 
 /**
  * Helper to draw a dimension line with arrows and text in SVG.

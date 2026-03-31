@@ -104,6 +104,10 @@ const dictionaries = {
     'cutlist.holes_count': '{count} holes',
     'piece_detail.holes': 'Holes',
     'piece_detail.hole_spec': '{count}× Ø{diameter} ↧{depth}',
+    'piece_detail.face_top': 'Top face',
+    'piece_detail.face_bottom': 'Bottom face',
+    'piece_detail.face_left': 'Left face',
+    'piece_detail.face_right': 'Right face',
 
     'error.subdivisions_range': 'Number of subdivisions must be between 2 and 20',
     'error.not_enough_space': 'Not enough space for this subdivision',
@@ -218,6 +222,10 @@ const dictionaries = {
     'cutlist.holes_count': '{count} perçages',
     'piece_detail.holes': 'Perçages',
     'piece_detail.hole_spec': '{count}× Ø{diameter} ↧{depth}',
+    'piece_detail.face_top': 'Dessus',
+    'piece_detail.face_bottom': 'Dessous',
+    'piece_detail.face_left': 'Côté gauche',
+    'piece_detail.face_right': 'Côté droit',
 
     'error.subdivisions_range': 'Le nombre de subdivisions doit être entre 2 et 20',
     'error.not_enough_space': 'Pas assez d\'espace pour cette subdivision',

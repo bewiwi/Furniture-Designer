@@ -1,35 +1,98 @@
 /**
  * src/ui/piece-svg.js — Technical drawing SVG for individual planks.
  *
- * Renders a plank as a Length × Width rectangle with:
+ * Renders a plank as an unfolded box (main face + 4 edges) with:
  *   - Dimension lines (standard quote arrows)
  *   - Assembly holes (red ⊕ crosshairs)
  *   - Hole dimension quotes (green dashed lines)
  *   - Hole specification labels (e.g., "2× Ø8 ↧15")
+ *
+ * When a plank has face holes on BOTH wide faces, two separate views
+ * are produced (e.g., "Dessus" / "Dessous" for shelves) so the
+ * woodworker knows exactly which side to drill from.
  */
 
-import { mapHolesToPlankLocal } from '../holes.js';
+import { t } from '../i18n.js';
 
 /**
- * Generates an SVG representation of a plank with dimension lines
- * and assembly holes.
+ * Generates one or more SVG views for a plank.
+ *
+ * If the plank has face holes drilled from both wide faces,
+ * returns two stacked unfolded views (one per face).
+ * Otherwise returns a single view.
  *
  * @param {number} L - Length (longest dimension)
  * @param {number} W - Width (second longest, usually depth)
  * @param {string} label - Piece label (A, B, C...)
  * @param {Object} [plank] - Optional plank object with holes data
+ * @returns {string} HTML string with one or two SVGs
+ */
+export function generatePieceViews(L, W, label, plank = null) {
+  if (!plank || !plank.holes || plank.holes.length === 0) {
+    // No holes — single view, no subtitle
+    return generatePieceSvg(L, W, label, plank, null, null);
+  }
+
+  const isHorizontal = plank.w >= plank.h;
+
+  // Determine which hole.face values correspond to the two wide faces
+  // Vertical plank: left/right are wide faces. Horizontal plank: top/bottom are wide faces.
+  const faceAName = isHorizontal ? 'top' : 'left';
+  const faceBName = isHorizontal ? 'bottom' : 'right';
+
+  // Split face holes into two groups
+  const faceAHoles = plank.holes.filter(h => h.isFace && h.face === faceAName);
+  const faceBHoles = plank.holes.filter(h => h.isFace && h.face === faceBName);
+  const edgeHoles = plank.holes.filter(h => !h.isFace);
+
+  const hasFaceA = faceAHoles.length > 0;
+  const hasFaceB = faceBHoles.length > 0;
+
+  if (hasFaceA && hasFaceB) {
+    // Two views needed
+    const labelA = isHorizontal ? t('piece_detail.face_top') : t('piece_detail.face_left');
+    const labelB = isHorizontal ? t('piece_detail.face_bottom') : t('piece_detail.face_right');
+
+    const holesA = [...faceAHoles, ...edgeHoles];
+    const holesB = [...faceBHoles, ...edgeHoles];
+
+    const svgA = generatePieceSvg(L, W, label, plank, holesA, labelA);
+    const svgB = generatePieceSvg(L, W, label, plank, holesB, labelB);
+
+    return svgA + svgB;
+  } else {
+    // Single view — show all holes
+    let subtitle = null;
+    if (hasFaceA) {
+      subtitle = isHorizontal ? t('piece_detail.face_top') : t('piece_detail.face_left');
+    } else if (hasFaceB) {
+      subtitle = isHorizontal ? t('piece_detail.face_bottom') : t('piece_detail.face_right');
+    }
+    return generatePieceSvg(L, W, label, plank, plank.holes, subtitle);
+  }
+}
+
+/**
+ * Generates a single SVG unfolded view for a plank.
+ *
+ * @param {number} L - Length (longest dimension)
+ * @param {number} W - Width (second longest, usually depth)
+ * @param {string} label - Piece label (A, B, C...)
+ * @param {Object} [plank] - Plank object for thickness derivation
+ * @param {Object[]} [holes] - Subset of holes to render (or null for no holes)
+ * @param {string} [subtitle] - Optional subtitle (e.g., "Dessus")
  * @returns {string} SVG HTML string
  */
-export function generatePieceSvg(L, W, label, plank = null) {
-  const paddingX = 120; // more padding for quotes and edges
+export function generatePieceSvg(L, W, label, plank = null, holes = null, subtitle = null) {
+  const paddingX = 120;
   const paddingY = 120;
   const svgW = 800;
-  const svgH = 600;
+  const svgH = subtitle ? 540 : 500; // slightly shorter when no subtitle
 
   // Derive thickness
   let T = 18;
   if (plank) {
-    const dims = [plank.w, plank.h, plank.d].sort((a,b)=>a-b);
+    const dims = [plank.w, plank.h, plank.d].sort((a, b) => a - b);
     T = dims[0] || 18;
   }
 
@@ -44,49 +107,43 @@ export function generatePieceSvg(L, W, label, plank = null) {
 
   // Center of the main face
   const x0 = (svgW - drawL) / 2;
-  const y0 = (svgH - drawW) / 2;
+  const y0 = (svgH - drawW) / 2 + (subtitle ? 12 : 0);
 
   const fontSize = 14;
   const quoteOffset = 40;
-  const labelFontSize = Math.min(drawL * 0.4, drawW * 0.6, 120);
+  const labelFontSize = Math.min(drawL * 0.4, drawW * 0.6, 100);
 
   const uid = `sv-${label}-${Math.random().toString(36).substr(2, 4)}`;
 
   let holesSvg = '';
   let holeAnnotationsSvg = '';
 
-  if (plank && plank.holes && plank.holes.length > 0) {
-    // We map holes onto their respective unfolded rectangles
+  const activeHoles = holes || (plank ? plank.holes : null);
+
+  if (activeHoles && activeHoles.length > 0) {
     const isHorizontal = plank.w >= plank.h;
-    const holeRadius = Math.max(3, Math.min(6, (plank.holes[0]?.diameter || 8) * scale / 2));
+    const holeRadius = Math.max(3, Math.min(6, (activeHoles[0]?.diameter || 8) * scale / 2));
     const crossSize = holeRadius + 3;
 
-    // We'll annotate edges with quotes
     const edgeGroups = {
       top: [], bottom: [], left: [], right: [], main: []
     };
 
-    for (const hole of plank.holes) {
-      // Y-axis along the plank's "Depth" corresponds to W in our drawing
+    for (const hole of activeHoles) {
       const py = hole.depthPos;
       const px = hole.contactPos;
 
       let rX, rY, rectID;
 
       if (hole.isFace) {
-        // Drilled into the main face
         rectID = 'main';
-        // In horizontal plank, px is along length (SVG X). py is along depth (SVG Y).
-        // In vertical plank, px is along length (height, SVG X), py is along depth (SVG Y).
         rX = x0 + (px / L) * drawL;
         rY = y0 + (py / W) * drawW;
       } else {
-        // Edge holes
         if (isHorizontal) {
-          // Horizontal Plank: L=w, W=d
           if (hole.face === 'left') {
             rectID = 'left';
-            rX = x0 - drawT / 2; // center of left edge rect
+            rX = x0 - drawT / 2;
             rY = y0 + (py / W) * drawW;
           } else if (hole.face === 'right') {
             rectID = 'right';
@@ -102,9 +159,8 @@ export function generatePieceSvg(L, W, label, plank = null) {
             rY = y0 + drawW + drawT / 2;
           }
         } else {
-          // Vertical Plank: L=h, W=d
           if (hole.face === 'bottom') {
-            rectID = 'left';  // Wait, if it's vertical, bottom maps to left in SVG rotation
+            rectID = 'left';
             rX = x0 - drawT / 2;
             rY = y0 + (py / W) * drawW;
           } else if (hole.face === 'top') {
@@ -126,7 +182,6 @@ export function generatePieceSvg(L, W, label, plank = null) {
       if (rX !== undefined && rY !== undefined) {
         edgeGroups[rectID].push({ ...hole, rX, rY, py, px });
 
-        // Draw crosshair
         holesSvg += `
           <circle cx="${rX}" cy="${rY}" r="${holeRadius}" class="hole-circle" />
           <line x1="${rX - crossSize}" y1="${rY}" x2="${rX + crossSize}" y2="${rY}" class="hole-cross" />
@@ -135,10 +190,14 @@ export function generatePieceSvg(L, W, label, plank = null) {
       }
     }
 
-    // Process annotations
-    const diam = plank.holes[0]?.diameter || 8;
+    const diam = activeHoles[0]?.diameter || 8;
     holeAnnotationsSvg = generateUnfoldedAnnotations(edgeGroups, x0, y0, drawL, drawW, drawT, L, W, diam, uid);
   }
+
+  // Subtitle element
+  const subtitleSvg = subtitle
+    ? `<text x="${svgW / 2}" y="22" text-anchor="middle" style="font-family:sans-serif; font-size:15px; font-weight:700; fill:#555;">${subtitle}</text>`
+    : '';
 
   return `
     <svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg">
@@ -166,8 +225,10 @@ export function generatePieceSvg(L, W, label, plank = null) {
         .hole-cross { stroke: #e63946; stroke-width: 1; }
         .h-ql { stroke: #2a9d8f; stroke-width: 0.8; stroke-dasharray: 4,3; marker-start: url(#${uid}-ha-r); marker-end: url(#${uid}-ha); }
         .h-qt { fill: #2a9d8f; font-family: sans-serif; font-size: 11px; font-weight: 600; }
-        .h-sp { fill: #e63946; font-family: sans-serif; font-size: 11px; font-weight: 700; margin: 4px; padding: 2px; }
+        .h-sp { fill: #e63946; font-family: sans-serif; font-size: 11px; font-weight: 700; }
       </style>
+
+      ${subtitleSvg}
 
       <!-- Central Rectangle -->
       <rect class="rect" x="${x0}" y="${y0}" width="${drawL}" height="${drawW}" />
@@ -233,31 +294,27 @@ function generateUnfoldedAnnotations(edgeGroups, x0, y0, drawL, drawW, drawT, L,
     const textAnchor = side === 'left' ? 'end' : 'start';
     const textX = side === 'left' ? lineX - 4 : lineX + 4;
     
-    // Quotes between holes
     for (let i = 0; i < sorted.length; i++) {
-        if (i === 0) {
-            // First hole to Top
-            const yStart = y0;
-            const yEnd = sorted[0].rY;
-            svg += `<line class="h-ql" x1="${lineX}" y1="${yStart}" x2="${lineX}" y2="${yEnd}" />`;
-            const dimMm = Math.round(sorted[0].py);
-            if (dimMm > 0) svg += `<text class="h-qt" x="${textX}" y="${(yStart+yEnd)/2+4}" text-anchor="${textAnchor}">${dimMm}</text>`;
-        } else {
-            const yStart = sorted[i-1].rY;
-            const yEnd = sorted[i].rY;
-            svg += `<line class="h-ql" x1="${lineX}" y1="${yStart}" x2="${lineX}" y2="${yEnd}" />`;
-            const dimMm = Math.round(sorted[i].py - sorted[i-1].py);
-            svg += `<text class="h-qt" x="${textX}" y="${(yStart+yEnd)/2+4}" text-anchor="${textAnchor}">${dimMm}</text>`;
-        }
+      if (i === 0) {
+        const yStart = y0;
+        const yEnd = sorted[0].rY;
+        svg += `<line class="h-ql" x1="${lineX}" y1="${yStart}" x2="${lineX}" y2="${yEnd}" />`;
+        const dimMm = Math.round(sorted[0].py);
+        if (dimMm > 0) svg += `<text class="h-qt" x="${textX}" y="${(yStart + yEnd) / 2 + 4}" text-anchor="${textAnchor}">${dimMm}</text>`;
+      } else {
+        const yStart = sorted[i - 1].rY;
+        const yEnd = sorted[i].rY;
+        svg += `<line class="h-ql" x1="${lineX}" y1="${yStart}" x2="${lineX}" y2="${yEnd}" />`;
+        const dimMm = Math.round(sorted[i].py - sorted[i - 1].py);
+        svg += `<text class="h-qt" x="${textX}" y="${(yStart + yEnd) / 2 + 4}" text-anchor="${textAnchor}">${dimMm}</text>`;
+      }
     }
-    // Last hole to Bottom
-    const yStart = sorted[sorted.length-1].rY;
+    const yStart = sorted[sorted.length - 1].rY;
     const yEnd = y0 + drawW;
     svg += `<line class="h-ql" x1="${lineX}" y1="${yStart}" x2="${lineX}" y2="${yEnd}" />`;
-    const dimMm = Math.round(W - sorted[sorted.length-1].py);
-    if (dimMm > 0) svg += `<text class="h-qt" x="${textX}" y="${(yStart+yEnd)/2+4}" text-anchor="${textAnchor}">${dimMm}</text>`;
+    const dimMm = Math.round(W - sorted[sorted.length - 1].py);
+    if (dimMm > 0) svg += `<text class="h-qt" x="${textX}" y="${(yStart + yEnd) / 2 + 4}" text-anchor="${textAnchor}">${dimMm}</text>`;
 
-    // Spec label
     const depth = sorted[0].depth;
     let specX = lineX;
     let specY = y0 - 8;
@@ -276,12 +333,10 @@ function generateUnfoldedAnnotations(edgeGroups, x0, y0, drawL, drawW, drawT, L,
 
     for (const rxKey of Object.keys(mainCols)) {
       const colGroup = mainCols[rxKey];
-      const lineX = Number(rxKey) + 20; // draw quotes just right of the hole col
-      const sorted = [...colGroup].sort((a,b)=>a.py - b.py);
+      const lineX = Number(rxKey) + 20;
+      const sorted = [...colGroup].sort((a, b) => a.py - b.py);
       const textAnchor = 'start';
-      const textX = lineX + 4;
 
-      // Spec label
       const depth = sorted[0].depth;
       let specX = lineX;
       let specY = y0 - 8;
@@ -290,7 +345,7 @@ function generateUnfoldedAnnotations(edgeGroups, x0, y0, drawL, drawW, drawT, L,
     }
   }
 
-  // Top/Bottom edges (if any are placed there for some reason)
+  // Top/Bottom edges
   ['top', 'bottom'].forEach(side => {
     const group = edgeGroups[side];
     if (!group || group.length === 0) return;
