@@ -5,7 +5,7 @@
  */
 
 import jscadModeling from '@jscad/modeling';
-const { cuboid, cylinder } = jscadModeling.primitives;
+const { cuboid, cylinder, roundedCuboid } = jscadModeling.primitives;
 const { translate, rotateX, rotateZ } = jscadModeling.transforms;
 const { subtract, union } = jscadModeling.booleans;
 const { colorize } = jscadModeling.colors;
@@ -56,9 +56,11 @@ export function createEdgeGuideGeometry(thickness, diameter, margin = 50) {
   const blockHeight = channelDepth + topThickness;
 
   // Main block
-  let block = cuboid({
+  let block = roundedCuboid({
     size: [blockWidth, blockLength, blockHeight],
-    center: [blockWidth / 2, blockLength / 2, blockHeight / 2]
+    center: [blockWidth / 2, blockLength / 2, blockHeight / 2],
+    roundRadius: 1.5,
+    segments: 16
   });
 
   // U-Channel to subtract (leaves stopThickness intact at y=0)
@@ -120,15 +122,19 @@ export function createFaceGuideGeometry(thickness, diameter) {
   // Actually, let's build it as an L directly. Let's make Z the height axis.
   
   // Vertical arm
-  let vArm = cuboid({
+  let vArm = roundedCuboid({
     size: [vertThickness, width, vertHeight],
-    center: [vertThickness / 2, width / 2, -(vertHeight / 2)]
+    center: [vertThickness / 2, width / 2, -(vertHeight / 2)],
+    roundRadius: 1.5,
+    segments: 16
   });
 
   // Horizontal arm (rests on board)
-  let hArm = cuboid({
+  let hArm = roundedCuboid({
     size: [horizLength, width, horizThickness],
-    center: [horizLength / 2 + vertThickness, width / 2, -(horizThickness / 2)]
+    center: [horizLength / 2 + vertThickness, width / 2, -(horizThickness / 2)],
+    roundRadius: 1.5,
+    segments: 16
   });
 
   // Dowel hole must reside at `thickness / 2` away from the edge (i.e. away from the inner corner).
