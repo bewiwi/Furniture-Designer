@@ -105,12 +105,17 @@ export function createEdgeGuideGeometry(thickness, diameter, margin = 50) {
  * @returns {Array} JSCAD solid array
  */
 export function createFaceGuideGeometry(thickness, diameter) {
-  const vertHeight = 30;
+  const horizThickness = 10;
+  // The vertical registration lip (vertHeight - horizThickness) must be slightly
+  // less than the board thickness so it doesn't bottom out on the workbench.
+  // We use Math.max(..., 2) to ensure the lip is at least 2mm long to prevent 
+  // negative size errors in edge-case tests with tiny thickness values.
+  const lipLength = Math.max(thickness - 2, 2);
+  const vertHeight = lipLength + horizThickness;
   const vertThickness = 5;
   const width = 60;
   
   const horizLength = (thickness / 2) + 20; // Enough space for hole and margin
-  const horizThickness = 10;
 
   // Vertical arm
   let vertArm = cuboid({
