@@ -118,23 +118,19 @@ export function createFaceGuideGeometry(thickness, diameter) {
     center: [(horizLength + vertThickness) / 2, width / 2, -(vertThickness / 2)]
   });
   
-  // Transform horizontal / vertical orientation easily inside viewer.
-  // Actually, let's build it as an L directly. Let's make Z the height axis.
-  
-  // Vertical arm
-  let vArm = roundedCuboid({
-    size: [vertThickness, width, vertHeight],
-    center: [vertThickness / 2, width / 2, -(vertHeight / 2)],
+  // Outer bounding block with smooth rounded edges
+  let toolBody = roundedCuboid({
+    size: [horizLength + vertThickness, width, vertHeight],
+    center: [(horizLength + vertThickness) / 2, width / 2, -(vertHeight / 2)],
     roundRadius: 1.5,
     segments: 16
   });
 
-  // Horizontal arm (rests on board)
-  let hArm = roundedCuboid({
-    size: [horizLength, width, horizThickness],
-    center: [horizLength / 2 + vertThickness, width / 2, -(horizThickness / 2)],
-    roundRadius: 1.5,
-    segments: 16
+  // Sharp cut-out block to carve the L-shape and leave a perfectly sharp 90-degree internal angle
+  // Cutout spans from X=vertThickness to the end, and from Z=-horizThickness downwards
+  let cutout = cuboid({
+    size: [horizLength, width, vertHeight - horizThickness],
+    center: [vertThickness + (horizLength / 2), width / 2, -(horizThickness + (vertHeight - horizThickness) / 2)]
   });
 
   // Dowel hole must reside at `thickness / 2` away from the edge (i.e. away from the inner corner).
@@ -147,7 +143,7 @@ export function createFaceGuideGeometry(thickness, diameter) {
     segments: 32
   });
 
-  let toolBody = union(vArm, hArm);
+  toolBody = subtract(toolBody, cutout);
   let guide = subtract(toolBody, hole);
   
   // Engrave text on horizontal arm, beside the hole
