@@ -61,6 +61,16 @@ const dictionaries = {
     'tool.view.iso': '3D View',
     'view.design': 'Design',
     'view.cutlist': 'Cut List',
+    'view.tools': '3D Tools',
+    
+    // Tools
+    'tools.description': 'Printable 3D guides to assist with drilling perfectly straight and aligned dowel holes.',
+    'tools.edge_guide.title': 'Edge Guide',
+    'tools.edge_guide.desc': 'A U-channel block to center the drill on the edge grain.',
+    'tools.face_guide.title': 'Face Guide (Équerre)',
+    'tools.face_guide.desc': 'An L-shaped registration piece to distance the drill perfectly from the edge for face holes.',
+    'tools.download_stl': 'Download STL',
+
 
     // Cut List
     'cutlist.title': 'Cut List — {count} pieces ({unique} unique)',
@@ -179,6 +189,16 @@ const dictionaries = {
     'tool.view.iso': 'Vue 3D',
     'view.design': 'Conception',
     'view.cutlist': 'Liste de Débit',
+    'view.tools': 'Outils 3D',
+
+    // Tools
+    'tools.description': 'Guides imprimables en 3D pour aider à percer des trous de tourillons droits et parfaitement alignés.',
+    'tools.edge_guide.title': 'Guide de Chant',
+    'tools.edge_guide.desc': 'Un bloc en U pour centrer le perçage sur le chant.',
+    'tools.face_guide.title': 'Guide Équerre (Face)',
+    'tools.face_guide.desc': 'Une équerre pour distancer parfaitement le foret par rapport au bord pour les trous de face.',
+    'tools.download_stl': 'Télécharger STL',
+
 
     // Cut List
     'cutlist.title': 'Liste de débit — {count} pièces ({unique} uniques)',

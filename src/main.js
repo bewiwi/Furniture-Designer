@@ -53,6 +53,7 @@ import { renderForm } from './ui/form.js';
 import { renderToolbar } from './ui/toolbar.js';
 import { renderCutList } from './ui/cutlist.js';
 import { renderFullCutList } from './ui/cutlist-view.js';
+import { renderToolsView, cleanupToolsView } from './ui/tools-view.js';
 import { renderQuotes } from './ui/quotes.js';
 import { initResizers } from './ui/resizer.js';
 import { initZoomModal } from './ui/zoom-modal.js';
@@ -178,10 +179,17 @@ function fullUpdate() {
   // 2. Toggle main views visibility
   const designView = document.getElementById('view-design');
   const cutlistView = document.getElementById('view-cutlist');
+  const toolsView = document.getElementById('view-tools');
+
+  // Clean up viewers when switching out of tools view
+  if (appState.currentView !== 'tools') {
+    cleanupToolsView();
+  }
 
   if (appState.currentView === 'design') {
     designView.style.display = '';
     cutlistView.style.display = 'none';
+    toolsView.style.display = 'none';
     
     // Convert to geometries with optional highlighting
     appState.geometries = planksToGeometries(appState.planks, appState.highlightedPlankIds);
@@ -199,10 +207,16 @@ function fullUpdate() {
 
     // Update 3D viewer
     updateEntities(allGeometries);
-  } else {
+  } else if (appState.currentView === 'cut-list') {
     designView.style.display = 'none';
+    toolsView.style.display = 'none';
     cutlistView.style.display = '';
     renderFullCutList(cutlistView, appState.planks);
+  } else if (appState.currentView === 'tools') {
+    designView.style.display = 'none';
+    cutlistView.style.display = 'none';
+    toolsView.style.display = '';
+    renderToolsView(toolsView, appState.furniture);
   }
 
   // 5. Render UI components

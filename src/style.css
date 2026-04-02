@@ -1485,3 +1485,59 @@ html, body {
   transform: scale(1.1);
 }
 .zoom-btn:active { transform: scale(0.95); }
+
+/* --- Tools View --- */
+#view-tools {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  padding: 40px;
+}
+
+.tools-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.tool-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 30px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.tool-card .card-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+}
+
+.tool-content {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 40px;
+}
+
+.tool-specs {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tool-specs p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.tool-3d-preview {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  height: 300px;
+  width: 100%;
+}

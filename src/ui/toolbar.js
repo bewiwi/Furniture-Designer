@@ -31,6 +31,7 @@ export function renderToolbar(container, callbacks, state) {
       <div class="nav-switcher">
         <button class="btn btn-nav ${state.currentView === 'design' ? 'active' : ''}" data-view="design">${t('view.design')}</button>
         <button class="btn btn-nav ${state.currentView === 'cut-list' ? 'active' : ''}" data-view="cut-list">${t('view.cutlist')}</button>
+        <button class="btn btn-nav ${state.currentView === 'tools' ? 'active' : ''}" data-view="tools">${t('view.tools')}</button>
       </div>
       <div class="view-controls" style="${state.currentView === 'design' ? '' : 'display: none;'}">
         <button class="btn view" data-view="front">${t('tool.view.front')}</button>
