@@ -40,8 +40,9 @@ export function renderCutPlan(container, furniture, planks) {
               <g class="panel-piece">
                 <title>${plc.item.name} (${plc.rect.w} x ${plc.rect.h})</title>
                 <rect x="${plc.rect.x}" y="${plc.rect.y}" width="${plc.rect.w}" height="${plc.rect.h}" fill="var(--accent-primary)" stroke="#000" stroke-width="2" />
-                <text x="${plc.rect.x + (plc.rect.w / 2)}" y="${plc.rect.y + (plc.rect.h / 2)}" fill="#fff" font-size="${Math.min(plc.rect.w, plc.rect.h) / 2}" dominant-baseline="middle" text-anchor="middle" font-weight="bold" pointer-events="none">
-                  ${plc.item.label}
+                <text x="${plc.rect.x + (plc.rect.w / 2)}" y="${plc.rect.y + (plc.rect.h / 2)}" fill="#fff" font-size="${Math.min(Math.min(plc.rect.w, plc.rect.h) / 3, 120)}" dominant-baseline="middle" text-anchor="middle" pointer-events="none">
+                  <tspan x="${plc.rect.x + (plc.rect.w / 2)}" dy="-0.2em" font-weight="bold">${plc.item.label}</tspan>
+                  <tspan x="${plc.rect.x + (plc.rect.w / 2)}" dy="1.2em" font-size="0.4em" fill="rgba(255,255,255,0.8)">${plc.rect.w} × ${plc.rect.h}</tspan>
                 </text>
               </g>
             `).join('')}
