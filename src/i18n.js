@@ -87,6 +87,14 @@ const dictionaries = {
     'cutlist.view_detail': 'View Detail',
     'cutlist.total_area': 'Total surface area: {area} m²',
     'cutplan.title': 'Panel Cut Plan',
+    'cutplan.error.title': '⚠️ Pieces completely failed to fit',
+    'cutplan.error.desc': '{count} piece(s) are too large to fit in a {w}x{h} panel. They were ignored from the cut plan. Please adjust your panel settings or furniture dimensions.',
+    'cutplan.panel_width': 'Panel Width:',
+    'cutplan.panel_height': 'Panel Height:',
+    'cutplan.kerf': 'Kerf:',
+    'cutplan.recalculate': 'Recalculate',
+    'cutplan.total_panels': 'Total Panels Required: {count}',
+    'cutplan.panel_number': 'Panel {num}',
 
     // Piece Detail
     'piece_detail.title': 'Piece {label}: {name}',
@@ -217,6 +225,14 @@ const dictionaries = {
     'cutlist.view_detail': 'Voir Détail',
     'cutlist.total_area': 'Surface totale : {area} m²',
     'cutplan.title': 'Plan de Coupe des Panneaux',
+    'cutplan.error.title': '⚠️ Pièces impossibles à placer',
+    'cutplan.error.desc': '{count} pièce(s) sont trop grandes pour tenir dans un panneau de {w}x{h}. Elles ont été ignorées dans le plan de coupe. Veuillez ajuster les paramètres de vos panneaux ou les dimensions du meuble.',
+    'cutplan.panel_width': 'Largeur Panneau :',
+    'cutplan.panel_height': 'Hauteur Panneau :',
+    'cutplan.kerf': 'Épaisseur lame :',
+    'cutplan.recalculate': 'Recalculer',
+    'cutplan.total_panels': 'Nombre total de panneaux requis : {count}',
+    'cutplan.panel_number': 'Panneau {num}',
 
     // Piece Detail
     'piece_detail.title': 'Pièce {label} : {name}',
