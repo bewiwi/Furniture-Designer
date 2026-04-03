@@ -16,7 +16,23 @@ export function renderCutPlan(container, furniture, planks) {
     return { ...p, label: group ? group.label : '' };
   });
 
-  const panels = packPlanks(labeledPlanks, config.width, config.height, config.kerf);
+  const { panels, unplaced } = packPlanks(labeledPlanks, config.width, config.height, config.kerf);
+
+  let unplacedHtml = '';
+  if (unplaced.length > 0) {
+    unplacedHtml = `
+      <div style="background: rgba(231, 76, 60, 0.1); border: 1px solid var(--danger); border-radius: var(--radius-md); padding: 15px; margin: 20px;">
+        <h3 style="color: var(--danger); margin: 0 0 10px 0;">⚠️ Pieces completely failed to fit</h3>
+        <p style="margin: 0; color: var(--text-primary);">
+          ${unplaced.length} piece(s) are too large to fit in a ${config.width}x${config.height} panel. They were ignored from the cut plan.
+          Please adjust your panel settings or furniture dimensions.
+        </p>
+        <ul style="margin: 10px 0 0 20px; color: var(--text-secondary);">
+          ${unplaced.map(p => `<li>${p.label}: ${p.name} (${p.pw} × ${p.ph})</li>`).join('')}
+        </ul>
+      </div>
+    `;
+  }
 
   container.innerHTML = `
     <div class="cutplan-header" style="padding: 20px; background: var(--bg-secondary); border-bottom: 1px solid var(--border);">
@@ -31,6 +47,7 @@ export function renderCutPlan(container, furniture, planks) {
         Total Panels Required: ${panels.length}
       </div>
     </div>
+    ${unplacedHtml}
     <div class="cutplan-body" style="padding: 20px; display: flex; flex-direction: column; gap: 40px; overflow-y: auto; flex: 1;">
       ${panels.map((panel, idx) => `
         <div class="panel-board">

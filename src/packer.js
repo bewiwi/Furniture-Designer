@@ -1,5 +1,6 @@
 export function packPlanks(planks, panelWidth, panelHeight, kerf) {
   const panels = [];
+  const unplaced = [];
   
   // Flatten planks (2 largest dimensions are used for 2D)
   const items = planks.map(p => {
@@ -83,9 +84,11 @@ export function packPlanks(planks, panelWidth, panelHeight, kerf) {
           rect: { x: match.node.x, y: match.node.y, w: match.rotated ? h : w, h: match.rotated ? w : h }
         });
         panels.push(newPanel);
+      } else {
+        unplaced.push(item);
       }
     }
   }
 
-  return panels;
+  return { panels, unplaced };
 }
