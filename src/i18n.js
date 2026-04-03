@@ -61,6 +61,7 @@ const dictionaries = {
     'tool.view.iso': '3D View',
     'view.design': 'Design',
     'view.cutlist': 'Cut List',
+    'view.cutplan': 'Panel Plan',
     'view.tools': '3D Tools',
     
     // Tools
@@ -85,6 +86,7 @@ const dictionaries = {
     'cutlist.type': 'TYPE',
     'cutlist.view_detail': 'View Detail',
     'cutlist.total_area': 'Total surface area: {area} m²',
+    'cutplan.title': 'Panel Cut Plan',
 
     // Piece Detail
     'piece_detail.title': 'Piece {label}: {name}',
@@ -189,6 +191,7 @@ const dictionaries = {
     'tool.view.iso': 'Vue 3D',
     'view.design': 'Conception',
     'view.cutlist': 'Liste de Débit',
+    'view.cutplan': 'Plan de Coupe',
     'view.tools': 'Outils 3D',
 
     // Tools
@@ -213,6 +216,7 @@ const dictionaries = {
     'cutlist.type': 'TYPE',
     'cutlist.view_detail': 'Voir Détail',
     'cutlist.total_area': 'Surface totale : {area} m²',
+    'cutplan.title': 'Plan de Coupe des Panneaux',
 
     // Piece Detail
     'piece_detail.title': 'Pièce {label} : {name}',

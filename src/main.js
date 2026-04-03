@@ -53,6 +53,7 @@ import { renderForm } from './ui/form.js';
 import { renderToolbar } from './ui/toolbar.js';
 import { renderCutList } from './ui/cutlist.js';
 import { renderFullCutList } from './ui/cutlist-view.js';
+import { renderCutPlan } from './ui/cutplan-view.js';
 import { renderToolsView, cleanupToolsView } from './ui/tools-view.js';
 import { renderQuotes } from './ui/quotes.js';
 import { initResizers } from './ui/resizer.js';
@@ -71,7 +72,7 @@ const appState = {
   geometries: [],
   currentTheme: 'dark',
   highlightedPlankIds: [],
-  currentView: 'design',   // 'design' or 'cut-list'
+  currentView: 'design',   // 'design', 'cut-list', 'cut-plan' or 'tools'
 };
 
 // =============================================================================
@@ -165,6 +166,10 @@ function init() {
   // Initialize zoom modal for cut list drawings
   initZoomModal();
 
+  document.getElementById('view-cutplan').addEventListener('config-updated', () => {
+    saveAndUpdate();
+  });
+
   console.log('🪵 Furniture Designer initialized');
 }
 
@@ -179,6 +184,7 @@ function fullUpdate() {
   // 2. Toggle main views visibility
   const designView = document.getElementById('view-design');
   const cutlistView = document.getElementById('view-cutlist');
+  const cutplanView = document.getElementById('view-cutplan');
   const toolsView = document.getElementById('view-tools');
 
   // Clean up viewers when switching out of tools view
@@ -189,6 +195,7 @@ function fullUpdate() {
   if (appState.currentView === 'design') {
     designView.style.display = '';
     cutlistView.style.display = 'none';
+    cutplanView.style.display = 'none';
     toolsView.style.display = 'none';
     
     // Convert to geometries with optional highlighting
@@ -210,11 +217,19 @@ function fullUpdate() {
   } else if (appState.currentView === 'cut-list') {
     designView.style.display = 'none';
     toolsView.style.display = 'none';
+    cutplanView.style.display = 'none';
     cutlistView.style.display = '';
     renderFullCutList(cutlistView, appState.planks);
+  } else if (appState.currentView === 'cut-plan') {
+    designView.style.display = 'none';
+    toolsView.style.display = 'none';
+    cutlistView.style.display = 'none';
+    cutplanView.style.display = '';
+    renderCutPlan(cutplanView, appState.furniture, appState.planks);
   } else if (appState.currentView === 'tools') {
     designView.style.display = 'none';
     cutlistView.style.display = 'none';
+    cutplanView.style.display = 'none';
     toolsView.style.display = '';
     renderToolsView(toolsView, appState.furniture);
   }
