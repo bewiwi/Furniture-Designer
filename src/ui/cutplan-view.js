@@ -31,7 +31,7 @@ export function renderCutPlan(container, furniture, planks) {
         Total Panels Required: ${panels.length}
       </div>
     </div>
-    <div class="cutplan-body" style="padding: 20px; display: flex; flex-direction: column; gap: 40px; overflow-y: auto;">
+    <div class="cutplan-body" style="padding: 20px; display: flex; flex-direction: column; gap: 40px; overflow-y: auto; flex: 1;">
       ${panels.map((panel, idx) => `
         <div class="panel-board">
           <h3 style="margin: 0 0 15px 0;">Panel ${idx + 1}</h3>

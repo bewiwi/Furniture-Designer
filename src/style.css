@@ -106,6 +106,14 @@ html, body {
   background: var(--bg-primary);
 }
 
+#view-cutplan {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
 /* --- Toolbar --- */
 #toolbar {
   display: flex;
