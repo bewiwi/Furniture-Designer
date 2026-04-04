@@ -10,7 +10,7 @@ describe('packPlanks', () => {
     expect(panels.length).toBe(1);
     expect(unplaced.length).toBe(0);
     expect(panels[0].placements.length).toBe(1);
-    expect(panels[0].placements[0].rect.w).toBe(1000);
-    expect(panels[0].placements[0].rect.h).toBe(500);
+    expect(panels[0].placements[0].rect.w).toBe(500);
+    expect(panels[0].placements[0].rect.h).toBe(1000); // 1000x500 is rotated to 500x1000 to save the short side
   });
 });

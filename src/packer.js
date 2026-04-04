@@ -16,19 +16,36 @@ export function packPlanks(planks, panelWidth, panelHeight, kerf) {
   }
 
   function findNode(root, w, h) {
-    if (root.used) {
-      const node = findNode(root.right, w, h);
-      if (node) return node;
-      return findNode(root.down, w, h);
+    let best = null;
+    let bestScore = Infinity;
+
+    function search(node) {
+      if (!node) return;
+      if (node.used) {
+        search(node.right);
+        search(node.down);
+      } else {
+        // Try unrotated
+        if (w <= node.w && h <= node.h) {
+          const score = Math.min(node.w - w, node.h - h);
+          if (score < bestScore) {
+            best = { node, rotated: false };
+            bestScore = score;
+          }
+        }
+        // Try rotated
+        if (h <= node.w && w <= node.h) {
+          const score = Math.min(node.w - h, node.h - w);
+          if (score < bestScore) {
+            best = { node, rotated: true };
+            bestScore = score;
+          }
+        }
+      }
     }
-    else if ((w <= root.w && h <= root.h)) {
-      return { node: root, rotated: false };
-    }
-    // Try rotated
-    else if ((h <= root.w && w <= root.h)) {
-      return { node: root, rotated: true };
-    }
-    return null;
+
+    search(root);
+    return best;
   }
 
   function splitNode(node, w, h) {
