@@ -496,6 +496,20 @@ describe('normalizeTree', () => {
     // (460 - 20) / 2 = 220
     expect(f.root.children[0].sizes).toEqual([220, 220]);
   });
+
+  it('respects locked sizes when scaling', () => {
+    const f = createFurniture('Test', 1000, 1000, 300, 20);
+    subdivide(f.root, 'row', 3, 960, 20);
+    f.root.sizes = [200, 360, 360];
+    f.root.children[0].locked = true;
+
+    // Change furniture height to 1200 (inner height = 1160)
+    normalizeTree(f.root, 960, 1160, 20);
+
+    expect(f.root.sizes[0]).toBe(200); // Locked, must not change
+    expect(f.root.sizes[1]).toBe(460); // (1160 - 40 - 200) / 2 = 460
+    expect(f.root.sizes[2]).toBe(460);
+  });
 });
 
 describe('generateId', () => {

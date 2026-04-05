@@ -332,25 +332,54 @@ export function normalizeTree(node, availableW, availableH, T) {
   const count = node.children.length;
   const availableDim = node.direction === 'row' ? availableH : availableW;
   const totalT = (count - 1) * T;
-  const currentSum = node.sizes.reduce((sum, s) => sum + s, 0);
+  
+  const lockedIndices = node.children.map((c, i) => c.locked ? i : -1).filter(i => i !== -1);
+  const freeIndices = node.children.map((c, i) => !c.locked ? i : -1).filter(i => i !== -1);
+  const lockedSpace = lockedIndices.reduce((sum, i) => sum + Math.max(0, node.sizes[i]), 0);
+  
   const targetSum = Math.max(0, availableDim - totalT);
+  const targetFreeSpace = Math.max(0, targetSum - lockedSpace);
+  const currentFreeSum = freeIndices.reduce((sum, i) => sum + Math.max(0, node.sizes[i]), 0);
 
-  if (currentSum > 0 && targetSum > 0) {
-    const scale = targetSum / currentSum;
-    let newSum = 0;
-    for (let i = 0; i < count; i++) {
-      node.sizes[i] = Math.floor(node.sizes[i] * scale);
-      newSum += node.sizes[i];
+  if (freeIndices.length > 0) {
+    if (currentFreeSum > 0 && targetFreeSpace > 0) {
+      const scale = targetFreeSpace / currentFreeSum;
+      let newFreeSum = 0;
+      for (const i of freeIndices) {
+        node.sizes[i] = Math.round(node.sizes[i] * scale);
+        newFreeSum += node.sizes[i];
+      }
+      // Adjust remainder on the last free child
+      const diff = targetFreeSpace - newFreeSum;
+      node.sizes[freeIndices[freeIndices.length - 1]] += diff;
+    } else {
+      // Free children have 0 size or targetFreeSpace is 0, equalize the free space
+      const equalSize = Math.floor(targetFreeSpace / freeIndices.length);
+      const remainder = targetFreeSpace - (equalSize * freeIndices.length);
+      for (let j = 0; j < freeIndices.length; j++) {
+        const i = freeIndices[j];
+        node.sizes[i] = j === freeIndices.length - 1 ? equalSize + remainder : equalSize;
+      }
     }
-    // Adjust remainder due to flooring
-    const diff = targetSum - newSum;
-    node.sizes[count - 1] += diff;
   } else if (targetSum > 0) {
-    // If current sizes are 0 or negative, equalize them
-    const equalSize = Math.floor(targetSum / count);
-    const remainder = targetSum - (equalSize * count);
-    for (let i = 0; i < count; i++) {
-      node.sizes[i] = i === count - 1 ? equalSize + remainder : equalSize;
+    // Edge case: all children are locked! But they don't fit the new global size.
+    // They MUST be scaled otherwise they overflow the wrapper.
+    const currentSum = node.sizes.reduce((sum, s) => sum + Math.max(0, s), 0);
+    if (currentSum > 0) {
+      const scale = targetSum / currentSum;
+      let newSum = 0;
+      for (let i = 0; i < count; i++) {
+        node.sizes[i] = Math.round(node.sizes[i] * scale);
+        newSum += node.sizes[i];
+      }
+      const diff = targetSum - newSum;
+      node.sizes[count - 1] += diff;
+    } else {
+      const equalSize = Math.floor(targetSum / count);
+      const remainder = targetSum - (equalSize * count);
+      for (let i = 0; i < count; i++) {
+        node.sizes[i] = i === count - 1 ? equalSize + remainder : equalSize;
+      }
     }
   }
 
