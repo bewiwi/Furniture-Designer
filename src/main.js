@@ -60,6 +60,7 @@ import { renderToolsView, cleanupToolsView } from './ui/tools-view.js';
 import { renderQuotes, renderLocks } from './ui/quotes.js';
 import { initResizers } from './ui/resizer.js';
 import { initZoomModal } from './ui/zoom-modal.js';
+import { initHelpModal } from './ui/help-modal.js';
 import { setLanguage, getLanguage, t } from './i18n.js';
 import { groupPlanks } from './planks.js';
 
@@ -81,6 +82,8 @@ const appState = {
 // =============================================================================
 // Helpers
 // =============================================================================
+
+let globalHelpModal = null;
 
 /** Whitelist of allowed furniture-level fields for direct mutation */
 const ALLOWED_FURNITURE_FIELDS = new Set(['name', 'width', 'height', 'depth', 'thickness']);
@@ -169,6 +172,9 @@ function init() {
 
   // Initialize zoom modal for cut list drawings
   initZoomModal();
+
+  // Initialize Help Modal
+  globalHelpModal = initHelpModal(document.body);
 
   document.getElementById('view-cutplan').addEventListener('config-updated', () => {
     saveAndUpdate();
@@ -526,6 +532,12 @@ const toolbarCallbacks = {
 
   onExportPlan() {
     exportPlan(appState.furniture, appState.planks);
+  },
+
+  onHelpToggle() {
+    if (globalHelpModal) {
+      globalHelpModal.open();
+    }
   },
 
   onUndo() {

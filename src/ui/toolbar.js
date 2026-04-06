@@ -50,6 +50,7 @@ export function renderToolbar(container, callbacks, state) {
       <button class="btn export" id="btn-dxf" title="${t('tool.export_dxf.title')}">${t('tool.export_dxf')}</button>
       <button class="btn export" id="btn-plan" title="${t('tool.export_plan.title')}">${t('tool.export_plan')}</button>
       <div class="divider"></div>
+      <button class="btn nav" id="btn-help" title="Aide [?]">❔ Aide</button>
       <button class="btn nav theme-toggle" id="btn-theme" title="${t('tool.theme.title')}">
         ${state.currentTheme === 'light' ? '☀️' : '🌙'}
       </button>
@@ -136,6 +137,16 @@ function attachToolbarListeners(container, callbacks) {
     langSelect.onchange = (e) => {
       if (callbacks.onLanguageChange) {
         callbacks.onLanguageChange(e.target.value);
+      }
+    };
+  }
+
+  // Help Modal
+  const helpBtn = container.querySelector('#btn-help');
+  if (helpBtn) {
+    helpBtn.onclick = () => {
+      if (callbacks.onHelpToggle) {
+        callbacks.onHelpToggle();
       }
     };
   }
