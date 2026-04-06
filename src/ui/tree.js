@@ -17,7 +17,7 @@ import { escapeHtml } from '../utils.js';
  * @param {Function} onSelect - Callback when a node is clicked
  * @param {Function} onReorder - Callback when a node is drag-and-dropped
  */
-export function renderTree(container, furniture, selectedId, onSelect, onReorder) {
+export function renderTree(container, furniture, selectedId, onSelect, onReorder, onToggleCollapse) {
   if (!container) return;
 
   const html = `
@@ -38,6 +38,14 @@ export function renderTree(container, furniture, selectedId, onSelect, onReorder
       e.stopPropagation();
       onSelect(item.dataset.id);
     };
+
+    const caret = item.querySelector('.tree-caret:not(.hidden)');
+    if (caret) {
+      caret.onclick = (e) => {
+        e.stopPropagation();
+        if (onToggleCollapse) onToggleCollapse(item.dataset.id);
+      };
+    }
 
     if (item.getAttribute('draggable') === 'true') {
       item.ondragstart = (e) => {
@@ -112,6 +120,15 @@ function renderNode(node, level, selectedId, furniture, parentId = null, index =
 
   // Dimension summary from model
   const dimStr = getDimString(node, furniture);
+  
+  const hasChildren = node.children && node.children.length > 0;
+  let caretHtml = '';
+  if (hasChildren) {
+    caretHtml = `<span class="tree-caret" title="Toggle fold">${node.collapsed ? '▶' : '▼'}</span>`;
+  } else {
+    // spacer to align leaves properly with parent icons
+    caretHtml = `<span class="tree-caret hidden"></span>`;
+  }
 
   let html = `
     <div class="tree-node ${isSelected ? 'selected' : ''}" 
@@ -121,6 +138,7 @@ function renderNode(node, level, selectedId, furniture, parentId = null, index =
          draggable="${parentId ? 'true' : 'false'}"
          style="padding-left: ${level * 16 + 12}px">
       <div style="display: flex; align-items: center; gap: 6px; overflow: hidden;">
+        ${caretHtml}
         <span class="icon">${icon}</span>
         <span class="tree-label">${escapeHtml(label)}</span>
       </div>
@@ -128,8 +146,8 @@ function renderNode(node, level, selectedId, furniture, parentId = null, index =
     </div>
   `;
 
-  // Recursively render children
-  if (node.children && node.children.length > 0) {
+  // Recursively render children if not collapsed
+  if (hasChildren && !node.collapsed) {
     node.children.forEach((child, i) => {
       html += renderNode(child, level + 1, selectedId, furniture, node.id, i);
     });

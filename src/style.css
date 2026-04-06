@@ -482,6 +482,26 @@ html, body {
   border-bottom: 1px solid var(--border);
 }
 
+.tree-caret {
+  display: inline-block;
+  width: 12px;
+  text-align: center;
+  font-size: 10px;
+  cursor: pointer;
+  color: var(--text-muted);
+  user-select: none;
+  transition: color var(--transition-fast);
+}
+
+.tree-caret:hover {
+  color: var(--text-primary);
+}
+
+.tree-caret.hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .form-header h3,
 .tree-header h3 {
   font-size: 13px;
