@@ -173,29 +173,27 @@ export function renderForm(container, furniture, selectedId, callbacks) {
       <section class="form-section">
         <legend>Objets Témoins</legend>
         <p class="help">Placez virtuellement des objets pour tester les volumes.</p>
-        <div style="display:flex; gap: 0.5rem; margin-bottom: 0.5rem;">
-          <select id="select-new-object" style="flex:1;">
+        <div class="objet-add-row">
+          <select id="select-new-object" class="themed-select">
             ${OBJECT_CATALOG.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
           </select>
-          <button class="btn accent" id="btn-add-object">+ Ajouter</button>
+          <button class="btn btn-primary btn-small" id="btn-add-object">+ Ajouter</button>
         </div>
         ${(node.objects && node.objects.length > 0) ? `
-        <div class="children-list">
+        <div class="objet-list">
           ${node.objects.map((obj, idx) => {
             const catItem = OBJECT_CATALOG.find(c => c.id === obj.id);
             const objName = catItem ? catItem.name : obj.id;
             return `
-              <div class="child-item" style="padding: 0.5rem;">
-                <div class="child-item-header">
-                  <span class="child-name" style="font-size: 0.8em; opacity: 0.8;">${objName}</span>
-                  <div class="child-actions">
-                    <select class="obj-align-select" data-index="${idx}" style="padding: 0.1rem; font-size: 0.8em;">
-                      <option value="left" ${obj.align === 'left' ? 'selected' : ''}>Gauche</option>
-                      <option value="center" ${obj.align === 'center' ? 'selected' : ''}>Centre</option>
-                      <option value="right" ${obj.align === 'right' ? 'selected' : ''}>Droite</option>
-                    </select>
-                    <button class="btn btn-small btn-danger btn-remove-obj" data-index="${idx}" title="Supprimer">×</button>
-                  </div>
+              <div class="objet-item">
+                <span class="objet-name">${objName}</span>
+                <div class="objet-controls">
+                  <select class="themed-select themed-select--sm obj-align-select" data-index="${idx}">
+                    <option value="left"  ${obj.align === 'left'   ? 'selected' : ''}>←</option>
+                    <option value="center"${obj.align === 'center' ? 'selected' : ''}>↔</option>
+                    <option value="right" ${obj.align === 'right'  ? 'selected' : ''}>→</option>
+                  </select>
+                  <button class="btn btn-ghost btn-compact btn-remove-obj" data-index="${idx}" title="Supprimer">✕</button>
                 </div>
               </div>
             `;

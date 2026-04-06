@@ -403,6 +403,106 @@ html, body {
   z-index: 11;
 }
 
+/* --- Objets Témoins Panel --- */
+.themed-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 12px;
+  padding: 5px 24px 5px 8px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+.themed-select:hover {
+  border-color: var(--accent-primary);
+}
+
+.themed-select:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(224, 122, 47, 0.15);
+}
+
+.themed-select--sm {
+  font-size: 11px;
+  padding: 3px 20px 3px 6px;
+  background-position: right 6px center;
+}
+
+.objet-add-row {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+  align-items: center;
+}
+
+.objet-add-row .themed-select {
+  flex: 1;
+  min-width: 0;
+}
+
+.objet-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.objet-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: 6px 8px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--transition-fast);
+}
+
+.objet-item:hover {
+  border-color: var(--border-hover, var(--accent-primary));
+}
+
+.objet-name {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.objet-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.btn-remove-obj {
+  color: var(--text-muted) !important;
+  font-size: 13px !important;
+  padding: 2px 6px !important;
+  line-height: 1 !important;
+  transition: color var(--transition-fast), background var(--transition-fast) !important;
+}
+
+.btn-remove-obj:hover {
+  color: var(--danger) !important;
+  background: rgba(225, 78, 83, 0.1) !important;
+  border-color: var(--danger) !important;
+}
+
 .quote-line {
   stroke: var(--accent-primary);
   stroke-width: 1.5;
