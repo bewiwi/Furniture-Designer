@@ -26,6 +26,9 @@ import {
   cloneFurniture,
   getAvailableSpace,
   resizeNodeRecursively,
+  addObjectToNode,
+  removeObjectFromNode,
+  setObjectAlignment,
 } from './model.js';
 
 // Stub i18n so model.js works without the full i18n module
@@ -594,5 +597,56 @@ describe('addSingleChild (Advanced)', () => {
     expect(node.children).toHaveLength(3);
     expect(node.sizes[1]).toBe(460 - 100 - 20);
     expect(node.sizes[2]).toBe(100);
+  });
+});
+
+describe('Helper Object Methods', () => {
+  it('should initialize and add an object to a node', () => {
+    const node = createNode();
+    expect(node.objects).toBeUndefined();
+    
+    addObjectToNode(node, 'tv_55');
+    expect(node.objects.length).toBe(1);
+    expect(node.objects[0].id).toBe('tv_55');
+    expect(node.objects[0].align).toBe('center'); // default
+  });
+
+  it('should remove an object from a node', () => {
+    const node = createNode();
+    addObjectToNode(node, 'tv_55');
+    addObjectToNode(node, 'ps5');
+    expect(node.objects.length).toBe(2);
+    
+    removeObjectFromNode(node, 0);
+    expect(node.objects.length).toBe(1);
+    expect(node.objects[0].id).toBe('ps5');
+  });
+
+  it('should not throw if removing an out-of-bounds object', () => {
+    const node = createNode();
+    addObjectToNode(node, 'tv_55');
+    removeObjectFromNode(node, 10);
+    expect(node.objects.length).toBe(1);
+  });
+
+  it('should update object alignment', () => {
+    const node = createNode();
+    addObjectToNode(node, 'tv_55');
+    
+    setObjectAlignment(node, 0, 'left');
+    expect(node.objects[0].align).toBe('left');
+  });
+
+  it('should be correctly preserved during cloneFurniture', () => {
+    const furniture = createFurniture('Test', 1000, 1000, 300, 20);
+    addObjectToNode(furniture.root, 'tv_42');
+    
+    const clone = cloneFurniture(furniture);
+    expect(clone.root.objects).toBeDefined();
+    expect(clone.root.objects.length).toBe(1);
+    expect(clone.root.objects[0].id).toBe('tv_42');
+    
+    // Ensure deep serialization works
+    expect(clone.root.objects).not.toBe(furniture.root.objects);
   });
 });
