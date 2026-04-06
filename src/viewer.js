@@ -575,6 +575,6 @@ function doRender() {
     if (state.onRender) state.onRender();
   } catch (e) {
     // Log render errors for debugging (can happen during resize or context loss)
-    console.warn('Render error:', e.message || e);
+    console.error('Render error:', e.stack || e);
   }
 }

@@ -398,6 +398,11 @@ html, body {
   z-index: 10;
 }
 
+/* --- Objects Overlay --- */
+#objects-overlay-layer {
+  z-index: 11;
+}
+
 .quote-line {
   stroke: var(--accent-primary);
   stroke-width: 1.5;

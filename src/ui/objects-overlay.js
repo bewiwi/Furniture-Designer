@@ -69,12 +69,12 @@ export function renderObjectsOverlay(furniture, project3DTo2D) {
         
         let pixelWidth = 100; // fallback
         if (screenLeft && screenRight) {
-           pixelWidth = Math.abs((screenRight[0] * hw + hw) - (screenLeft[0] * hw + hw));
+           pixelWidth = Math.abs(screenRight.x - screenLeft.x);
         }
 
         // Convert center projected coords to browser pixel coords
-        const pxX = screenCenter[0] * hw + hw;
-        const pxY = -(screenCenter[1] * hh) + hh;
+        const pxX = screenCenter.x;
+        const pxY = screenCenter.y;
 
         const objDiv = document.createElement('div');
         objDiv.style.position = 'absolute';
