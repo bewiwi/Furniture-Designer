@@ -116,7 +116,7 @@ export function renderForm(container, furniture, selectedId, callbacks) {
       if (parent.direction === 'col') {
         widthHtml = `
           <div class="editable-dim">
-            <input type="number" class="prop-self-size dim-input" data-parent-id="${escapeHtml(parent.id)}" data-index="${childIndex}" value="${Math.round(dims.w)}" min="10" ${isLocked || isOnlyFree ? 'disabled' : ''}>
+            <input type="number" class="prop-self-size dim-input" data-parent-id="${escapeHtml(parent.id)}" data-index="${childIndex}" value="${Math.round(dims.w)}" min="10" ${isLocked ? 'disabled' : ''}>
             <span class="dim-unit">mm</span>
             ${lockToggleHtml}
           </div>
@@ -124,7 +124,7 @@ export function renderForm(container, furniture, selectedId, callbacks) {
       } else if (parent.direction === 'row') {
         heightHtml = `
           <div class="editable-dim">
-            <input type="number" class="prop-self-size dim-input" data-parent-id="${escapeHtml(parent.id)}" data-index="${childIndex}" value="${Math.round(dims.h)}" min="10" ${isLocked || isOnlyFree ? 'disabled' : ''}>
+            <input type="number" class="prop-self-size dim-input" data-parent-id="${escapeHtml(parent.id)}" data-index="${childIndex}" value="${Math.round(dims.h)}" min="10" ${isLocked ? 'disabled' : ''}>
             <span class="dim-unit">mm</span>
             ${lockToggleHtml}
           </div>
@@ -202,7 +202,7 @@ export function renderForm(container, furniture, selectedId, callbacks) {
                   ${lockIcon}
                 </button>
                 <div class="input-unit">
-                  <input type="number" class="prop-child-size" data-index="${idx}" value="${size}" min="10" ${isLocked || isOnlyFree ? 'disabled' : ''}>
+                  <input type="number" class="prop-child-size" data-index="${idx}" value="${size}" min="10" ${isLocked ? 'disabled' : ''}>
                   <span>mm</span>
                 </div>
                 <button class="btn btn-ghost btn-remove-single" data-index="${idx}" title="${t('form.sub.remove_single') ?? 'Remove'}">
