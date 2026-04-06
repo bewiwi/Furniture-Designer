@@ -20,6 +20,7 @@ import {
   normalizeTree,
   getNodeDimensions,
   cloneFurniture,
+  getNodePath,
 } from './model.js';
 import { generatePlanks } from './planks.js';
 import { planksToGeometries, highlightCompartment } from './geometry.js';
@@ -256,7 +257,14 @@ function fullUpdate() {
       appState.furniture,
       appState.selectedNodeId,
       onSelectNode,
-      formCallbacks.onReorderChild
+      formCallbacks.onReorderChild,
+      (nodeId) => {
+        const node = findNodeById(appState.furniture.root, nodeId);
+        if (node) {
+          node.collapsed = !node.collapsed;
+          saveAndUpdate();
+        }
+      }
     );
 
     renderForm(
@@ -314,6 +322,22 @@ function saveAndUpdate() {
 
 function onSelectNode(nodeId) {
   appState.selectedNodeId = appState.selectedNodeId === nodeId ? null : nodeId;
+
+  if (appState.selectedNodeId) {
+    const path = getNodePath(appState.furniture.root, appState.selectedNodeId);
+    if (path) {
+      let changed = false;
+      for (let i = 0; i < path.length - 1; i++) {
+        const ancestor = path[i].node || path[i];
+        if (ancestor.collapsed) {
+          ancestor.collapsed = false;
+          changed = true;
+        }
+      }
+      if (changed) saveToLocalStorage(appState.furniture);
+    }
+  }
+
   fullUpdate();
 }
 
