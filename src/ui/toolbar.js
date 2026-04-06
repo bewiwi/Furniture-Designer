@@ -1,20 +1,29 @@
 /**
  * src/ui/toolbar.js — Main Toolbar
  *
- * Icons and main actions (New, Open, Save, STL, DXF, Undo, Redo, Views).
+ * Icons and main actions (New, Open, Save, Export, Undo, Redo, Views).
  */
 
 import { t } from '../i18n.js';
+
+// Track the outside-click handler so we can remove it on re-render
+let _outsideClickHandler = null;
 
 /**
  * Renders the toolbar.
  *
  * @param {HTMLElement} container - Toolbar container
  * @param {Object} callbacks - Interaction functions
- * @param {Object} state - State (canUndo, canRedo, currentLang)
+ * @param {Object} state - State (canUndo, canRedo, currentLang, overlays)
  */
 export function renderToolbar(container, callbacks, state) {
   if (!container) return;
+
+  // Remove stale outside-click listener before re-render
+  if (_outsideClickHandler) {
+    document.removeEventListener('click', _outsideClickHandler, true);
+    _outsideClickHandler = null;
+  }
 
   const html = `
     <div class="toolbar-left">
@@ -26,13 +35,13 @@ export function renderToolbar(container, callbacks, state) {
       <button class="btn tool ${state.canUndo ? '' : 'disabled'}" id="btn-undo" title="${t('tool.undo.title')}">${t('tool.undo')}</button>
       <button class="btn tool ${state.canRedo ? '' : 'disabled'}" id="btn-redo" title="${t('tool.redo.title')}">${t('tool.redo')}</button>
     </div>
-    
+
     <div class="toolbar-center">
       <div class="nav-switcher">
-        <button class="btn btn-nav ${state.currentView === 'design' ? 'active' : ''}" data-view="design">${t('view.design')}</button>
+        <button class="btn btn-nav ${state.currentView === 'design'   ? 'active' : ''}" data-view="design">${t('view.design')}</button>
         <button class="btn btn-nav ${state.currentView === 'cut-list' ? 'active' : ''}" data-view="cut-list">${t('view.cutlist')}</button>
         <button class="btn btn-nav ${state.currentView === 'cut-plan' ? 'active' : ''}" data-view="cut-plan">${t('view.cutplan') || 'Panel Plan'}</button>
-        <button class="btn btn-nav ${state.currentView === 'tools' ? 'active' : ''}" data-view="tools">${t('view.tools')}</button>
+        <button class="btn btn-nav ${state.currentView === 'tools'    ? 'active' : ''}" data-view="tools">${t('view.tools')}</button>
       </div>
       <div class="view-controls" style="${state.currentView === 'design' ? '' : 'display: none;'}">
         <button class="btn view" data-view="front">${t('tool.view.front')}</button>
@@ -41,32 +50,49 @@ export function renderToolbar(container, callbacks, state) {
         <button class="divider-v"></button>
         <button class="btn view active" data-view="iso">${t('tool.view.iso')}</button>
         <button class="divider-v"></button>
-        <div class="overlay-dropdown" id="overlay-dropdown">
-          <button class="btn view overlay-dropdown-trigger" id="btn-overlay-menu"
-            title="Afficher/masquer les overlays">
-            Affichage ▾
+        <!-- Affichage dropdown -->
+        <div class="toolbar-dropdown" id="overlay-dropdown">
+          <button class="btn view toolbar-dropdown-trigger" id="btn-overlay-menu"
+            title="${t('tool.overlay.title') || 'Affichage'}">
+            👁 ${t('tool.overlay.label') || 'Affichage'} ▾
           </button>
-          <div class="overlay-dropdown-panel" id="overlay-panel" hidden>
-            <label class="overlay-item">
+          <div class="toolbar-dropdown-panel" id="overlay-panel" hidden>
+            <label class="dropdown-item">
               <input type="checkbox" data-overlay="quotes" ${state.overlays.has('quotes') ? 'checked' : ''}>
-              ↔ ${t('tool.overlay.quotes')}
+              <span>↔ ${t('tool.overlay.quotes')}</span>
             </label>
-            <label class="overlay-item">
+            <label class="dropdown-item">
               <input type="checkbox" data-overlay="locks" ${state.overlays.has('locks') ? 'checked' : ''}>
-              🔒 ${t('tool.overlay.locks')}
+              <span>🔒 ${t('tool.overlay.locks')}</span>
             </label>
-            <label class="overlay-item">
+            <label class="dropdown-item">
               <input type="checkbox" data-overlay="objects" ${state.overlays.has('objects') ? 'checked' : ''}>
-              📦 ${t('tool.overlay.objects')}
+              <span>📦 ${t('tool.overlay.objects')}</span>
             </label>
           </div>
         </div>
       </div>
+    </div>
 
     <div class="toolbar-right">
-      <button class="btn export" id="btn-stl" title="${t('tool.export_stl.title')}">${t('tool.export_stl')}</button>
-      <button class="btn export" id="btn-dxf" title="${t('tool.export_dxf.title')}">${t('tool.export_dxf')}</button>
-      <button class="btn export" id="btn-plan" title="${t('tool.export_plan.title')}">${t('tool.export_plan')}</button>
+      <!-- Export dropdown -->
+      <div class="toolbar-dropdown" id="export-dropdown">
+        <button class="btn export toolbar-dropdown-trigger" id="btn-export-menu"
+          title="${t('tool.export.title') || 'Exporter'}">
+          ⬇ ${t('tool.export.label') || 'Export'} ▾
+        </button>
+        <div class="toolbar-dropdown-panel panel-left" id="export-panel" hidden>
+          <button class="dropdown-item" id="btn-stl" title="${t('tool.export_stl.title')}">
+            <span>${t('tool.export_stl')}</span>
+          </button>
+          <button class="dropdown-item" id="btn-dxf" title="${t('tool.export_dxf.title')}">
+            <span>${t('tool.export_dxf')}</span>
+          </button>
+          <button class="dropdown-item" id="btn-plan" title="${t('tool.export_plan.title')}">
+            <span>${t('tool.export_plan')}</span>
+          </button>
+        </div>
+      </div>
       <div class="divider"></div>
       <button class="btn nav" id="btn-help" title="Aide [?]">❔ Aide</button>
       <button class="btn nav theme-toggle" id="btn-theme" title="${t('tool.theme.title')}">
@@ -85,99 +111,108 @@ export function renderToolbar(container, callbacks, state) {
   attachToolbarListeners(container, callbacks);
 }
 
+/**
+ * Sets up a generic dropdown (trigger + panel + outside-close).
+ * Returns the AbortController so callers can clean up.
+ */
+function setupDropdown(trigger, panel) {
+  if (!trigger || !panel) return null;
+
+  trigger.onclick = (e) => {
+    e.stopPropagation();
+    const isOpen = !panel.hidden;
+    // Close all other panels first
+    document.querySelectorAll('.toolbar-dropdown-panel').forEach(p => { p.hidden = true; });
+    panel.hidden = isOpen;
+  };
+
+  // Prevent clicks inside panel from closing it
+  panel.addEventListener('click', e => e.stopPropagation());
+
+  return null; // caller will use shared handler
+}
+
 function attachToolbarListeners(container, callbacks) {
   // New
-  container.querySelector('#btn-new').onclick = () => {
-    callbacks.onNew(); // confirmation is handled in main.js
-  };
+  container.querySelector('#btn-new').onclick = () => callbacks.onNew();
 
   // Open
   const fileInput = container.querySelector('#file-input');
   container.querySelector('#btn-open').onclick = () => fileInput.click();
   fileInput.onchange = (e) => {
-    if (e.target.files.length > 0) {
-      callbacks.onOpen(e.target.files[0]);
-    }
+    if (e.target.files.length > 0) callbacks.onOpen(e.target.files[0]);
   };
 
   // Save
   container.querySelector('#btn-save').onclick = () => callbacks.onSave();
 
-  // Export
-  container.querySelector('#btn-stl').onclick = () => callbacks.onExportSTL();
-  container.querySelector('#btn-dxf').onclick = () => callbacks.onExportDXF();
-  container.querySelector('#btn-plan').onclick = () => callbacks.onExportPlan();
-
   // Undo/Redo
   container.querySelector('#btn-undo').onclick = () => callbacks.onUndo();
   container.querySelector('#btn-redo').onclick = () => callbacks.onRedo();
 
-  // View Switcher (Design / Cut List)
-  const navBtns = container.querySelectorAll('.btn-nav');
-  navBtns.forEach(btn => {
-    btn.onclick = () => {
-      if (callbacks.onChangeView) {
-        callbacks.onChangeView(btn.dataset.view);
-      }
-    };
+  // View Switcher (Design / Cut List / …)
+  container.querySelectorAll('.btn-nav').forEach(btn => {
+    btn.onclick = () => { if (callbacks.onChangeView) callbacks.onChangeView(btn.dataset.view); };
   });
 
-  // View Presets (front/top/right/iso)
-  const viewBtns = container.querySelectorAll('.btn.view:not(.overlay-pill)');
-  viewBtns.forEach((btn) => {
+  // View Presets (front/top/right/iso) — exclude dropdown triggers
+  const viewBtns = container.querySelectorAll('.btn.view:not(.toolbar-dropdown-trigger)');
+  viewBtns.forEach(btn => {
     btn.onclick = () => {
       viewBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      callbacks.onSetView(btn.dataset.view);
+      if (btn.dataset.view) callbacks.onSetView(btn.dataset.view);
     };
   });
 
-  // Overlay dropdown toggle
+  // ── Affichage (overlay) dropdown ──────────────────────────────────────────
   const overlayTrigger = container.querySelector('#btn-overlay-menu');
   const overlayPanel   = container.querySelector('#overlay-panel');
-  if (overlayTrigger && overlayPanel) {
-    overlayTrigger.onclick = (e) => {
-      e.stopPropagation();
-      overlayPanel.hidden = !overlayPanel.hidden;
-    };
-    // Checkbox changes
-    overlayPanel.querySelectorAll('input[type=checkbox]').forEach(cb => {
-      cb.onchange = () => {
-        if (callbacks.onToggleOverlay) callbacks.onToggleOverlay(cb.dataset.overlay);
-      };
-    });
-    // Close on outside click
-    document.addEventListener('click', () => { overlayPanel.hidden = true; }, { once: false, capture: false });
-    overlayPanel.addEventListener('click', e => e.stopPropagation());
-  }
+  setupDropdown(overlayTrigger, overlayPanel);
 
-  // Theme Toggle
-  const themeBtn = container.querySelector('#btn-theme');
-  if (themeBtn) {
-    themeBtn.onclick = () => {
-      if (callbacks.onThemeToggle) {
-        callbacks.onThemeToggle();
-      }
-    };
-  }
+  overlayPanel?.querySelectorAll('input[type=checkbox]').forEach(cb => {
+    cb.onchange = () => { if (callbacks.onToggleOverlay) callbacks.onToggleOverlay(cb.dataset.overlay); };
+  });
 
-  // Language Switcher
-  const langSelect = container.querySelector('#lang-select');
-  if (langSelect) {
-    langSelect.onchange = (e) => {
-      if (callbacks.onLanguageChange) {
-        callbacks.onLanguageChange(e.target.value);
-      }
-    };
-  }
+  // ── Export dropdown ────────────────────────────────────────────────────────
+  const exportTrigger = container.querySelector('#btn-export-menu');
+  const exportPanel   = container.querySelector('#export-panel');
+  setupDropdown(exportTrigger, exportPanel);
 
-  // Help Modal
-  const helpBtn = container.querySelector('#btn-help');
-  if (helpBtn) {
-    helpBtn.onclick = () => {
-      if (callbacks.onHelpToggle) {
-        callbacks.onHelpToggle();
-      }
-    };
-  }
+  container.querySelector('#btn-stl')?.addEventListener('click', () => {
+    exportPanel.hidden = true;
+    callbacks.onExportSTL();
+  });
+  container.querySelector('#btn-dxf')?.addEventListener('click', () => {
+    exportPanel.hidden = true;
+    callbacks.onExportDXF();
+  });
+  container.querySelector('#btn-plan')?.addEventListener('click', () => {
+    exportPanel.hidden = true;
+    callbacks.onExportPlan();
+  });
+
+  // ── Shared outside-click handler ──────────────────────────────────────────
+  _outsideClickHandler = (e) => {
+    // If the click target is inside the toolbar, do nothing — dropdown handlers manage that
+    if (container.contains(e.target)) return;
+    container.querySelectorAll('.toolbar-dropdown-panel').forEach(p => { p.hidden = true; });
+  };
+  // Use capture:true so we catch clicks on canvas/svg elements that don't bubble
+  document.addEventListener('click', _outsideClickHandler, true);
+
+  // ── Theme Toggle ──────────────────────────────────────────────────────────
+  container.querySelector('#btn-theme')?.addEventListener('click', () => {
+    if (callbacks.onThemeToggle) callbacks.onThemeToggle();
+  });
+
+  // ── Language Switcher ──────────────────────────────────────────────────────
+  container.querySelector('#lang-select')?.addEventListener('change', (e) => {
+    if (callbacks.onLanguageChange) callbacks.onLanguageChange(e.target.value);
+  });
+
+  // ── Help Modal ─────────────────────────────────────────────────────────────
+  container.querySelector('#btn-help')?.addEventListener('click', () => {
+    if (callbacks.onHelpToggle) callbacks.onHelpToggle();
+  });
 }
