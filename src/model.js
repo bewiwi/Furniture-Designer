@@ -283,6 +283,74 @@ export function resizeChild(node, childIndex, newSize) {
 }
 
 /**
+ * Attempts to resize a node. If siblings are locked, it bubbles up
+ * to the nearest ancestor that splits the space in the same direction,
+ * steals space from that ancestor's siblings, and applies the delta tightly.
+ * 
+ * @param {Object} root - The root of the furniture tree
+ * @param {string} targetId - ID of the node to resize
+ * @param {number} newSize - Target new size in mm
+ */
+export function resizeNodeRecursively(root, targetId, newSize) {
+  const path = getNodePath(root, targetId);
+  if (!path || path.length < 2) {
+    throw new Error(t('error.invalid_child'));
+  }
+
+  const parentEntry = path[path.length - 2];
+  const parent = parentEntry.node;
+  const childIndex = parent.children.findIndex(c => c.id === targetId);
+  if (childIndex === -1) throw new Error(t('error.invalid_child'));
+
+  const oldSize = parent.sizes[childIndex];
+  const delta = newSize - oldSize;
+
+  if (delta === 0) return;
+
+  try {
+    // Attempt local standard resize
+    resizeChild(parent, childIndex, newSize);
+  } catch (e) {
+    // If it's a locked bounds error, we can try to bubble up
+    if (e.message !== t('error.no_free_neighbor') && e.message !== t('error.neighbor_too_small')) {
+      throw e; // some other error preventing resize
+    }
+
+    // Attempt to find an ancestor with the SAME direction
+    const targetDirection = parent.direction; 
+    let ancestorFound = false;
+
+    // Walk up the path: path[path.length - 3] is the grandparent, etc.
+    // root is path[0].
+    for (let i = path.length - 3; i >= 0; i--) {
+      const ancestorParent = path[i].node;
+      if (ancestorParent.direction === targetDirection) {
+        // We found an ancestor container dividing in the same dimension!
+        const ancestorChildNode = path[i + 1].node;
+        const ancestorIndex = ancestorParent.children.findIndex(c => c.id === ancestorChildNode.id);
+        if (ancestorIndex === -1) continue;
+        
+        const ancestorCurrentSize = ancestorParent.sizes[ancestorIndex];
+        
+        // Attempt recursive resize on that ancestor
+        // Note: this could recursively climb further if the ancestor's siblings are also locked!
+        resizeNodeRecursively(root, ancestorChildNode.id, ancestorCurrentSize + delta);
+        
+        // If it succeeds (didn't throw), we forcefully apply the delta to our target
+        parent.sizes[childIndex] = newSize;
+        ancestorFound = true;
+        break; // Stop climbing, we got our space!
+      }
+    }
+
+    if (!ancestorFound) {
+      // Nothing could provide the space
+      throw e;
+    }
+  }
+}
+
+/**
  * Equalizes sizes of all unlocked children in a subdivided node.
  * Locked children retain their current size; the remaining space
  * is distributed equally among unlocked children.

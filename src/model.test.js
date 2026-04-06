@@ -25,6 +25,7 @@ import {
   normalizeTree,
   cloneFurniture,
   getAvailableSpace,
+  resizeNodeRecursively,
 } from './model.js';
 
 // Stub i18n so model.js works without the full i18n module
@@ -259,6 +260,35 @@ describe('resizeChild', () => {
     expect(node.sizes[2]).toBe(size2Before - 30);
   });
 });
+
+
+  describe('resizeNodeRecursively', () => {
+    it('steals space from a matching ancestor when siblings are locked', () => {
+      const f = createFurniture('Test', 1000, 1000, 300, 20);
+      // Root is row: sizes [470, 470]
+      subdivide(f.root, 'row', 2, 960, 20); 
+      // Subdivide child 0 into cols (widths) - sizes [470, 470]
+      subdivide(f.root.children[0], 'col', 2, 960, 20);
+      // Subdivide child 0's child 0 into rows (heights) - sizes [225, 225]
+      subdivide(f.root.children[0].children[0], 'row', 2, 470, 20);
+      
+      // We lock the sibling of the deep row
+      f.root.children[0].children[0].children[1].locked = true;
+      
+      const targetId = f.root.children[0].children[0].children[0].id;
+      
+      // We need to import resizeNodeRecursively from model.test.js? No, it's already there
+      
+      resizeNodeRecursively(f.root, targetId, 325);
+      
+      // Target should be exactly 325
+      expect(f.root.children[0].children[0].sizes[0]).toBe(325);
+      
+      // Grandparent's sibling (root's child 1) should have lost 100
+      // 470 -> 370
+      expect(f.root.sizes[1]).toBe(370);
+    });
+  });
 
 describe('toggleChildLock', () => {
   it('locks and unlocks a child', () => {
