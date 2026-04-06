@@ -40,6 +40,8 @@ export function renderToolbar(container, callbacks, state) {
         <button class="btn view" data-view="right">${t('tool.view.side')}</button>
         <button class="divider-v"></button>
         <button class="btn view active" data-view="iso">${t('tool.view.iso')}</button>
+        <button class="divider-v"></button>
+        <button class="btn view ${state.showLocks3D ? 'active' : ''}" id="btn-toggle-locks" title="${t('tool.toggle_locks.title')}">${t('tool.toggle_locks')}</button>
       </div>
     </div>
 
@@ -105,7 +107,14 @@ function attachToolbarListeners(container, callbacks) {
   const viewBtns = container.querySelectorAll('.btn.view');
   viewBtns.forEach((btn) => {
     btn.onclick = () => {
-      viewBtns.forEach((b) => b.classList.remove('active'));
+      // Don't auto-remove active lock button
+      if (btn.id === 'btn-toggle-locks') {
+        if (callbacks.onToggleLocks) callbacks.onToggleLocks();
+        return;
+      }
+      viewBtns.forEach((b) => {
+        if (b.id !== 'btn-toggle-locks') b.classList.remove('active');
+      });
       btn.classList.add('active');
       callbacks.onSetView(btn.dataset.view);
     };

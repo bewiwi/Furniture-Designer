@@ -55,7 +55,7 @@ import { renderCutList } from './ui/cutlist.js';
 import { renderFullCutList } from './ui/cutlist-view.js';
 import { renderCutPlan } from './ui/cutplan-view.js';
 import { renderToolsView, cleanupToolsView } from './ui/tools-view.js';
-import { renderQuotes } from './ui/quotes.js';
+import { renderQuotes, renderLocks } from './ui/quotes.js';
 import { initResizers } from './ui/resizer.js';
 import { initZoomModal } from './ui/zoom-modal.js';
 import { setLanguage, getLanguage, t } from './i18n.js';
@@ -73,6 +73,7 @@ const appState = {
   currentTheme: 'dark',
   highlightedPlankIds: [],
   currentView: 'design',   // 'design', 'cut-list', 'cut-plan' or 'tools'
+  showLocks3D: false,
 };
 
 // =============================================================================
@@ -136,6 +137,7 @@ function init() {
       // Attach dynamically projected quotes overlay to the render loop
       setRenderCallback(() => {
         renderQuotes(appState.furniture, appState.selectedNodeId, project3DTo2D);
+        renderLocks(appState.furniture, appState.showLocks3D, project3DTo2D);
       });
 
       // Handle selection via click on 3D viewer
@@ -244,6 +246,7 @@ function fullUpdate() {
         currentLang: getLanguage(),
         currentTheme: appState.currentTheme,
         currentView: appState.currentView,
+        showLocks3D: appState.showLocks3D,
       }
     );
 
@@ -534,6 +537,11 @@ const toolbarCallbacks = {
 
   onChangeView(view) {
     appState.currentView = view;
+    fullUpdate();
+  },
+
+  onToggleLocks() {
+    appState.showLocks3D = !appState.showLocks3D;
     fullUpdate();
   }
 };

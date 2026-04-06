@@ -1,4 +1,4 @@
-import { getNodeDimensions } from '../model.js';
+import { getNodeDimensions, getNodePath } from '../model.js';
 
 // Pool to avoid destroying and recreating SVG elements at 60fps (which causes OOM crashes and GC pauses)
 const pooledNodes = [];
@@ -102,5 +102,69 @@ export function renderQuotes(furniture, selectedId, project3DTo2D) {
     const excess = pooledNodes.pop();
     excess.line.remove();
     excess.text.remove();
+  }
+}
+
+const pooledLockNodes = [];
+let usedLockNodes = 0;
+
+export function renderLocks(furniture, showLocks, project3DTo2D) {
+  const overlay = document.getElementById('quotes-overlay');
+  if (!overlay) return;
+
+  usedLockNodes = 0;
+
+  if (furniture && showLocks && project3DTo2D) {
+    function traverse(node) {
+      if (node.locked && node.id !== furniture.root.id) {
+        const dim = getNodeDimensions(furniture, node.id);
+        const path = getNodePath(furniture.root, node.id);
+        if (dim && path && path.length > 0) {
+          let parentNode = null;
+          if (path.length >= 2) {
+            parentNode = path[path.length - 2].node;
+          }
+
+          if (parentNode) {
+            const zFront = furniture.depth + 10;
+            let targetX, targetY;
+
+            if (parentNode.direction === 'col') {
+              // col parent means side-by-side. The node's lock is its width.
+              targetX = dim.x + (dim.w / 2);
+              targetY = dim.y + dim.h - 5;
+            } else {
+              // row parent means stacked. The node's lock is its height.
+              targetX = dim.x + dim.w - 15;
+              targetY = dim.y + (dim.h / 2);
+            }
+
+            const sc = project3DTo2D(targetX, targetY, zFront);
+            if (sc) {
+              if (usedLockNodes >= pooledLockNodes.length) {
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('class', 'quote-text lock-text');
+                overlay.appendChild(text);
+                pooledLockNodes.push(text);
+              }
+              const textNode = pooledLockNodes[usedLockNodes];
+              textNode.setAttribute('x', sc.x);
+              textNode.setAttribute('y', sc.y);
+              textNode.textContent = '🔒';
+              textNode.style.display = '';
+              usedLockNodes++;
+            }
+          }
+        }
+      }
+      for (const child of node.children) {
+        traverse(child);
+      }
+    }
+    traverse(furniture.root);
+  }
+
+  for (let i = usedLockNodes; i < pooledLockNodes.length; i++) {
+    pooledLockNodes[i].style.display = 'none';
   }
 }
