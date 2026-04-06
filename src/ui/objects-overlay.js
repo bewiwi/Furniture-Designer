@@ -60,12 +60,12 @@ export function renderObjectsOverlay(furniture, project3DTo2D) {
         }
 
         // Project center coordinate
-        const screenCenter = project3DTo2D([x, y, z]);
+        const screenCenter = project3DTo2D(x, y, z);
         if (!screenCenter) return; // behind camera
 
         // Calculate visual pixel width safely using two projected boundaries along X axis
-        const screenLeft = project3DTo2D([x - catItem.w / 2, y, z]);
-        const screenRight = project3DTo2D([x + catItem.w / 2, y, z]);
+        const screenLeft = project3DTo2D(x - catItem.w / 2, y, z);
+        const screenRight = project3DTo2D(x + catItem.w / 2, y, z);
         
         let pixelWidth = 100; // fallback
         if (screenLeft && screenRight) {
