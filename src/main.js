@@ -80,7 +80,8 @@ const appState = {
   currentTheme: 'dark',
   highlightedPlankIds: [],
   currentView: 'design',   // 'design', 'cut-list', 'cut-plan' or 'tools'
-  showLocks3D: false,
+  showLocks3D: false,         // kept for backward-compat, derived from overlays
+  overlays: new Set(['quotes']), // active overlays: 'locks' | 'quotes' | 'objects'
 };
 
 // =============================================================================
@@ -145,9 +146,15 @@ function init() {
 
       // Attach dynamically projected quotes overlay to the render loop
       setRenderCallback(() => {
-        renderQuotes(appState.furniture, appState.selectedNodeId, project3DTo2D);
-        renderLocks(appState.furniture, appState.showLocks3D, project3DTo2D);
-        renderObjectsOverlay(appState.furniture, project3DTo2D);
+        renderQuotes(appState.furniture, appState.selectedNodeId, project3DTo2D, appState.overlays.has('quotes'));
+        renderLocks(appState.furniture, appState.overlays.has('locks'), project3DTo2D);
+        if (appState.overlays.has('objects')) {
+          renderObjectsOverlay(appState.furniture, project3DTo2D);
+        } else {
+          // clear overlay layer
+          const layer = document.getElementById('objects-overlay-layer');
+          if (layer) layer.innerHTML = '';
+        }
       });
 
       // Handle selection via click on 3D viewer
@@ -259,7 +266,7 @@ function fullUpdate() {
         currentLang: getLanguage(),
         currentTheme: appState.currentTheme,
         currentView: appState.currentView,
-        showLocks3D: appState.showLocks3D,
+        overlays: appState.overlays,
       }
     );
 
@@ -615,6 +622,15 @@ const toolbarCallbacks = {
 
   onToggleLocks() {
     appState.showLocks3D = !appState.showLocks3D;
+    fullUpdate();
+  },
+
+  onToggleOverlay(name) {
+    if (appState.overlays.has(name)) {
+      appState.overlays.delete(name);
+    } else {
+      appState.overlays.add(name);
+    }
     fullUpdate();
   }
 };

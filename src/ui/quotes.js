@@ -11,9 +11,17 @@ const pooledNodes = [];
  * @param {string} selectedId
  * @param {Function} project3DTo2D
  */
-export function renderQuotes(furniture, selectedId, project3DTo2D) {
+export function renderQuotes(furniture, selectedId, project3DTo2D, enabled = true) {
   const overlay = document.getElementById('quotes-overlay');
   if (!overlay) return;
+
+  if (!enabled) {
+    pooledNodes.forEach(n => {
+      n.line.style.display = 'none';
+      n.text.style.display = 'none';
+    });
+    return;
+  }
 
   let usedNodes = 0;
 

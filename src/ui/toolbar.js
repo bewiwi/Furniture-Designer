@@ -41,8 +41,17 @@ export function renderToolbar(container, callbacks, state) {
         <button class="divider-v"></button>
         <button class="btn view active" data-view="iso">${t('tool.view.iso')}</button>
         <button class="divider-v"></button>
-        <button class="btn view ${state.showLocks3D ? 'active' : ''}" id="btn-toggle-locks" title="${t('tool.toggle_locks.title')}">${t('tool.toggle_locks')}</button>
-      </div>
+        <div class="overlay-toggles" role="group" aria-label="Overlays">
+          <button class="btn view overlay-pill ${state.overlays.has('quotes') ? 'active' : ''}" data-overlay="quotes" title="Afficher les cotes">
+            ↔ Cotes
+          </button>
+          <button class="btn view overlay-pill ${state.overlays.has('locks') ? 'active' : ''}" data-overlay="locks" title="Afficher les verrous">
+            🔒 Verrous
+          </button>
+          <button class="btn view overlay-pill ${state.overlays.has('objects') ? 'active' : ''}" data-overlay="objects" title="Afficher les objets 3D">
+            📦 Objets
+          </button>
+        </div>
     </div>
 
     <div class="toolbar-right">
@@ -104,20 +113,21 @@ function attachToolbarListeners(container, callbacks) {
     };
   });
 
-  // Views (3D Presets)
-  const viewBtns = container.querySelectorAll('.btn.view');
+  // View Presets (front/top/right/iso)
+  const viewBtns = container.querySelectorAll('.btn.view:not(.overlay-pill)');
   viewBtns.forEach((btn) => {
     btn.onclick = () => {
-      // Don't auto-remove active lock button
-      if (btn.id === 'btn-toggle-locks') {
-        if (callbacks.onToggleLocks) callbacks.onToggleLocks();
-        return;
-      }
-      viewBtns.forEach((b) => {
-        if (b.id !== 'btn-toggle-locks') b.classList.remove('active');
-      });
+      viewBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       callbacks.onSetView(btn.dataset.view);
+    };
+  });
+
+  // Overlay toggle pills
+  const overlayPills = container.querySelectorAll('.overlay-pill');
+  overlayPills.forEach(pill => {
+    pill.onclick = () => {
+      if (callbacks.onToggleOverlay) callbacks.onToggleOverlay(pill.dataset.overlay);
     };
   });
 

@@ -246,6 +246,40 @@ html, body {
   color: var(--text-primary);
 }
 
+/* Overlay toggles pill group */
+.overlay-toggles {
+  display: flex;
+  align-items: center;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 2px;
+  gap: 2px;
+}
+
+.overlay-toggles .overlay-pill {
+  padding: 3px 10px;
+  font-size: 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  background: transparent;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.overlay-toggles .overlay-pill:hover {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}
+
+.overlay-toggles .overlay-pill.active {
+  background: var(--bg-surface);
+  color: var(--accent-primary);
+  border-color: var(--border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
 /* Language Switcher */
 .lang-switcher {
   background: var(--bg-surface);
