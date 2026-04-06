@@ -125,8 +125,8 @@ export function renderLocks(furniture, showLocks, project3DTo2D) {
           let hLock = false;
 
           for (let i = path.length - 1; i >= 1; i--) {
-            const curr = path[i].node;
-            const p = path[i - 1].node;
+            const curr = path[i].node || path[i];
+            const p = path[i - 1].node || path[i - 1];
             if (curr.locked) {
               if (p.direction === 'col') wLock = true;
               if (p.direction === 'row') hLock = true;
@@ -151,7 +151,7 @@ export function renderLocks(furniture, showLocks, project3DTo2D) {
               iconText = '🔒'; // could be a bigger emoji or we scale it via css class
               extraClass = ' lock-text-big';
             } else {
-              const parentNode = path[path.length - 2].node;
+              const parentNode = path[path.length - 2].node || path[path.length - 2];
               if (parentNode.direction === 'col') {
                 targetX = dim.x + (dim.w / 2);
                 targetY = dim.y + dim.h - 5;
