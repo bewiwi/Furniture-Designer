@@ -116,30 +116,54 @@ export function renderLocks(furniture, showLocks, project3DTo2D) {
 
   if (furniture && showLocks && project3DTo2D) {
     function traverse(node) {
-      if (node.locked && node.id !== furniture.root.id) {
+      if (node.id !== furniture.root.id) {
         const dim = getNodeDimensions(furniture, node.id);
         const path = getNodePath(furniture.root, node.id);
+        
         if (dim && path && path.length > 0) {
-          let parentNode = null;
-          if (path.length >= 2) {
-            parentNode = path[path.length - 2].node;
+          let wLock = false;
+          let hLock = false;
+
+          for (let i = path.length - 1; i >= 1; i--) {
+            const curr = path[i].node;
+            const p = path[i - 1].node;
+            if (curr.locked) {
+              if (p.direction === 'col') wLock = true;
+              if (p.direction === 'row') hLock = true;
+            }
           }
 
-          if (parentNode) {
-            const zFront = furniture.depth + 10;
-            let targetX, targetY;
+          const isLeaf = node.children.length === 0;
+          const isCompletelyBlocked = wLock && hLock;
+          
+          // Draw standard edge lock if this specific node is locked
+          const shouldDrawEdge = node.locked && !isCompletelyBlocked;
+          const shouldDrawCenter = isLeaf && isCompletelyBlocked;
 
-            if (parentNode.direction === 'col') {
-              // col parent means side-by-side. The node's lock is its width.
+          if (shouldDrawEdge || shouldDrawCenter) {
+            let targetX, targetY;
+            let iconText = '🔒';
+            let extraClass = '';
+
+            if (shouldDrawCenter) {
               targetX = dim.x + (dim.w / 2);
-              targetY = dim.y + dim.h - 5;
-            } else {
-              // row parent means stacked. The node's lock is its height.
-              targetX = dim.x + dim.w - 15;
               targetY = dim.y + (dim.h / 2);
+              iconText = '🔒'; // could be a bigger emoji or we scale it via css class
+              extraClass = ' lock-text-big';
+            } else {
+              const parentNode = path[path.length - 2].node;
+              if (parentNode.direction === 'col') {
+                targetX = dim.x + (dim.w / 2);
+                targetY = dim.y + dim.h - 5;
+              } else {
+                targetX = dim.x + dim.w - 15;
+                targetY = dim.y + (dim.h / 2);
+              }
             }
 
+            const zFront = furniture.depth + 10;
             const sc = project3DTo2D(targetX, targetY, zFront);
+            
             if (sc) {
               if (usedLockNodes >= pooledLockNodes.length) {
                 const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -150,7 +174,11 @@ export function renderLocks(furniture, showLocks, project3DTo2D) {
               const textNode = pooledLockNodes[usedLockNodes];
               textNode.setAttribute('x', sc.x);
               textNode.setAttribute('y', sc.y);
-              textNode.textContent = '🔒';
+              textNode.setAttribute('class', 'quote-text lock-text' + extraClass);
+              
+              // If it's a small compartment and we are drawing a center lock, maybe scale it down slightly?
+              // Standard styling via CSS handles it.
+              textNode.textContent = iconText;
               textNode.style.display = '';
               usedLockNodes++;
             }
