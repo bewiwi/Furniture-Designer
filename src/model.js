@@ -563,3 +563,24 @@ export function getNodeDimensions(furniture, nodeId) {
 
   return { x, y, w, h };
 }
+
+// =============================================================================
+// Helper Object Methods API
+// =============================================================================
+
+export function addObjectToNode(node, objectId) {
+  if (!node.objects) node.objects = [];
+  node.objects.push({ id: objectId, align: 'center' });
+}
+
+export function removeObjectFromNode(node, index) {
+  if (node.objects && index >= 0 && index < node.objects.length) {
+    node.objects.splice(index, 1);
+  }
+}
+
+export function setObjectAlignment(node, index, align) {
+  if (node.objects && index >= 0 && index < node.objects.length) {
+    node.objects[index].align = align;
+  }
+}

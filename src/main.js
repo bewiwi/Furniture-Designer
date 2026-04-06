@@ -22,6 +22,9 @@ import {
   cloneFurniture,
   getNodePath,
   resizeNodeRecursively,
+  addObjectToNode,
+  removeObjectFromNode,
+  setObjectAlignment,
 } from './model.js';
 import { generatePlanks } from './planks.js';
 import { planksToGeometries, highlightCompartment } from './geometry.js';
@@ -61,6 +64,7 @@ import { renderQuotes, renderLocks } from './ui/quotes.js';
 import { initResizers } from './ui/resizer.js';
 import { initZoomModal } from './ui/zoom-modal.js';
 import { initHelpModal } from './ui/help-modal.js';
+import { renderObjectsOverlay } from './ui/objects-overlay.js';
 import { setLanguage, getLanguage, t } from './i18n.js';
 import { groupPlanks } from './planks.js';
 
@@ -143,6 +147,7 @@ function init() {
       setRenderCallback(() => {
         renderQuotes(appState.furniture, appState.selectedNodeId, project3DTo2D);
         renderLocks(appState.furniture, appState.showLocks3D, project3DTo2D);
+        renderObjectsOverlay(appState.furniture, project3DTo2D);
       });
 
       // Handle selection via click on 3D viewer
@@ -493,6 +498,27 @@ const formCallbacks = {
       appState.furniture.dowelConfig = { diameter: 8, depth: 15, edgeMargin: 50, spacing: 200 };
     }
     appState.furniture.dowelConfig[key] = value;
+    saveAndUpdate();
+  },
+
+  onAddObject(nodeId, objectId) {
+    const node = resolveNode(nodeId);
+    if (!node) return;
+    addObjectToNode(node, objectId);
+    saveAndUpdate();
+  },
+
+  onRemoveObject(nodeId, index) {
+    const node = resolveNode(nodeId);
+    if (!node) return;
+    removeObjectFromNode(node, index);
+    saveAndUpdate();
+  },
+
+  onSetObjectAlignment(nodeId, index, align) {
+    const node = resolveNode(nodeId);
+    if (!node) return;
+    setObjectAlignment(node, index, align);
     saveAndUpdate();
   },
 };

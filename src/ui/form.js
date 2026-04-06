@@ -5,9 +5,10 @@
  * for the currently selected compartment.
  */
 
-import { findNodeById, getNodeDimensions, getNodePath } from '../model.js';
+import { findNodeById, getNodeDimensions, getNodePath, addObjectToNode, removeObjectFromNode, setObjectAlignment } from '../model.js';
 import { t } from '../i18n.js';
 import { escapeHtml } from '../utils.js';
+import { OBJECT_CATALOG } from '../objects.js';
 
 /**
  * Renders the properties form for the selected node.
@@ -167,6 +168,40 @@ export function renderForm(container, furniture, selectedId, callbacks) {
             <input type="number" id="input-sub-col" value="2" min="2" max="20">
           </div>
         </div>
+      </section>
+      
+      <section class="form-section">
+        <legend>Objets Témoins</legend>
+        <p class="help">Placez virtuellement des objets pour tester les volumes.</p>
+        <div style="display:flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <select id="select-new-object" style="flex:1;">
+            ${OBJECT_CATALOG.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+          </select>
+          <button class="btn accent" id="btn-add-object">+ Ajouter</button>
+        </div>
+        ${(node.objects && node.objects.length > 0) ? `
+        <div class="children-list">
+          ${node.objects.map((obj, idx) => {
+            const catItem = OBJECT_CATALOG.find(c => c.id === obj.id);
+            const objName = catItem ? catItem.name : obj.id;
+            return `
+              <div class="child-item" style="padding: 0.5rem;">
+                <div class="child-item-header">
+                  <span class="child-name" style="font-size: 0.8em; opacity: 0.8;">${objName}</span>
+                  <div class="child-actions">
+                    <select class="obj-align-select" data-index="${idx}" style="padding: 0.1rem; font-size: 0.8em;">
+                      <option value="left" ${obj.align === 'left' ? 'selected' : ''}>Gauche</option>
+                      <option value="center" ${obj.align === 'center' ? 'selected' : ''}>Centre</option>
+                      <option value="right" ${obj.align === 'right' ? 'selected' : ''}>Droite</option>
+                    </select>
+                    <button class="btn btn-small btn-danger btn-remove-obj" data-index="${idx}" title="Supprimer">×</button>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+        ` : ''}
       </section>
     `;
   } else {
@@ -393,8 +428,41 @@ function attachListeners(container, furniture, selectedId, callbacks) {
     input.addEventListener('change', (e) => {
       const idx = parseInt(e.target.dataset.index, 10);
       const val = parseInt(e.target.value, 10);
-      if (isNaN(val) || val < 1) return;
       callbacks.onResizeChild(selectedId, idx, val);
     });
+  });
+
+  // Add Object
+  const btnAddObj = container.querySelector('#btn-add-object');
+  if (btnAddObj && callbacks.onAddObject) {
+    btnAddObj.onclick = () => {
+      const select = container.querySelector('#select-new-object');
+      if (select && select.value) {
+        callbacks.onAddObject(selectedId, select.value);
+      }
+    };
+  }
+
+  // Remove Object
+  const btnRemoveObjs = container.querySelectorAll('.btn-remove-obj');
+  btnRemoveObjs.forEach(btn => {
+    btn.onclick = (e) => {
+      const idx = parseInt(e.currentTarget.dataset.index, 10);
+      if (callbacks.onRemoveObject) {
+        callbacks.onRemoveObject(selectedId, idx);
+      }
+    };
+  });
+
+  // Change Object Alignment
+  const selectAligns = container.querySelectorAll('.obj-align-select');
+  selectAligns.forEach(select => {
+    select.onchange = (e) => {
+      const idx = parseInt(e.target.dataset.index, 10);
+      const align = e.target.value;
+      if (callbacks.onSetObjectAlignment) {
+        callbacks.onSetObjectAlignment(selectedId, idx, align);
+      }
+    };
   });
 }
