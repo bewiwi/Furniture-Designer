@@ -609,6 +609,44 @@ function handleKeyboard(e) {
     e.preventDefault();
     toolbarCallbacks.onSave();
   }
+
+  // Without modifiers: Structural Navigation
+  if (!mod && appState.selectedNodeId) {
+    const node = findNodeById(appState.furniture.root, appState.selectedNodeId);
+    if (!node) return;
+
+    if (e.key === 'ArrowUp') {
+      const path = getNodePath(appState.furniture.root, appState.selectedNodeId);
+      if (path && path.length > 1) {
+        e.preventDefault();
+        const parent = path[path.length - 2].node;
+        // Don't toggle-off if we explicitly navigate to it, though technically it's a different node anyway.
+        // It's safe to use onSelectNode.
+        onSelectNode(parent.id);
+      }
+    } else if (e.key === 'ArrowDown') {
+      if (node.children && node.children.length > 0) {
+        e.preventDefault();
+        onSelectNode(node.children[0].id);
+      }
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      const path = getNodePath(appState.furniture.root, appState.selectedNodeId);
+      if (path && path.length > 1) {
+        const parent = path[path.length - 2].node;
+        const currentIndex = parent.children.findIndex(c => c.id === appState.selectedNodeId);
+        
+        if (currentIndex !== -1) {
+          if (e.key === 'ArrowLeft' && currentIndex > 0) {
+            e.preventDefault();
+            onSelectNode(parent.children[currentIndex - 1].id);
+          } else if (e.key === 'ArrowRight' && currentIndex < parent.children.length - 1) {
+            e.preventDefault();
+            onSelectNode(parent.children[currentIndex + 1].id);
+          }
+        }
+      }
+    }
+  }
 }
 
 // =============================================================================
