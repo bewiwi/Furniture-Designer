@@ -7,6 +7,8 @@
  * Objects are grouped into categories for the UI selector.
  */
 
+import { t } from './i18n.js';
+
 // ---------------------------------------------------------------------------
 // TVs
 // ---------------------------------------------------------------------------
@@ -76,7 +78,19 @@ const svg_kallax_tiroir = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 
   <rect x="90" y="150" width="150" height="22" rx="11" fill="#a09070" stroke="#887060" stroke-width="1.5"/>
 </svg>`;
 
-// Kallax basket (open fabric box)
+// Kallax double drawer — 2 drawers stacked in one cell
+const svg_kallax_tiroir_2 = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 330 330" fill="#e8e0d5" stroke="#c0b89a" stroke-width="2">
+  <rect x="2" y="2" width="326" height="326" rx="4"/>
+  <!-- divider between the two drawers -->
+  <line x1="2" y1="165" x2="328" y2="165" stroke="#b0a890" stroke-width="3"/>
+  <!-- top drawer face -->
+  <rect x="10" y="10" width="310" height="150" rx="2" fill="none" stroke="#bbb" stroke-width="1"/>
+  <rect x="90" y="70" width="150" height="20" rx="10" fill="#a09070" stroke="#887060" stroke-width="1.5"/>
+  <!-- bottom drawer face -->
+  <rect x="10" y="170" width="310" height="150" rx="2" fill="none" stroke="#bbb" stroke-width="1"/>
+  <rect x="90" y="240" width="150" height="20" rx="10" fill="#a09070" stroke="#887060" stroke-width="1.5"/>
+</svg>`;
+
 const svg_kallax_panier = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 330 330" fill="none" stroke="#888" stroke-width="2">
   <rect x="4" y="4" width="322" height="322" rx="4" fill="#c8baa0" stroke="#a09070"/>
   <!-- weave pattern -->
@@ -135,30 +149,31 @@ const svg_jeu_flat = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 3
 </svg>`;
 
 // ---------------------------------------------------------------------------
-// Catalog
+// Catalog — names are resolved via i18n at call time
 // ---------------------------------------------------------------------------
 export const OBJECT_CATALOG = [
   // ——— Télévisions ———
-  { id: 'tv_55',       name: 'TV 55"',           w: 1230, h: 710, d: 40,  svg: svg_tv },
-  { id: 'tv_42',       name: 'TV 42"',           w:  930, h: 520, d: 40,  svg: svg_tv },
+  { id: 'tv_55',           get name() { return t('obj.tv_55'); },           w: 1230, h: 710, d: 40,  svg: svg_tv },
+  { id: 'tv_42',           get name() { return t('obj.tv_42'); },           w:  930, h: 520, d: 40,  svg: svg_tv },
   // ——— Consoles ———
-  { id: 'switch',      name: 'Switch Dock',      w:  173, h: 104, d: 54,  svg: svg_switch },
-  { id: 'xbox_one',    name: 'Xbox One',          w:  333, h:  78, d: 274, svg: svg_xbox_one },
-  { id: 'xbox_x',      name: 'Xbox Series X',    w:  151, h: 301, d: 151, svg: svg_xbox_series },
-  { id: 'ps5',         name: 'PlayStation 5',    w:  104, h: 390, d: 260, svg: svg_ps5 },
+  { id: 'switch',          get name() { return t('obj.switch'); },          w:  173, h: 104, d: 54,  svg: svg_switch },
+  { id: 'xbox_one',        get name() { return t('obj.xbox_one'); },        w:  333, h:  78, d: 274, svg: svg_xbox_one },
+  { id: 'xbox_x',          get name() { return t('obj.xbox_x'); },          w:  151, h: 301, d: 151, svg: svg_xbox_series },
+  { id: 'ps5',             get name() { return t('obj.ps5'); },             w:  104, h: 390, d: 260, svg: svg_ps5 },
   // ——— Livres ———
-  { id: 'books_row',   name: 'Livres poche (rangée)', w: 330, h: 260, d: 150, svg: svg_books_row },
-  { id: 'books_grand', name: 'Livres grand format',   w: 200, h: 280, d: 200, svg: svg_books_grand },
+  { id: 'books_row',       get name() { return t('obj.books_row'); },       w: 330, h: 260, d: 150, svg: svg_books_row },
+  { id: 'books_grand',     get name() { return t('obj.books_grand'); },     w: 200, h: 280, d: 200, svg: svg_books_grand },
   // ——— Kallax inserts ———
-  { id: 'kallax_tiroir', name: 'Kallax — Tiroir',  w: 330, h: 330, d: 380, svg: svg_kallax_tiroir },
-  { id: 'kallax_panier', name: 'Kallax — Panier',  w: 330, h: 330, d: 330, svg: svg_kallax_panier },
+  { id: 'kallax_tiroir',   get name() { return t('obj.kallax_tiroir'); },   w: 330, h: 330, d: 380, svg: svg_kallax_tiroir },
+  { id: 'kallax_tiroir_2', get name() { return t('obj.kallax_tiroir_2'); }, w: 330, h: 330, d: 380, svg: svg_kallax_tiroir_2 },
+  { id: 'kallax_panier',   get name() { return t('obj.kallax_panier'); },   w: 330, h: 330, d: 330, svg: svg_kallax_panier },
   // ——— Jeux de société ———
-  { id: 'jeu_s',       name: 'Jeu plateau S',     w:  55, h: 280, d: 240, svg: svg_jeu_s },
-  { id: 'jeu_m',       name: 'Jeu plateau M',     w:  75, h: 295, d: 295, svg: svg_jeu_m },
-  { id: 'jeu_l',       name: 'Jeu plateau L',     w: 110, h: 340, d: 340, svg: svg_jeu_l },
-  { id: 'jeu_flat',    name: 'Jeux (empilés)',    w: 300, h: 300, d: 100, svg: svg_jeu_flat },
+  { id: 'jeu_s',           get name() { return t('obj.jeu_s'); },           w:  55, h: 280, d: 240, svg: svg_jeu_s },
+  { id: 'jeu_m',           get name() { return t('obj.jeu_m'); },           w:  75, h: 295, d: 295, svg: svg_jeu_m },
+  { id: 'jeu_l',           get name() { return t('obj.jeu_l'); },           w: 110, h: 340, d: 340, svg: svg_jeu_l },
+  { id: 'jeu_flat',        get name() { return t('obj.jeu_flat'); },        w: 300, h: 300, d: 100, svg: svg_jeu_flat },
   // ——— Audio ———
-  { id: 'vinyl_player', name: 'Platine Vinyle',   w: 430, h: 150, d: 350, svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 430 150" fill="rgba(120, 100, 80, 0.9)" stroke="#222" stroke-width="2"><rect x="0" y="100" width="430" height="50" rx="3" /><rect x="10" y="10" width="410" height="90" fill="rgba(255, 255, 255, 0.1)" stroke="#aaa" /><ellipse cx="215" cy="55" rx="50" ry="20" fill="#111" stroke="#333" /><circle cx="215" cy="55" r="5" fill="#a00" /></svg>` },
+  { id: 'vinyl_player',    get name() { return t('obj.vinyl_player'); },    w: 430, h: 150, d: 350, svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 430 150" fill="rgba(120, 100, 80, 0.9)" stroke="#222" stroke-width="2"><rect x="0" y="100" width="430" height="50" rx="3" /><rect x="10" y="10" width="410" height="90" fill="rgba(255, 255, 255, 0.1)" stroke="#aaa" /><ellipse cx="215" cy="55" rx="50" ry="20" fill="#111" stroke="#333" /><circle cx="215" cy="55" r="5" fill="#a00" /></svg>` },
 ];
 
 /**

@@ -137,7 +137,25 @@ const dictionaries = {
     'error.neighbor_too_small': 'Neighboring compartment would be too small',
     'error.size_positive': 'Size must be positive',
     'error.last_free_child': 'Cannot lock the last remaining free compartment',
-    'error.no_free_neighbor': 'No unlocked neighbor available to absorb the resize'
+    'error.no_free_neighbor': 'No unlocked neighbor available to absorb the resize',
+
+    // Object catalog
+    'obj.tv_55': 'TV 55"',
+    'obj.tv_42': 'TV 42"',
+    'obj.switch': 'Switch Dock',
+    'obj.xbox_one': 'Xbox One',
+    'obj.xbox_x': 'Xbox Series X',
+    'obj.ps5': 'PlayStation 5',
+    'obj.books_row': 'Paperbacks (row)',
+    'obj.books_grand': 'Large Format Books',
+    'obj.kallax_tiroir': 'Kallax — Drawer',
+    'obj.kallax_tiroir_2': 'Kallax — 2 Drawers',
+    'obj.kallax_panier': 'Kallax — Basket',
+    'obj.jeu_s': 'Board Game S',
+    'obj.jeu_m': 'Board Game M',
+    'obj.jeu_l': 'Board Game L',
+    'obj.jeu_flat': 'Board Games (stacked)',
+    'obj.vinyl_player': 'Turntable'
   },
   fr: {
     // General
@@ -277,7 +295,25 @@ const dictionaries = {
     'error.neighbor_too_small': 'Le compartiment voisin serait trop petit',
     'error.size_positive': 'La taille doit être positive',
     'error.last_free_child': 'Impossible de verrouiller le dernier compartiment libre',
-    'error.no_free_neighbor': 'Aucun voisin déverrouillé disponible pour absorber le changement'
+    'error.no_free_neighbor': 'Aucun voisin déverrouillé disponible pour absorber le changement',
+
+    // Catalogue d'objets
+    'obj.tv_55': 'Télé 55"',
+    'obj.tv_42': 'Télé 42"',
+    'obj.switch': 'Switch (Dock)',
+    'obj.xbox_one': 'Xbox One',
+    'obj.xbox_x': 'Xbox Series X',
+    'obj.ps5': 'PlayStation 5',
+    'obj.books_row': 'Livres poche (rangée)',
+    'obj.books_grand': 'Livres grand format',
+    'obj.kallax_tiroir': 'Kallax — Tiroir',
+    'obj.kallax_tiroir_2': 'Kallax — Double tiroir',
+    'obj.kallax_panier': 'Kallax — Panier',
+    'obj.jeu_s': 'Jeu de plateau S',
+    'obj.jeu_m': 'Jeu de plateau M',
+    'obj.jeu_l': 'Jeu de plateau L',
+    'obj.jeu_flat': 'Jeux (empilés)',
+    'obj.vinyl_player': 'Platine Vinyle'
   }
 };
 
