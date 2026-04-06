@@ -304,15 +304,16 @@ describe('toggleChildLock', () => {
     expect(node.children[0].locked).toBe(false);
   });
 
-  it('prevents locking the last free child', () => {
+  it('allows locking all children', () => {
     const node = createNode();
     subdivide(node, 'row', 2, 1000, 18);
 
     toggleChildLock(node, 0);
     expect(node.children[0].locked).toBe(true);
 
-    // Trying to lock the only remaining free child should throw
-    expect(() => toggleChildLock(node, 1)).toThrow();
+    // Trying to lock the only remaining free child should succeed now
+    toggleChildLock(node, 1);
+    expect(node.children[1].locked).toBe(true);
   });
 
   it('throws for invalid index', () => {

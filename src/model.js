@@ -210,21 +210,7 @@ export function toggleChildLock(node, childIndex) {
   }
 
   const child = node.children[childIndex];
-  const willLock = !child.locked;
-
-  if (willLock) {
-    let freeCount = 0;
-    for (const c of node.children) {
-      if (!c.locked) freeCount++;
-    }
-    // Cannot lock if it's the last free child
-    // (At least one must remain free to absorb future resizes)
-    if (freeCount <= 1) {
-      throw new Error(t('error.last_free_child'));
-    }
-  }
-
-  child.locked = willLock;
+  child.locked = !child.locked;
 }
 
 /**
