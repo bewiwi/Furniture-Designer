@@ -11,8 +11,21 @@ import { OBJECT_CATALOG } from '../objects.js';
  * @param {Function} project3DTo2D 
  */
 export function renderObjectsOverlay(furniture, project3DTo2D) {
-  const layer = document.getElementById('objects-overlay-layer');
-  if (!layer) return;
+  let layer = document.getElementById('objects-overlay-layer');
+  if (!layer) {
+    const viewerPanel = document.getElementById('viewer-panel');
+    if (!viewerPanel) return;
+    layer = document.createElement('div');
+    layer.id = 'objects-overlay-layer';
+    layer.style.position = 'absolute';
+    layer.style.top = '0';
+    layer.style.left = '0';
+    layer.style.width = '100%';
+    layer.style.height = '100%';
+    layer.style.pointerEvents = 'none';
+    layer.style.overflow = 'hidden';
+    viewerPanel.appendChild(layer);
+  }
 
   // Clear existing
   layer.innerHTML = '';
