@@ -21,6 +21,7 @@ import {
   getNodeDimensions,
   cloneFurniture,
   getNodePath,
+  resizeNodeRecursively,
 } from './model.js';
 import { generatePlanks } from './planks.js';
 import { planksToGeometries, highlightCompartment } from './geometry.js';
@@ -416,7 +417,8 @@ const formCallbacks = {
     if (!node) return;
 
     try {
-      resizeChild(node, childIndex, newSize);
+      const childNode = node.children[childIndex];
+      resizeNodeRecursively(appState.furniture.root, childNode.id, newSize);
       
       // We must normalize the tree starting from the parent to cascade size limits to children
       normalizeTree(
