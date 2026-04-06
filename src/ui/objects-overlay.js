@@ -37,7 +37,7 @@ export function renderObjectsOverlay(furniture, project3DTo2D) {
   // Collect all objects
   function walk(node) {
     if (node.objects && node.objects.length > 0) {
-      const dims = getNodeDimensions(furniture.root, node.id);
+      const dims = getNodeDimensions(furniture, node.id);
       
       node.objects.forEach(obj => {
         const catItem = OBJECT_CATALOG.find(c => c.id === obj.id);
