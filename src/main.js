@@ -417,6 +417,15 @@ const formCallbacks = {
 
     try {
       resizeChild(node, childIndex, newSize);
+      
+      // We must normalize the tree starting from the parent to cascade size limits to children
+      normalizeTree(
+        appState.furniture.root,
+        appState.furniture.width - 2 * appState.furniture.thickness,
+        appState.furniture.height - 2 * appState.furniture.thickness,
+        appState.furniture.thickness
+      );
+
       saveAndUpdate();
     } catch (e) {
       alert(e.message);

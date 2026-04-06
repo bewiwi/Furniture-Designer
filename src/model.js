@@ -361,11 +361,11 @@ export function normalizeTree(node, availableW, availableH, T) {
         node.sizes[i] = j === freeIndices.length - 1 ? equalSize + remainder : equalSize;
       }
     }
-  } else if (targetSum > 0) {
-    // Edge case: all children are locked! But they don't fit the new global size.
+  } else {
+    // Edge case: all children are locked OR targetSum is 0
     // They MUST be scaled otherwise they overflow the wrapper.
     const currentSum = node.sizes.reduce((sum, s) => sum + Math.max(0, s), 0);
-    if (currentSum > 0) {
+    if (targetSum > 0 && currentSum > 0) {
       const scale = targetSum / currentSum;
       let newSum = 0;
       for (let i = 0; i < count; i++) {
@@ -374,11 +374,16 @@ export function normalizeTree(node, availableW, availableH, T) {
       }
       const diff = targetSum - newSum;
       node.sizes[count - 1] += diff;
-    } else {
+    } else if (targetSum > 0) {
       const equalSize = Math.floor(targetSum / count);
       const remainder = targetSum - (equalSize * count);
       for (let i = 0; i < count; i++) {
         node.sizes[i] = i === count - 1 ? equalSize + remainder : equalSize;
+      }
+    } else {
+      // Spaces is 0, children must have size 0
+      for (let i = 0; i < count; i++) {
+        node.sizes[i] = 0;
       }
     }
   }

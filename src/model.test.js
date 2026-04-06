@@ -497,6 +497,18 @@ describe('normalizeTree', () => {
     expect(f.root.children[0].sizes).toEqual([220, 220]);
   });
 
+  it('handles targetSum 0 when resizing parent and children are locked', () => {
+    const f = createFurniture('Test', 1000, 1000, 300, 20);
+    subdivide(f.root, 'row', 2, 960, 20); 
+    f.root.children[0].locked = true;
+    f.root.children[1].locked = true;
+    
+    // Normalizing with exactly thickness height means targetSum = 0
+    normalizeTree(f.root, 960, 20, 20);
+    
+    expect(f.root.sizes).toEqual([0, 0]);
+  });
+
   it('respects locked sizes when scaling', () => {
     const f = createFurniture('Test', 1000, 1000, 300, 20);
     subdivide(f.root, 'row', 3, 960, 20);
