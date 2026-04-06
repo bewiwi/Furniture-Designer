@@ -41,18 +41,27 @@ export function renderToolbar(container, callbacks, state) {
         <button class="divider-v"></button>
         <button class="btn view active" data-view="iso">${t('tool.view.iso')}</button>
         <button class="divider-v"></button>
-        <div class="overlay-toggles" role="group" aria-label="Overlays">
-          <button class="btn view overlay-pill ${state.overlays.has('quotes') ? 'active' : ''}" data-overlay="quotes" title="Afficher les cotes">
-            ↔ Cotes
+        <div class="overlay-dropdown" id="overlay-dropdown">
+          <button class="btn view overlay-dropdown-trigger" id="btn-overlay-menu"
+            title="Afficher/masquer les overlays">
+            Affichage ▾
           </button>
-          <button class="btn view overlay-pill ${state.overlays.has('locks') ? 'active' : ''}" data-overlay="locks" title="Afficher les verrous">
-            🔒 Verrous
-          </button>
-          <button class="btn view overlay-pill ${state.overlays.has('objects') ? 'active' : ''}" data-overlay="objects" title="Afficher les objets 3D">
-            📦 Objets
-          </button>
+          <div class="overlay-dropdown-panel" id="overlay-panel" hidden>
+            <label class="overlay-item">
+              <input type="checkbox" data-overlay="quotes" ${state.overlays.has('quotes') ? 'checked' : ''}>
+              ↔ ${t('tool.overlay.quotes')}
+            </label>
+            <label class="overlay-item">
+              <input type="checkbox" data-overlay="locks" ${state.overlays.has('locks') ? 'checked' : ''}>
+              🔒 ${t('tool.overlay.locks')}
+            </label>
+            <label class="overlay-item">
+              <input type="checkbox" data-overlay="objects" ${state.overlays.has('objects') ? 'checked' : ''}>
+              📦 ${t('tool.overlay.objects')}
+            </label>
+          </div>
         </div>
-    </div>
+      </div>
 
     <div class="toolbar-right">
       <button class="btn export" id="btn-stl" title="${t('tool.export_stl.title')}">${t('tool.export_stl')}</button>
@@ -123,13 +132,24 @@ function attachToolbarListeners(container, callbacks) {
     };
   });
 
-  // Overlay toggle pills
-  const overlayPills = container.querySelectorAll('.overlay-pill');
-  overlayPills.forEach(pill => {
-    pill.onclick = () => {
-      if (callbacks.onToggleOverlay) callbacks.onToggleOverlay(pill.dataset.overlay);
+  // Overlay dropdown toggle
+  const overlayTrigger = container.querySelector('#btn-overlay-menu');
+  const overlayPanel   = container.querySelector('#overlay-panel');
+  if (overlayTrigger && overlayPanel) {
+    overlayTrigger.onclick = (e) => {
+      e.stopPropagation();
+      overlayPanel.hidden = !overlayPanel.hidden;
     };
-  });
+    // Checkbox changes
+    overlayPanel.querySelectorAll('input[type=checkbox]').forEach(cb => {
+      cb.onchange = () => {
+        if (callbacks.onToggleOverlay) callbacks.onToggleOverlay(cb.dataset.overlay);
+      };
+    });
+    // Close on outside click
+    document.addEventListener('click', () => { overlayPanel.hidden = true; }, { once: false, capture: false });
+    overlayPanel.addEventListener('click', e => e.stopPropagation());
+  }
 
   // Theme Toggle
   const themeBtn = container.querySelector('#btn-theme');

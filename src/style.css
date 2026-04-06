@@ -246,38 +246,64 @@ html, body {
   color: var(--text-primary);
 }
 
-/* Overlay toggles pill group */
-.overlay-toggles {
-  display: flex;
-  align-items: center;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 2px;
-  gap: 2px;
+/* Overlay dropdown */
+.overlay-dropdown {
+  position: relative;
 }
 
-.overlay-toggles .overlay-pill {
-  padding: 3px 10px;
+.overlay-dropdown-trigger {
+  padding: 4px 10px;
   font-size: 12px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-  color: var(--text-muted);
-  background: transparent;
-  white-space: nowrap;
-  transition: all var(--transition-fast);
 }
 
-.overlay-toggles .overlay-pill:hover {
-  color: var(--text-primary);
-  background: var(--bg-elevated);
-}
-
-.overlay-toggles .overlay-pill.active {
+.overlay-dropdown-trigger[aria-expanded="true"],
+.overlay-dropdown-trigger:has(+ .overlay-dropdown-panel:not([hidden])) {
   background: var(--bg-surface);
   color: var(--accent-primary);
   border-color: var(--border);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.overlay-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  padding: 6px 4px;
+  min-width: 170px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.overlay-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast), color var(--transition-fast);
+  user-select: none;
+}
+
+.overlay-item:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.overlay-item input[type="checkbox"] {
+  accent-color: var(--accent-primary);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 /* Language Switcher */
