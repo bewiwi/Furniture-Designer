@@ -140,8 +140,8 @@ export function exportPlan(furniture, planks) {
   </svg>`;
 
   // 2. Generate HTML
-  const cutlistHtml = generateCutListHtml(planks);
-  const grouped = groupPlanks(planks);
+  const cutlistHtml = generateCutListHtml(planks, { splitByHoles: true });
+  const grouped = groupPlanks(planks, { splitByHoles: true });
 
   // Build plank lookup for hole data
   const plankById = new Map();

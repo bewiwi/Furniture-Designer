@@ -31,10 +31,11 @@ export function renderCutList(container, planks, { onHover, onOpenDetail }) {
  * Generates the HTML for the cut list table and footer.
  *
  * @param {Object[]} planks 
+ * @param {Object} options Options for grouping behavior
  * @returns {string}
  */
-export function generateCutListHtml(planks) {
-  const grouped = groupPlanks(planks);
+export function generateCutListHtml(planks, options = { splitByHoles: false }) {
+  const grouped = groupPlanks(planks, options);
   const totalArea = grouped.reduce((sum, g) => sum + g.totalArea, 0);
 
   return `
