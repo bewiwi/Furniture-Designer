@@ -18,6 +18,10 @@ function kindColor(kindId, kindIndex) {
   return KIND_COLORS[kindIndex % KIND_COLORS.length];
 }
 
+function formatPrice(num) {
+  return Math.round(Number(num) * 100) / 100;
+}
+
 /**
  * Renders SVG layouts for a list of panels.
  * Each panel should have a .kind property.
@@ -269,7 +273,7 @@ export function renderCutPlan(container, furniture, planks) {
         const color = kindColorMap[r.kind.id] || '#e07a2f';
         const costStr = allPricesZero
           ? `${r.panelCount} panel(s)`
-          : `${r.totalCost}€ (${r.panelCount} × ${r.kind.pricePerPanel}€)`;
+          : `${formatPrice(r.totalCost)}€ (${r.panelCount} × ${formatPrice(r.kind.pricePerPanel)}€)`;
         html += `
           <div class="cp-rank-card ${isWinner ? 'cp-rank-card--winner' : ''}" style="--kind-color:${color}">
             <div class="cp-rank-medal">${i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</div>
@@ -307,7 +311,7 @@ export function renderCutPlan(container, furniture, planks) {
         const color = kindColorMap[k.kind.id] || '#e07a2f';
         return `<span class="cp-breakdown-item">
           <span class="cp-kind-dot" style="background:${color}"></span>
-          ${t('cutplan.cost_breakdown', { count: k.count, name: k.kind.name, subtotal: k.subtotal })}
+          ${t('cutplan.cost_breakdown', { count: k.count, name: k.kind.name, subtotal: formatPrice(k.subtotal) })}
         </span>`;
       });
       const activeKindsForMix = config.panelKinds.filter(k => k.enabled !== false);
@@ -329,7 +333,7 @@ export function renderCutPlan(container, furniture, planks) {
         html += `<div class="cp-cost-banner">
           <span class="cp-cost-icon">💰</span>
           <div>
-            <div class="cp-cost-total">${t('cutplan.cost_total', { cost: totalCost })}</div>
+            <div class="cp-cost-total">${t('cutplan.cost_total', { cost: formatPrice(totalCost) })}</div>
             <div class="cp-cost-breakdown">${breakdownParts.join('<span class="cp-plus"> + </span>')}</div>
           </div>
         </div>`;
