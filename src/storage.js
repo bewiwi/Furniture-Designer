@@ -159,6 +159,7 @@ export function loadFromLocalStorage() {
     const data = localStorage.getItem(STORAGE_KEY);
     if (data) {
       const furniture = JSON.parse(data);
+      migratePanelConfig(furniture);
       // Initialize state with this initial load
       state.history = [cloneFurniture(furniture)];
       state.currentIndex = 0;
@@ -248,6 +249,7 @@ export function importJSON(file) {
       try {
         const parsed = JSON.parse(e.target.result);
         const furniture = validateFurniture(parsed);
+        migratePanelConfig(furniture);
         resolve(furniture);
       } catch (err) {
         reject(new Error(err.message || 'Invalid JSON file format'));
@@ -256,4 +258,39 @@ export function importJSON(file) {
     reader.onerror = () => reject(new Error('Failed to read file'));
     reader.readAsText(file);
   });
+}
+
+/**
+ * Migrates old single-panel panelConfig to multi-kind format.
+ * Safe to call on already-migrated configs (idempotent).
+ *
+ * @param {Object} furniture
+ */
+export function migratePanelConfig(furniture) {
+  if (!furniture) return;
+  if (!furniture.panelConfig) {
+    furniture.panelConfig = {
+      kerf: 3,
+      algorithm: 'smart-mix',
+      panelKinds: [{ id: 'default', name: 'Standard', width: 2440, height: 1220, pricePerPanel: 0 }],
+    };
+    return;
+  }
+  const cfg = furniture.panelConfig;
+  // Already migrated?
+  if (Array.isArray(cfg.panelKinds)) return;
+
+  // Promote old flat format
+  const kind = {
+    id: 'migrated',
+    name: 'Standard',
+    width: cfg.width ?? 2440,
+    height: cfg.height ?? 1220,
+    pricePerPanel: 0,
+  };
+  furniture.panelConfig = {
+    kerf: cfg.kerf ?? 3,
+    algorithm: 'smart-mix',
+    panelKinds: [kind],
+  };
 }

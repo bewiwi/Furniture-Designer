@@ -1,12 +1,11 @@
 import { packPlanks } from '../packer.js';
 import { groupPlanks } from '../planks.js';
 import { t } from '../i18n.js';
+import { migratePanelConfig } from '../storage.js';
 
 export function renderCutPlan(container, furniture, planks) {
-  // Ensure config exists
-  if (!furniture.panelConfig) {
-    furniture.panelConfig = { width: 2440, height: 1220, kerf: 3 };
-  }
+  // Ensure config exists and is in the new multi-kind format
+  migratePanelConfig(furniture);
   const config = furniture.panelConfig;
 
   // Group to get labels (A, B, C...)
