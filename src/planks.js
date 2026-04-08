@@ -120,18 +120,37 @@ function createPlank(name, w, h, d, x, y, z, type, suffix = '') {
 }
 
 /**
+ * Computes a deterministic signature of a plank's holes.
+ */
+function getHoleSignature(plank) {
+  if (!plank.holes || plank.holes.length === 0) return 'no-holes';
+  
+  const sortedHoles = [...plank.holes].sort((a, b) => {
+    if (a.face !== b.face) return a.face.localeCompare(b.face);
+    if (a.x !== b.x) return a.x - b.x;
+    return a.y - b.y;
+  });
+
+  return sortedHoles.map(h => `${h.face}:${h.x},${h.y}`).join('|');
+}
+
+/**
  * Groups identical planks for the cut list.
  * Identical means same dimensions (w, h, d) and type.
  *
  * @param {Object[]} planks - List of all planks
+ * @param {Object} options - Grouping configuration options
  * @returns {Object[]} Grouped list { name, w, h, d, type, count, totalArea }
  */
-export function groupPlanks(planks) {
+export function groupPlanks(planks, options = { splitByHoles: false }) {
   const groups = new Map();
 
   for (const p of planks) {
     // Key based on dimensions and type
-    const key = `${p.w}x${p.h}x${p.d}-${p.type}`;
+    let key = `${p.w}x${p.h}x${p.d}-${p.type}`;
+    if (options.splitByHoles) {
+      key += `-${getHoleSignature(p)}`;
+    }
     
     // Plank area is the product of the two largest dimensions (length x width)
     const dims = [p.w, p.h, p.d].sort((a, b) => b - a);
@@ -162,22 +181,38 @@ export function groupPlanks(planks) {
     }
   }
 
+  let currentDimKey = '';
+  let currentBaseIdx = -1;
+  let currentSubIdx = 1;
+
   return Array.from(groups.values())
     .sort((a, b) => {
       // Sort by type then width
       if (a.type !== b.type) return a.type.localeCompare(b.type);
       return b.w - a.w;
     })
-    .map((g, index) => {
-      // Assign label (A, B, C...) based on sorted index
-      // If more than 26 groups, uses AA, AB... pattern
+    .map((g) => {
+      const dimKey = `${g.w}x${g.h}x${g.d}-${g.type}`;
+      
+      if (dimKey === currentDimKey) {
+        currentSubIdx++;
+      } else {
+        currentBaseIdx++;
+        currentSubIdx = 1;
+        currentDimKey = dimKey;
+      }
+
       let label = '';
-      let n = index;
+      let n = currentBaseIdx;
       do {
         label = String.fromCharCode(65 + (n % 26)) + label;
         n = Math.floor(n / 26) - 1;
       } while (n >= 0);
-      
+
+      if (options.splitByHoles) {
+        label = `${label}:${currentSubIdx}`;
+      }
+
       return { ...g, label };
     });
 }

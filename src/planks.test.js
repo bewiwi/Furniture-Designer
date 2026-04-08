@@ -137,4 +137,34 @@ describe('groupPlanks', () => {
     expect(groups[25].label).toBe('Z');
     expect(groups[26].label).toBe('AA');
   });
+
+  it('groups identically sized panels with different holes separately when splitByHoles is true', () => {
+    const planks = [
+      { id: '1', w: 100, h: 50, d: 18, type: 'shelf', holes: [{ face: 'front', x: 10, y: 10 }] },
+      { id: '2', w: 100, h: 50, d: 18, type: 'shelf', holes: [{ face: 'front', x: 20, y: 20 }] },
+      { id: '3', w: 100, h: 50, d: 18, type: 'shelf', holes: [{ face: 'front', x: 10, y: 10 }] }, // matches 1
+      { id: '4', w: 200, h: 50, d: 18, type: 'separator', holes: [] }
+    ];
+    
+    const normalGroups = groupPlanks(planks);
+    expect(normalGroups).toHaveLength(2); // Shelf (A) and Separator (B)
+    
+    const holeGroups = groupPlanks(planks, { splitByHoles: true });
+    expect(holeGroups).toHaveLength(3); 
+    
+    // Validate labels
+    const separatorLabel = holeGroups.find(g => g.type === 'separator').label;
+    expect(separatorLabel.includes(':1')).toBe(true);
+    
+    // The shelves should have the same base letter but different suffixes A:1 and A:2
+    // Since separators are B and shelves are A (based on sorting)
+    const shelf1Label = holeGroups.find(g => g.count === 2).label;
+    const shelf2Label = holeGroups.find(g => g.type === 'shelf' && g.count === 1).label;
+    
+    expect(shelf1Label).not.toBe(shelf2Label);
+    expect(shelf1Label[0]).toBe('B');
+    expect(shelf2Label[0]).toBe('B');
+    
+    expect([shelf1Label, shelf2Label].sort()).toEqual(['B:1', 'B:2']);
+  });
 });

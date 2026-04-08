@@ -19,7 +19,7 @@ import { openZoomModal } from './zoom-modal.js';
 export function renderFullCutList(container, planks) {
   if (!container) return;
 
-  const grouped = groupPlanks(planks);
+  const grouped = groupPlanks(planks, { splitByHoles: true });
   const totalArea = grouped.reduce((sum, g) => sum + g.totalArea, 0);
 
   // Build a lookup: plank id → plank (for hole data)
