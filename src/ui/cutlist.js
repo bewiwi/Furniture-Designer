@@ -37,6 +37,9 @@ export function renderCutList(container, planks, { onHover, onOpenDetail }) {
 export function generateCutListHtml(planks, options = { splitByHoles: false }) {
   const grouped = groupPlanks(planks, options);
   const totalArea = grouped.reduce((sum, g) => sum + g.totalArea, 0);
+  
+  const totalHoles = planks.reduce((sum, p) => sum + (p.holes?.length || 0), 0);
+  const totalDowels = Math.floor(totalHoles / 2);
 
   return `
     <div class="cutlist-header">
@@ -95,6 +98,7 @@ export function generateCutListHtml(planks, options = { splitByHoles: false }) {
     <div class="cut-list-footer">
       <div class="stats">
         <strong>${t('cutlist.total_area', { area: totalArea.toFixed(2) })}</strong>
+        ${totalDowels > 0 ? `<span> • ${t('cutlist.total_dowels', { count: totalDowels })}</span>` : ''}
       </div>
     </div>
   `;
