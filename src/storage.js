@@ -272,25 +272,40 @@ export function migratePanelConfig(furniture) {
     furniture.panelConfig = {
       kerf: 3,
       algorithm: 'smart-mix',
-      panelKinds: [{ id: 'default', name: 'Standard', width: 2440, height: 1220, pricePerPanel: 0 }],
+      providers: [{
+        id: 'default',
+        name: 'Default Provider',
+        enabled: true,
+        kinds: [{ id: 'k1', name: 'Standard', width: 2440, height: 1220, pricePerPanel: 0, count: 1 }],
+      }]
     };
     return;
   }
+  
   const cfg = furniture.panelConfig;
-  // Already migrated?
-  if (Array.isArray(cfg.panelKinds)) return;
+  
+  // Phase 1 migration (flat width/height -> panelKinds list)
+  if (!cfg.panelKinds && !cfg.providers) {
+    cfg.panelKinds = [{
+      id: 'migrated',
+      name: 'Standard',
+      width: cfg.width ?? 2440,
+      height: cfg.height ?? 1220,
+      pricePerPanel: 0,
+      count: 1
+    }];
+    delete cfg.width;
+    delete cfg.height;
+  }
 
-  // Promote old flat format
-  const kind = {
-    id: 'migrated',
-    name: 'Standard',
-    width: cfg.width ?? 2440,
-    height: cfg.height ?? 1220,
-    pricePerPanel: 0,
-  };
-  furniture.panelConfig = {
-    kerf: cfg.kerf ?? 3,
-    algorithm: 'smart-mix',
-    panelKinds: [kind],
-  };
+  // Phase 2 migration (panelKinds list -> providers list)
+  if (cfg.panelKinds && !cfg.providers) {
+    cfg.providers = [{
+      id: 'default',
+      name: 'Default Provider',
+      enabled: true,
+      kinds: [...cfg.panelKinds]
+    }];
+    delete cfg.panelKinds;
+  }
 }
