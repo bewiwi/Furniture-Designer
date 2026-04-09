@@ -1847,6 +1847,88 @@ html, body {
   background: var(--border);
   margin: 4px 0;
 }
+/* ── Providers ─────────────────────────────────────────────────────────────── */
+.cp-provider-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  margin-bottom: 12px;
+  transition: opacity var(--transition-fast);
+}
+
+.cp-provider-card.provider-disabled {
+  opacity: 0.5;
+}
+
+.cp-provider-card.provider-disabled .cp-provider-name {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.cp-provider-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.cp-provider-name {
+  flex-grow: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 14px;
+  outline: none;
+  min-width: 0;
+}
+
+.cp-provider-name:focus {
+  border-bottom: 1px solid var(--accent-primary);
+  margin-bottom: -1px;
+}
+
+.cp-provider-toggle {
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cp-remove-provider-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0.5;
+  transition: opacity var(--transition-fast), color var(--transition-fast);
+}
+
+.cp-remove-provider-btn:hover:not(:disabled) {
+  opacity: 1;
+  color: var(--danger);
+}
+
+.cp-provider-add-kind {
+  margin-top: 8px;
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--text-muted);
+  width: 100%;
+}
+
+.cp-provider-add-kind:hover:not(:disabled) {
+  border-color: var(--accent-primary);
+  color: var(--text-primary);
+  background: transparent;
+}
 
 /* ── Kind rows ─────────────────────────────────────────────────────────────── */
 .cp-kinds-list {
