@@ -450,17 +450,6 @@ export function normalizeTree(node, availableW, availableH, T) {
   }
 }
 
-/**
- * Calculates available space in a node for a given direction
- *
- * @param {number} totalDimension - Total dimension of the compartment in the subdivision direction
- * @param {number} childCount - Number of existing children
- * @param {number} thickness - Plank thickness
- */
-export function getAvailableSpace(totalDimension, childCount, thickness) {
-  const separators = Math.max(0, childCount - 1);
-  return totalDimension - (separators * thickness);
-}
 
 /**
  * Deep clone of furniture (for undo/redo history)

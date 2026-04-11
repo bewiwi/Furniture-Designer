@@ -76,7 +76,7 @@ export function generatePieceViews(L, W, label, plank = null) {
  * @param {string} [subtitle] - e.g. "Left face"
  * @returns {string} SVG HTML string
  */
-export function generatePieceSvg(L, W, label, plank = null, holes = null, subtitle = null) {
+function generatePieceSvg(L, W, label, plank = null, holes = null, subtitle = null) {
   const paddingX = 160;
   const paddingY = 160;
   const svgW = 800;

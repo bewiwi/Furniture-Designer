@@ -24,7 +24,6 @@ import {
   equalizeSizes,
   normalizeTree,
   cloneFurniture,
-  getAvailableSpace,
   resizeNodeRecursively,
   addObjectToNode,
   removeObjectFromNode,
@@ -471,13 +470,7 @@ describe('cloneFurniture', () => {
   });
 });
 
-describe('getAvailableSpace', () => {
-  it('calculates available space correctly', () => {
-    expect(getAvailableSpace(1000, 3, 18)).toBe(1000 - 2 * 18);
-    expect(getAvailableSpace(1000, 1, 18)).toBe(1000);
-    expect(getAvailableSpace(500, 0, 18)).toBe(500);
-  });
-});
+
 
 describe('equalizeSizes', () => {
   it('equalizes sizes and fits the available space', () => {

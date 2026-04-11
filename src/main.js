@@ -13,13 +13,11 @@ import {
   removeSubdivision,
   addSingleChild,
   removeSingleChild,
-  resizeChild,
   toggleChildLock,
   reorderChild,
   equalizeSizes,
   normalizeTree,
   getNodeDimensions,
-  cloneFurniture,
   getNodePath,
   resizeNodeRecursively,
   addObjectToNode,
@@ -66,7 +64,6 @@ import { initZoomModal } from './ui/zoom-modal.js';
 import { initHelpModal } from './ui/help-modal.js';
 import { renderObjectsOverlay } from './ui/objects-overlay.js';
 import { setLanguage, getLanguage, t } from './i18n.js';
-import { groupPlanks } from './planks.js';
 
 // =============================================================================
 // Application State
@@ -80,7 +77,6 @@ const appState = {
   currentTheme: 'dark',
   highlightedPlankIds: [],
   currentView: 'design',   // 'design', 'cut-list', 'cut-plan' or 'tools'
-  showLocks3D: false,         // kept for backward-compat, derived from overlays
   overlays: new Set(['quotes']), // active overlays: 'locks' | 'quotes' | 'objects'
 };
 
@@ -680,11 +676,6 @@ const toolbarCallbacks = {
     appState.currentView = view;
     fullUpdate();
     updateHashFromState();
-  },
-
-  onToggleLocks() {
-    appState.showLocks3D = !appState.showLocks3D;
-    fullUpdate();
   },
 
   onToggleOverlay(name) {
