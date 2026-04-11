@@ -150,6 +150,13 @@ function generateEdgeGuideSVG(thickness, diameter) {
         Z" 
       />
 
+      <!-- V-Notch indicators (on side walls) -->
+      <line x1="${cx - dW/2 - 25}" y1="${y0 + dH - ch}" x2="${cx - dW/2 - 5}" y2="${y0 + dH - ch}" stroke="#F37021" stroke-width="1.5" marker-end="url(#arrow)" />
+      <text x="${cx - dW/2 - 30}" y="${y0 + dH - ch + 3}" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#F37021">Encoche</text>
+
+      <line x1="${cx + dW/2 + 25}" y1="${y0 + dH - ch}" x2="${cx + dW/2 + 5}" y2="${y0 + dH - ch}" stroke="#F37021" stroke-width="1.5" marker-end="url(#arrow)" />
+      <text x="${cx + dW/2 + 30}" y="${y0 + dH - ch + 3}" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#F37021">en V</text>
+
       <!-- Board slot -->
       <rect x="${cx - cw/2}" y="${y0 + dH - ch}" width="${cw}" height="${ch + 15}" fill="rgba(139,69,19,0.1)" stroke="#8b4513" stroke-width="1" stroke-dasharray="2 2" />
 
@@ -212,6 +219,11 @@ function generateFaceGuideSVG(thickness, diameter) {
         L ${x0} ${y0 + dhT + dvH}
         Z" 
       />
+
+      <!-- V-Notch indicator -->
+      <line x1="${x0 - 20}" y1="${y0 - 20}" x2="${x0 - 2}" y2="${y0 - 2}" stroke="#F37021" stroke-width="1.5" marker-end="url(#arrow)" />
+      <text x="${x0 - 25}" y="${y0 - 25}" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#F37021">Encoche en V</text>
+
 
       <!-- Hole -->
       <line class="quote-dash" x1="${x0 + dvT + dhO}" y1="${y0 - 15}" x2="${x0 + dvT + dhO}" y2="${y0 + dhT + 20}" />

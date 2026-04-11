@@ -6,7 +6,7 @@
 
 import jscadModeling from '@jscad/modeling';
 const { cuboid, cylinder, roundedCuboid } = jscadModeling.primitives;
-const { translate, rotateX, rotateZ } = jscadModeling.transforms;
+const { translate, rotateX, rotateY, rotateZ } = jscadModeling.transforms;
 const { subtract, union } = jscadModeling.booleans;
 const { colorize } = jscadModeling.colors;
 const { path2 } = jscadModeling.geometries;
@@ -80,7 +80,24 @@ export function createEdgeGuideGeometry(thickness, diameter, margin = 50) {
     segments: 32
   });
 
-  let guide = subtract(block, channel, hole);
+  // Create V-Notch cutters on the side walls at the corner (Z = channelDepth)
+  const notchSize = 12;
+  
+  let leftVNotch = cuboid({
+    size: [wallThickness + 2, notchSize, notchSize],
+    center: [0, 0, 0]
+  });
+  leftVNotch = rotateX(Math.PI / 4, leftVNotch);
+  leftVNotch = translate([wallThickness / 2, stopThickness + margin, channelDepth - 8.5], leftVNotch);
+
+  let rightVNotch = cuboid({
+    size: [wallThickness + 2, notchSize, notchSize],
+    center: [0, 0, 0]
+  });
+  rightVNotch = rotateX(Math.PI / 4, rightVNotch);
+  rightVNotch = translate([blockWidth - (wallThickness / 2), stopThickness + margin, channelDepth - 8.5], rightVNotch);
+
+  let guide = subtract(block, channel, hole, leftVNotch, rightVNotch);
   
   // Engrave text on top face
   let label = generateText3D(`T${thickness} D${diameter} M${margin}`);
@@ -149,6 +166,21 @@ export function createFaceGuideGeometry(thickness, diameter) {
   });
 
   toolBody = subtract(toolBody, cutout);
+
+  // Create a V-Notch cutter at the internal corner
+  const notchSize = 12;
+  let vNotchCutter = cuboid({
+    size: [notchSize, notchSize, notchSize],
+    center: [0, 0, 0]
+  });
+  
+  // Rotate around X to form a V pointing to the middle in the Y direction
+  vNotchCutter = rotateX(Math.PI / 4, vNotchCutter);
+  
+  // Position it exactly at the inner corner and the middle of the tool
+  vNotchCutter = translate([vertThickness, width / 2, -horizThickness], vNotchCutter);
+
+  toolBody = subtract(toolBody, vNotchCutter);
   let guide = subtract(toolBody, hole);
   
   // Engrave text on horizontal arm, beside the hole
