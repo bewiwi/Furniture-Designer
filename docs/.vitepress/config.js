@@ -4,6 +4,8 @@ export default defineConfig({
   title: "Furniture Designer",
   description: "Parametric 3D furniture designer and cutlist generator",
   base: '/Furniture-Designer/',
+  srcExclude: ['plans/**/*.md'],
+  ignoreDeadLinks: true,
   locales: {
     root: {
       label: 'English',
