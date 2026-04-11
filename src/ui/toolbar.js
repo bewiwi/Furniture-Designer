@@ -94,6 +94,7 @@ export function renderToolbar(container, callbacks, state) {
         </div>
       </div>
       <div class="divider"></div>
+      <a class="btn nav donate" href="https://ko-fi.com/bewiwi" target="_blank" title="${t('tool.donate.title')}">${t('tool.donate')}</a>
       <button class="btn nav" id="btn-help" title="Aide [?]">❔ Aide</button>
       <button class="btn nav theme-toggle" id="btn-theme" title="${t('tool.theme.title')}">
         ${state.currentTheme === 'light' ? '☀️' : '🌙'}

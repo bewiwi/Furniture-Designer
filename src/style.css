@@ -189,6 +189,17 @@ html, body {
   cursor: not-allowed;
 }
 
+#toolbar .btn.donate {
+  color: var(--accent-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+#toolbar .btn.donate:hover {
+  background: rgba(224, 122, 47, 0.1);
+  border-color: var(--accent-primary);
+}
+
 /* View Controls Group */
 .view-controls {
   display: flex;
