@@ -77,4 +77,8 @@ npm run build
 
 ## 📜 License
 
-Project created as a custom furniture design tool. All rights reserved.
+This project is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)** license.
+You are free to use, study, and modify the software for personal, hobbyist, and educational purposes.
+However, **you may not use the material for commercial purposes** without explicit prior permission.
+
+See the full [LICENSE](./LICENSE) file for details.
