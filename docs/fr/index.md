@@ -9,6 +9,9 @@ hero:
     - theme: brand
       text: Démarrer
       link: /fr/design
+    - theme: alt
+      text: Lancer l'app
+      link: https://furniture.bibabox.fr/
 
 features:
   - title: Partitionnement 3D intuitif

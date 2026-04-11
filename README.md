@@ -4,6 +4,9 @@
 
 ![Application Preview](./docs/screenshots/preview.png)
 
+🔨 **Live Application:** [https://furniture.bibabox.fr/](https://furniture.bibabox.fr/)
+📚 **Documentation:** [https://bewiwi.github.io/Furniture-Designer/](https://bewiwi.github.io/Furniture-Designer/)
+
 ## ✨ Features
 
 - **Interactive 3D Modeling**: Real-time visualization of your furniture using the `regl-renderer` engine.
@@ -27,7 +30,7 @@ You can run the application instantly using the pre-built image from **GHCR**:
 ```bash
 docker run -d -p 8080:80 ghcr.io/bewiwi/furniture-designer:latest
 ```
-Then visit [http://localhost:8080/](http://localhost:8080/).
+**Live Demo:** [https://furniture.bibabox.fr/](https://furniture.bibabox.fr/)
 
 ### Local Development
 1. Clone the repository:
