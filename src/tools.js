@@ -178,7 +178,7 @@ export function createFaceGuideGeometry(thickness, diameter) {
   vNotchCutter = rotateX(Math.PI / 4, vNotchCutter);
   
   // Position it exactly at the inner corner and the middle of the tool
-  vNotchCutter = translate([vertThickness, width / 2, -horizThickness], vNotchCutter);
+  vNotchCutter = translate([vertThickness, width / 2, -horizThickness - 8.5], vNotchCutter);
 
   toolBody = subtract(toolBody, vNotchCutter);
   let guide = subtract(toolBody, hole);

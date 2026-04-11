@@ -221,8 +221,8 @@ function generateFaceGuideSVG(thickness, diameter) {
       />
 
       <!-- V-Notch indicator -->
-      <line x1="${x0 - 20}" y1="${y0 - 20}" x2="${x0 - 2}" y2="${y0 - 2}" stroke="#F37021" stroke-width="1.5" marker-end="url(#arrow)" />
-      <text x="${x0 - 25}" y="${y0 - 25}" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#F37021">Encoche en V</text>
+      <line x1="${x0 - 25}" y1="${y0 + dhT + 5}" x2="${x0 - 5}" y2="${y0 + dhT + 12}" stroke="#F37021" stroke-width="1.5" marker-end="url(#arrow)" />
+      <text x="${x0 - 30}" y="${y0 + dhT}" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#F37021">Encoche en V</text>
 
 
       <!-- Hole -->
