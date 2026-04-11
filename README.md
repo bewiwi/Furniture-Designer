@@ -39,11 +39,17 @@ Then visit [http://localhost:8080/](http://localhost:8080/).
    ```bash
    npm install
    ```
-3. Start the development server:
+3. Start the application development server:
    ```bash
    npm run dev
    ```
 The application will be available at [http://localhost:5173/](http://localhost:5173/).
+
+4. Start the **documentation** development server (VitePress):
+   ```bash
+   npm run docs:dev
+   ```
+The multi-lingual documentation will be available at [http://localhost:5174/](http://localhost:5174/).
 
 ### Production Build
 To generate optimized static files:
