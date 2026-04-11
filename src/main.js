@@ -107,6 +107,58 @@ function resolveNode(nodeId) {
     : findNodeById(appState.furniture.root, nodeId);
 }
 
+/**
+ * Updates the URL hash to match current application state.
+ * Only pushes to history if the hash has actually changed.
+ */
+function updateHashFromState() {
+  const params = new URLSearchParams();
+  
+  if (appState.currentView && appState.currentView !== 'design') {
+    params.set('view', appState.currentView);
+  }
+  
+  if (appState.selectedNodeId && appState.furniture && appState.selectedNodeId !== appState.furniture.root.id) {
+    params.set('node', appState.selectedNodeId);
+  }
+  
+  const hashString = params.toString();
+  const newHash = hashString ? '#' + hashString : '';
+  
+  const currentHash = window.location.hash === '#' ? '' : window.location.hash;
+  if (currentHash !== newHash) {
+    history.pushState(null, '', newHash || window.location.pathname);
+  }
+}
+
+/**
+ * Updates application state based on the URL hash.
+ */
+function applyHashToState(triggerUpdate = true) {
+  const hashString = window.location.hash.startsWith('#') ? window.location.hash.substring(1) : window.location.hash;
+  const params = new URLSearchParams(hashString);
+  
+  const newView = params.get('view') || 'design';
+  const newNodeId = params.get('node') || (appState.furniture ? appState.furniture.root.id : null);
+  
+  let stateChanged = false;
+  
+  if (appState.currentView !== newView) {
+    appState.currentView = newView;
+    stateChanged = true;
+  }
+  
+  if (appState.selectedNodeId !== newNodeId) {
+    appState.selectedNodeId = newNodeId;
+    stateChanged = true;
+  }
+  
+  if (stateChanged && triggerUpdate) {
+    fullUpdate();
+  }
+  return stateChanged;
+}
+
 // =============================================================================
 // Initialization
 // =============================================================================
@@ -173,8 +225,16 @@ function init() {
     }
   }
 
+  // Override selectedNodeId and currentView based on URL Hash
+  applyHashToState(false);
+
   // First full update
   fullUpdate();
+
+  // Listen to browser Back/Forward navigation
+  window.addEventListener('hashchange', () => {
+    applyHashToState(true);
+  });
 
   // Keyboard shortcuts
   document.addEventListener('keydown', handleKeyboard);
@@ -358,6 +418,7 @@ function onSelectNode(nodeId) {
   }
 
   fullUpdate();
+  updateHashFromState();
 }
 
 const formCallbacks = {
@@ -618,6 +679,7 @@ const toolbarCallbacks = {
   onChangeView(view) {
     appState.currentView = view;
     fullUpdate();
+    updateHashFromState();
   },
 
   onToggleLocks() {
