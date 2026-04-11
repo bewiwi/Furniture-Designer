@@ -9,9 +9,6 @@ hero:
     - theme: brand
       text: Get Started
       link: /design
-    - theme: alt
-      text: Launch App
-      link: https://bewiwi.github.io/Furniture-Designer/
 
 features:
   - title: Intuitive 3D Partitioning
