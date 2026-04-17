@@ -1,17 +1,17 @@
-# Stage 1: Build (runs natively on the host, not under QEMU)
-FROM --platform=$BUILDPLATFORM node:20-slim AS build
+# Stage 1: Build
+FROM node:20-alpine AS build
 
 WORKDIR /app
 
 # Copy package files and install dependencies
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 # Copy source and build
 COPY . .
 RUN npm run build
 
-# Stage 2: Production (multi-arch nginx, no Node.js needed)
+# Stage 2: Production
 FROM nginx:stable-alpine
 
 # Copy built assets from Stage 1
