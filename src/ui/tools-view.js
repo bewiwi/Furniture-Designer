@@ -175,10 +175,12 @@ function generateEdgeGuideSVG(thickness, diameter) {
  * Renders an SVG cross-section of the face guide
  */
 function generateFaceGuideSVG(thickness, diameter) {
-  const vH = 30;
-  const vT = 5;
-  const hL = thickness/2 + 20;
   const hT = 10;
+  const vT = 5;
+  const bT = 5;
+  const gap = thickness;
+  const vH = hT + gap + bT;
+  const hL = thickness/2 + 20;
   
   const hO = thickness/2; // hole offset
 
@@ -189,6 +191,8 @@ function generateFaceGuideSVG(thickness, diameter) {
   const dhL = hL * svgScale;
   const dhT = hT * svgScale;
   const dhO = hO * svgScale;
+  const dbT = bT * svgScale;
+  const dGap = gap * svgScale;
 
   const x0 = 150 - (dhL + dvT)/2;
   const y0 = 50;
@@ -206,24 +210,25 @@ function generateFaceGuideSVG(thickness, diameter) {
       </style>
       
       <!-- Board representation -->
-      <rect x="${x0 + dvT}" y="${y0 + dhT}" width="${dhL + 30}" height="40" fill="rgba(139,69,19,0.1)" stroke="#8b4513" stroke-width="1" stroke-dasharray="2 2" />
+      <rect x="${x0 + dvT}" y="${y0 + dhT}" width="${dhL + 30}" height="${dGap}" fill="rgba(139,69,19,0.1)" stroke="#8b4513" stroke-width="1" stroke-dasharray="2 2" />
       <rect x="${x0 - 40}" y="${y0 + dhT}" width="${40 + dvT}" height="80" fill="rgba(139,69,19,0.1)" stroke="#8b4513" stroke-width="1" stroke-dasharray="2 2" />
 
-      <!-- L Block -->
+      <!-- U Block -->
       <path class="block" d="
         M ${x0} ${y0}
         L ${x0 + dvT + dhL} ${y0}
         L ${x0 + dvT + dhL} ${y0 + dhT}
         L ${x0 + dvT} ${y0 + dhT}
-        L ${x0 + dvT} ${y0 + dhT + dvH}
-        L ${x0} ${y0 + dhT + dvH}
+        L ${x0 + dvT} ${y0 + dhT + dGap}
+        L ${x0 + dvT + dhL} ${y0 + dhT + dGap}
+        L ${x0 + dvT + dhL} ${y0 + dvH}
+        L ${x0} ${y0 + dvH}
         Z" 
       />
 
       <!-- V-Notch indicator -->
       <line x1="${x0 - 25}" y1="${y0 + dhT + 5}" x2="${x0 - 5}" y2="${y0 + dhT + 12}" stroke="#F37021" stroke-width="1.5" marker-end="url(#arrow)" />
       <text x="${x0 - 30}" y="${y0 + dhT}" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#F37021">Encoche en V</text>
-
 
       <!-- Hole -->
       <line class="quote-dash" x1="${x0 + dvT + dhO}" y1="${y0 - 15}" x2="${x0 + dvT + dhO}" y2="${y0 + dhT + 20}" />

@@ -123,23 +123,16 @@ export function createEdgeGuideGeometry(thickness, diameter, margin = 50) {
  */
 export function createFaceGuideGeometry(thickness, diameter) {
   const horizThickness = 10;
-  // The vertical registration lip (vertHeight - horizThickness) must be slightly
-  // less than the board thickness so it doesn't bottom out on the workbench.
-  // We use Math.max(..., 2) to ensure the lip is at least 2mm long to prevent 
-  // negative size errors in edge-case tests with tiny thickness values.
-  const lipLength = Math.max(thickness - 2, 2);
-  const vertHeight = lipLength + horizThickness;
   const vertThickness = 5;
+  const bottomThickness = 5;
+  const tolerance = 0.4;
+  
+  // The tool wraps around the board. Total height accommodates the top arm, board thickness, and bottom arm.
+  const vertHeight = horizThickness + thickness + tolerance + bottomThickness;
   const width = 60;
   
   const horizLength = (thickness / 2) + 20; // Enough space for hole and margin
 
-  // Vertical arm
-  let vertArm = cuboid({
-    size: [horizLength + vertThickness, width, vertThickness],
-    center: [(horizLength + vertThickness) / 2, width / 2, -(vertThickness / 2)]
-  });
-  
   // Outer bounding block with smooth rounded edges
   let toolBody = roundedCuboid({
     size: [horizLength + vertThickness, width, vertHeight],
@@ -148,11 +141,11 @@ export function createFaceGuideGeometry(thickness, diameter) {
     segments: 16
   });
 
-  // Sharp cut-out block to carve the L-shape and leave a perfectly sharp 90-degree internal angle
-  // Cutout spans from X=vertThickness to the end, and from Z=-horizThickness downwards
+  // Sharp cut-out block to carve the U-shape and leave perfectly sharp internal angles
+  // Cutout spans from X=vertThickness to the end, and its height matches the board thickness + tolerance
   let cutout = cuboid({
-    size: [horizLength, width, vertHeight - horizThickness],
-    center: [vertThickness + (horizLength / 2), width / 2, -(horizThickness + (vertHeight - horizThickness) / 2)]
+    size: [horizLength, width, thickness + tolerance],
+    center: [vertThickness + (horizLength / 2), width / 2, -(horizThickness + (thickness + tolerance) / 2)]
   });
 
   // Dowel hole must reside at `thickness / 2` away from the edge (i.e. away from the inner corner).

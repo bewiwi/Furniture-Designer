@@ -396,14 +396,62 @@ function generateUnfoldedAnnotations(edgeGroups, x0, y0, drawL, drawW, drawT, L,
       mainCols[rxKey].push(h);
     }
 
-    for (const rxKey of Object.keys(mainCols)) {
+    const rxKeys = Object.keys(mainCols).map(Number).sort((a, b) => a - b);
+
+    // 1. Draw horizontal chain of quotes for X positions across the top of the main face
+    const hLineY = y0 + 15;
+    for (let i = 0; i < rxKeys.length; i++) {
+      if (i === 0) {
+        const xStart = x0;
+        const xEnd = rxKeys[0];
+        svg += `<line class="h-ql" x1="${xStart}" y1="${hLineY}" x2="${xEnd}" y2="${hLineY}" />`;
+        const dimMm = Math.round(mainCols[rxKeys[0]][0].posL);
+        if (dimMm > 0) svg += `<text class="h-qt" x="${(xStart + xEnd) / 2}" y="${hLineY - 4}" text-anchor="middle">${dimMm}</text>`;
+      } else {
+        const xStart = rxKeys[i - 1];
+        const xEnd = rxKeys[i];
+        svg += `<line class="h-ql" x1="${xStart}" y1="${hLineY}" x2="${xEnd}" y2="${hLineY}" />`;
+        const dimMm = Math.round(mainCols[rxKeys[i]][0].posL - mainCols[rxKeys[i - 1]][0].posL);
+        svg += `<text class="h-qt" x="${(xStart + xEnd) / 2}" y="${hLineY - 4}" text-anchor="middle">${dimMm}</text>`;
+      }
+    }
+    // Also from last column to right edge
+    const xStartEnd = rxKeys[rxKeys.length - 1];
+    const xEndEnd = x0 + drawL;
+    svg += `<line class="h-ql" x1="${xStartEnd}" y1="${hLineY}" x2="${xEndEnd}" y2="${hLineY}" />`;
+    const dimMmEnd = Math.round(L - mainCols[rxKeys[rxKeys.length - 1]][0].posL);
+    if (dimMmEnd > 0) svg += `<text class="h-qt" x="${(xStartEnd + xEndEnd) / 2}" y="${hLineY - 4}" text-anchor="middle">${dimMmEnd}</text>`;
+
+    // 2. Draw vertical quotes for Y positions in each column, and hole spec labels
+    for (const rxKey of rxKeys) {
       const colGroup = mainCols[rxKey];
-      const lineX = Number(rxKey) + 20; // this was slightly offset right
+      const lineX = rxKey + 12; // slightly offset right
       const sorted = [...colGroup].sort((a, b) => a.posW - b.posW);
       const textAnchor = 'start';
 
+      for (let i = 0; i < sorted.length; i++) {
+        if (i === 0) {
+          const yStart = y0;
+          const yEnd = sorted[0].rY;
+          svg += `<line class="h-ql" x1="${lineX}" y1="${yStart}" x2="${lineX}" y2="${yEnd}" />`;
+          const dimMm = Math.round(sorted[0].posW);
+          if (dimMm > 0) svg += `<text class="h-qt" x="${lineX + 4}" y="${(yStart + yEnd) / 2 + 4}" text-anchor="${textAnchor}">${dimMm}</text>`;
+        } else {
+          const yStart = sorted[i - 1].rY;
+          const yEnd = sorted[i].rY;
+          svg += `<line class="h-ql" x1="${lineX}" y1="${yStart}" x2="${lineX}" y2="${yEnd}" />`;
+          const dimMm = Math.round(sorted[i].posW - sorted[i - 1].posW);
+          svg += `<text class="h-qt" x="${lineX + 4}" y="${(yStart + yEnd) / 2 + 4}" text-anchor="${textAnchor}">${dimMm}</text>`;
+        }
+      }
+      const yStartEnd = sorted[sorted.length - 1].rY;
+      const yEndLine = y0 + drawW;
+      svg += `<line class="h-ql" x1="${lineX}" y1="${yStartEnd}" x2="${lineX}" y2="${yEndLine}" />`;
+      const dimMmYEnd = Math.round(W - sorted[sorted.length - 1].posW);
+      if (dimMmYEnd > 0) svg += `<text class="h-qt" x="${lineX + 4}" y="${(yStartEnd + yEndLine) / 2 + 4}" text-anchor="${textAnchor}">${dimMmYEnd}</text>`;
+
       const depth = sorted[0].depth;
-      let specX = Number(rxKey); // put right on top of the column!
+      let specX = rxKey; // put right on top of the column!
       let specY = y0 - 8;
       specY = avoidOverlap(specX, specY, -1, 'middle'); // center on the column
       shiftUp = Math.max(shiftUp, y0 - specY + 12);
