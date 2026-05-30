@@ -121,7 +121,7 @@ export function createEdgeGuideGeometry(thickness, diameter, margin = 50) {
  * @param {number} diameter - Dowel diameter (mm)
  * @returns {Array} JSCAD solid array
  */
-export function createFaceGuideGeometry(thickness, diameter) {
+export function createFaceGuideGeometry(thickness, diameter, margin = 50) {
   const horizThickness = 10;
   const vertThickness = 5;
   const bottomThickness = 5;
@@ -131,7 +131,7 @@ export function createFaceGuideGeometry(thickness, diameter) {
   const vertHeight = horizThickness + thickness + tolerance + bottomThickness;
   const width = 60;
   
-  const horizLength = (thickness / 2) + 20; // Enough space for hole and margin
+  const horizLength = margin + 20; // Enough space for hole and structural margin
 
   // Outer bounding block with smooth rounded edges
   let toolBody = roundedCuboid({
@@ -148,9 +148,9 @@ export function createFaceGuideGeometry(thickness, diameter) {
     center: [vertThickness + (horizLength / 2), width / 2, -(horizThickness + (thickness + tolerance) / 2)]
   });
 
-  // Dowel hole must reside at `thickness / 2` away from the edge (i.e. away from the inner corner).
+  // Dowel hole must reside at `margin` away from the edge (i.e. away from the inner corner).
   // The inner face of the vertical arm is at x = vertThickness.
-  const holeX = vertThickness + (thickness / 2);
+  const holeX = vertThickness + margin;
   let hole = cylinder({
     radius: diameter / 2,
     height: horizThickness * 2,
@@ -177,8 +177,8 @@ export function createFaceGuideGeometry(thickness, diameter) {
   let guide = subtract(toolBody, hole);
   
   // Engrave text on horizontal arm, beside the hole
-  // Distance to border for the face guide is exactly thickness/2
-  let label = generateText3D(`D${diameter} M${thickness/2}`);
+  // Distance to border for the face guide is exactly margin
+  let label = generateText3D(`D${diameter} M${margin}`);
   label = translate([vertThickness + horizLength / 2, 8, -0.5], label);
   guide = subtract(guide, label);
   

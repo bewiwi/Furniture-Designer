@@ -70,7 +70,7 @@ export function renderToolsView(container, furniture) {
           <div class="tool-content">
             <div class="tool-specs">
               <p>${t('tools.face_guide.desc')}</p>
-               ${generateFaceGuideSVG(thickness, diameter)}
+               ${generateFaceGuideSVG(thickness, diameter, margin)}
             </div>
             <div class="tool-3d-preview" id="tool-preview-face"></div>
           </div>
@@ -82,7 +82,7 @@ export function renderToolsView(container, furniture) {
 
   // Initialize geometries
   const edgeGeo = createEdgeGuideGeometry(thickness, diameter, margin);
-  const faceGeo = createFaceGuideGeometry(thickness, diameter);
+  const faceGeo = createFaceGuideGeometry(thickness, diameter, margin);
 
   // Initialize Viewers
   const edgeContainer = document.getElementById('tool-preview-edge');
@@ -103,7 +103,7 @@ export function renderToolsView(container, furniture) {
   };
 
   document.getElementById('btn-stl-face').onclick = () => {
-    exportSTL(faceGeo, `face-guide-${thickness}mm`);
+    exportSTL(faceGeo, `face-guide-${thickness}mm-margin${margin}mm`);
   };
 }
 
@@ -174,15 +174,15 @@ function generateEdgeGuideSVG(thickness, diameter) {
 /**
  * Renders an SVG cross-section of the face guide
  */
-function generateFaceGuideSVG(thickness, diameter) {
+function generateFaceGuideSVG(thickness, diameter, margin) {
   const hT = 10;
   const vT = 5;
   const bT = 5;
   const gap = thickness;
   const vH = hT + gap + bT;
-  const hL = thickness/2 + 20;
+  const hL = margin + 20;
   
-  const hO = thickness/2; // hole offset
+  const hO = margin; // hole offset
 
   const svgScale = 180 / Math.max(hL + vT, vH);
   
@@ -235,9 +235,9 @@ function generateFaceGuideSVG(thickness, diameter) {
       <!-- Top hole opening -->
       <ellipse cx="${x0 + dvT + dhO}" cy="${y0}" rx="${(diameter/2)*svgScale}" ry="3" fill="white" stroke="#F37021" stroke-width="1.5" />
 
-      <!-- Offset quote (thickness/2) -->
+      <!-- Offset quote (margin) -->
       <line class="quote" x1="${x0 + dvT}" y1="${y0 - 20}" x2="${x0 + dvT + dhO}" y2="${y0 - 20}" />
-      <text x="${x0 + dvT + dhO/2}" y="${y0 - 28}" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#333">${thickness/2} mm</text>
+      <text x="${x0 + dvT + dhO/2}" y="${y0 - 28}" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#333">${margin} mm</text>
     </svg>
   `;
 }

@@ -80,7 +80,7 @@ const dictionaries = {
     'tools.edge_guide.title': 'Edge Guide',
     'tools.edge_guide.desc': 'A U-channel block to center the drill on the edge grain.',
     'tools.face_guide.title': 'Face Guide (Équerre)',
-    'tools.face_guide.desc': 'An L-shaped registration piece to distance the drill perfectly from the edge for face holes.',
+    'tools.face_guide.desc': 'A U-shaped registration piece to distance the drill perfectly from the edge for face holes.',
     'tools.download_stl': 'Download STL',
 
 
@@ -261,7 +261,7 @@ const dictionaries = {
     'tools.edge_guide.title': 'Guide de Chant',
     'tools.edge_guide.desc': 'Un bloc en U pour centrer le perçage sur le chant.',
     'tools.face_guide.title': 'Guide Équerre (Face)',
-    'tools.face_guide.desc': 'Une équerre pour distancer parfaitement le foret par rapport au bord pour les trous de face.',
+    'tools.face_guide.desc': 'Une équerre en U pour distancer parfaitement le foret par rapport au bord pour les trous de face.',
     'tools.download_stl': 'Télécharger STL',
 
 
